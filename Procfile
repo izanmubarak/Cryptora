@@ -1,1 +1,1 @@
-worker: python Cryptogram.py
+web: python Cryptogram.py
