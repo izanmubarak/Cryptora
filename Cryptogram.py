@@ -39,7 +39,7 @@ updater = Updater(token)
 # add handlers
 updater.start_webhook(listen="0.0.0.0",
                       port=PORT,
-                      url_path=TOKEN)
+                      url_path=token)
 updater.bot.set_webhook("http://nameless-lowlands-65973.herokuapp.com" + token)
 updater.idle()
 
