@@ -14,6 +14,7 @@ page = requests.get(URL)
 from bs4 import BeautifulSoup
 soup = BeautifulSoup(page.content, 'html.parser')
 BTCPrice = soup.find_all('span', class_="text-large")[0].get_text()
+"{:,}".format(BTCPrice)
 formattedPrice = "1 BTC = " + BTCPrice
 
 def priceBTC(bot, update): 
