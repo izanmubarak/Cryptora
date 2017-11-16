@@ -21,14 +21,14 @@ btcPriceFloated = float(btcPriceNoDollarSign)
 btcPriceWithCommas = "{:,}".format(btcPriceFloated)
 formattedPrice = "1 BTC = $" + btcPriceWithCommas
 
-def priceBTC(bot, update): 
+def btc(bot, update): 
 	bot.send_message(chat_id=update.message.chat_id, text=formattedPrice)
 
 def insultMe(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Go fuck yourself.")
 
 from telegram.ext import CommandHandler
-start_handler = CommandHandler('priceBTC', priceBTC)
+start_handler = CommandHandler('btc', btc)
 dispatcher.add_handler(start_handler)
 
 insultMe_handler = CommandHandler('insultMe', insultMe)
