@@ -14,8 +14,12 @@ page = requests.get(URL)
 from bs4 import BeautifulSoup
 soup = BeautifulSoup(page.content, 'html.parser')
 BTCPrice = soup.find_all('span', class_="text-large")[0].get_text()
-"{:,}".format(BTCPrice)
-formattedPrice = "1 BTC = " + BTCPrice
+
+# This code block adds a thousands separator to the given price.
+btcPriceNoDollarSign = BTCPrice[1:]
+btcPriceFloated = float(btcPriceNoDollarSign)
+btcPriceWithCommas = "{:,}".format(btcPriceFloated)
+formattedPrice = "1 BTC = $" + btcPriceWithCommas
 
 def priceBTC(bot, update): 
 	bot.send_message(chat_id=update.message.chat_id, text=formattedPrice)
