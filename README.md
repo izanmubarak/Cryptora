@@ -4,7 +4,7 @@ Cryptogram is a Telegram bot service that can retrieve cryptocurrency prices (Bi
 
 **How it was built**
 
-Cryptogram was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework, a powerful, easy-to-use platform for building Telegram bots in Python. Prices are retrieved from [CoinMarketCap](coinmarketcap.com) using a web-scraper implemented in BeautifulSoup4. The bot pulls the latest price of the chosen cryptocurrency from CoinMarketCap when it receives a request from the user.
+Cryptogram was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework, a powerful, easy-to-use platform for building Telegram bots in Python. Prices are retrieved from [CoinMarketCap](http://coinmarketcap.com) using a web-scraper implemented in BeautifulSoup4. The bot pulls the latest price of the chosen cryptocurrency from CoinMarketCap when it receives a request from the user.
  
 **Adding Cryptogram to your group chat**
 
