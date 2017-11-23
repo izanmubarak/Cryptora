@@ -6,14 +6,12 @@
 from uuid import uuid4
 import re
 from telegram.utils.helpers import escape_markdown
-from telegram import InlineQueryResultArticle, ParseMode, \
-    InputTextMessageContent
+from telegram import InlineQueryResultArticle, ParseMode,InputTextMessageContent, InlineQueryResultPhoto
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler
 import logging
 import sys
 import requests
 from decimal import Decimal
-from bs4 import BeautifulSoup
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=1315'
@@ -32,7 +30,7 @@ def retrieveRank(query):
 		if query.upper() == JSON_DATA[x]['symbol'] or \
 		(query.lower() == JSON_DATA[x]['id']) or \
 		(query.title() == JSON_DATA[x]['name']):
-			return x
+			return int(x)
 
 def convertToFullName(query):
 
@@ -121,10 +119,7 @@ def formattedSummary(price, cap, supplyValue, percentChange, name, symbol):
 
 	# Returns a summary of the cryptocurrency.
 
-	summary = name.upper() + '\n \n' + 'Price: $' + price + '\n' + \
-	 'Market Capitalization: $' + cap + '\n' + 'Circulating Supply: ' + \
-	 supplyValue + " " + symbol + '\n' + '24 Hour Percent Change: ' + \
-	 percentChange + "%" + "\n"
+	summary = "***" + name + "***" + " (" + symbol + ")" + '\n \n' + '***Price***: $' + price + '\n' + '***Market Capitalization***: $' + cap + '\n' + '***Circulating Supply***: ' + supplyValue + " " + symbol + '\n' + '***24 Hour Percent Change***: ' + percentChange + "% \n"
 	return summary
 
 def inlinequery(bot, update):
@@ -135,7 +130,6 @@ def inlinequery(bot, update):
 		# Market capitalization (done!)
 		# Circulating supply (done!)
 		# 24hr % change (done!)
-		# 7 day price graph
 		# A summary of the cryptocurrency, which provides the aforementioned 
 			# data in a single message. (done!)
 
@@ -161,7 +155,7 @@ def inlinequery(bot, update):
             title=(cryptoName),
             thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' \
              + cryptoID + '.png',
-            input_message_content=InputTextMessageContent(summary)),
+            input_message_content=InputTextMessageContent(summary, parse_mode=ParseMode.MARKDOWN)),
 
     	# USD Price
     	InlineQueryResultArticle(
@@ -199,14 +193,7 @@ def inlinequery(bot, update):
             input_message_content=\
             InputTextMessageContent("24 Hour Change in " + cryptoName + " (" + \
 			 str(retrieveCryptoSymbol(cryptoName)) + ")" + " Price: " + \
-			 retrieveAndFormatCirculatingSupply(cryptoName) + "%")),
-
-        # 7 Day Price Graph
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title=("7 Day Price Graph"),
-            input_message_content=InputTextMessageContent("Nothing here yet."))
-
+			 retrieveAndFormatCirculatingSupply(cryptoName) + "%"))
         ]
 
 	update.inline_query.answer(results)
@@ -214,7 +201,6 @@ def inlinequery(bot, update):
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
-
 
 def main():
     # Create the Updater and pass it your bot's token.
