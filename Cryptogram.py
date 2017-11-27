@@ -122,6 +122,36 @@ def formattedSummary(price, cap, supplyValue, percentChange, name, symbol):
 	summary = "***" + name + "***" + " (" + symbol + ")" + '\n \n' + '***Price***: $' + price + '\n' + '***Market Capitalization***: $' + cap + '\n' + '***Circulating Supply***: ' + supplyValue + " " + symbol + '\n' + '***24 Hour Percent Change***: ' + percentChange + "% \n"
 	return summary
 
+def determineInputCurrency(query):
+	# Returns price of input currency in a ConvertQuery.
+	for x in range (0, 1314):
+		if JSON_DATA[x]['symbol'] in query.upper():
+			return float(JSON_DATA[x]['price_usd'])
+
+def calculatePrice(query):
+
+	for x in range (0, 1314):
+		if JSON_DATA[x]['symbol'] in query:
+			userInputCryptoSymbol = JSON_DATA[x]['symbol']
+	userInputValue = float(re.findall(r"[-+]?\d*\.\d+|\d+", query)[0])
+	userInputCryptoPrice = determineInputCurrency(query)
+	calculatedPrice = (userInputValue * userInputCryptoPrice)
+
+	formattedPrice = round(calculatedPrice, 2)
+	formattedPrice = "{:,}".format(formattedPrice)
+
+	return formattedPrice 
+
+def retrieveConvertQueryUserInputValue(query):
+
+	return (re.findall(r"[-+]?\d*\.\d+|\d+", query)[0])
+
+def retrieveConvertQuerySymbol(query):
+
+	for x in range (0, 1314):
+		if JSON_DATA[x]['symbol'] in query.upper():
+			return JSON_DATA[x]['symbol']
+
 def inlinequery(bot, update):
 
 	# This function handles all queries to the bot. 
@@ -134,66 +164,76 @@ def inlinequery(bot, update):
 			# data in a single message. (done!)
 
 	query = update.inline_query.query
+	
 
-	# Cryptocurrency data, stored and properly formatted in different variables.
-	cryptoName = convertToFullName(query)
-	formattedCryptoPrice = retrieveAndFormatCryptoPrice(cryptoName) 
-	formattedMarketCap = retrieveAndFormatCryptoMarketCap(cryptoName)
-	formattedSupplyValue = retrieveAndFormatCirculatingSupply(cryptoName)
-	formattedPercentChange = retrieveAndFormat24HourPercentChange(cryptoName)
-	cryptoSymbol = retrieveCryptoSymbol(cryptoName)
-	summary = formattedSummary(formattedCryptoPrice, \
-		formattedMarketCap, formattedSupplyValue, formattedPercentChange, \
-		cryptoName, cryptoSymbol)
-	cryptoID = retrieveCryptoID(cryptoName)
+	if query[0].isdigit():
+		convertQueryInputValue = retrieveConvertQueryUserInputValue(query)
+		convertQuerySymbol = retrieveConvertQuerySymbol(query)
+		convertQueryPrice = calculatePrice(query)
+		results = [
+			InlineQueryResultArticle(
+				id=uuid4(),
+				title=("Convert " + convertQueryInputValue + " " + convertQuerySymbol + " to USD"),
+				input_message_content=InputTextMessageContent(convertQueryInputValue + " " + convertQuerySymbol + " = $" + convertQueryPrice))
+		]
+	
+	else:
+		# Cryptocurrency data, stored and properly formatted in different variables.
+		cryptoName = convertToFullName(query)
+		formattedCryptoPrice = retrieveAndFormatCryptoPrice(cryptoName) 
+		formattedMarketCap = retrieveAndFormatCryptoMarketCap(cryptoName)
+		formattedSupplyValue = retrieveAndFormatCirculatingSupply(cryptoName)
+		formattedPercentChange = retrieveAndFormat24HourPercentChange(cryptoName)
+		cryptoSymbol = retrieveCryptoSymbol(cryptoName)
+		summary = formattedSummary(formattedCryptoPrice, formattedMarketCap, formattedSupplyValue, formattedPercentChange, cryptoName, cryptoSymbol)
+		cryptoID = retrieveCryptoID(cryptoName)
 
-	results = [
+		results = [
+    		# Summary
+    		InlineQueryResultArticle(
+            	id=uuid4(),
+            	title=(cryptoName),
+            	thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' \
+            	 + cryptoID + '.png',
+            	input_message_content=InputTextMessageContent(summary, parse_mode=ParseMode.MARKDOWN)),
 
-    	# Summary
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title=(cryptoName),
-            thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' \
-             + cryptoID + '.png',
-            input_message_content=InputTextMessageContent(summary, parse_mode=ParseMode.MARKDOWN)),
+    		# USD Price
+    		InlineQueryResultArticle(
+        		id=uuid4(),
+        		title=("Price (USD)"),
+        		thumb_url="https://imgur.com/7RCGCoc.png",
+        		input_message_content=InputTextMessageContent("1 " + \
+        			str(retrieveCryptoSymbol(query)) + " = $" + \
+        			str(retrieveAndFormatCryptoPrice(cryptoName)))),
 
-    	# USD Price
-    	InlineQueryResultArticle(
-        	id=uuid4(),
-        	title=("Price (USD)"),
-        	thumb_url="https://imgur.com/7RCGCoc.png",
-        	input_message_content=InputTextMessageContent("1 " + \
-        		str(retrieveCryptoSymbol(query)) + " = $" + \
-        		str(retrieveAndFormatCryptoPrice(cryptoName)))),
+    		# Market Capitalization (USD)
+        	InlineQueryResultArticle(
+            	id=uuid4(),
+            	title=("Market Capitalization (USD)"),
+            	thumb_url="https://i.imgur.com/UMczLVP.png",
+            	input_message_content=InputTextMessageContent\
+            	("Market Capitalization of " + cryptoName + " (" + \
+				 	str(retrieveCryptoSymbol(query)) + ")" + ": $" + \
+			 		str(retrieveAndFormatCryptoMarketCap(cryptoName)))),
 
-    	# Market Capitalization (USD)
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title=("Market Capitalization (USD)"),
-            thumb_url="https://i.imgur.com/UMczLVP.png",
-            input_message_content=InputTextMessageContent\
-            ("Market Capitalization of " + cryptoName + " (" + \
-			 str(retrieveCryptoSymbol(query)) + ")" + ": $" + \
-			 str(retrieveAndFormatCryptoMarketCap(cryptoName)))),
+        	# Circulating Supply 
+        	InlineQueryResultArticle(
+            	id=uuid4(),
+            	title=("Circulating Supply"),
+            	input_message_content=\
+            	InputTextMessageContent("Circulating Supply of " + cryptoName + \
+            		" (" + str(retrieveCryptoSymbol(query)) + ")" + ": " + \
+            		str(retrieveAndFormatCirculatingSupply(cryptoName)) + \
+            		" " + str(retrieveCryptoSymbol(query)))),
 
-        # Circulating Supply 
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title=("Circulating Supply"),
-            input_message_content=\
-            InputTextMessageContent("Circulating Supply of " + cryptoName + \
-            	" (" + str(retrieveCryptoSymbol(query)) + ")" + ": " + \
-            	str(retrieveAndFormatCirculatingSupply(cryptoName)) + \
-            	" " + str(retrieveCryptoSymbol(query)))),
-
-        # 24 Hour Percent Change
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title=("Percent Change (24 hours)"),
-            input_message_content=\
-            InputTextMessageContent("24 Hour Change in " + cryptoName + " (" + \
-			 str(retrieveCryptoSymbol(cryptoName)) + ")" + " Price: " + \
-			 retrieveAndFormatCirculatingSupply(cryptoName) + "%"))
+        	# 24 Hour Percent Change
+        	InlineQueryResultArticle(
+            	id=uuid4(),
+            	title=("Percent Change (24 hours)"),
+            	input_message_content=\
+            	InputTextMessageContent("24 Hour Change in " + cryptoName + " (" + \
+			 	str(retrieveCryptoSymbol(cryptoName)) + ")" + " Price: " + \
+			 	retrieveAndFormatCirculatingSupply(cryptoName) + "%"))
         ]
 
 	update.inline_query.answer(results)
