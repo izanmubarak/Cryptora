@@ -1,6 +1,6 @@
 ''' CRYPTOGRAM '''
 # A Telegram bot built in Python that specializes in retrieving information 
-# about your favorite cryptocurrency. Data sourced from CoinMarketCap.com. 
+# about your favorite cryptocurrency. Current data sourced from CoinMarketCap. Historical data sourced from Coinbase.
 
 # Dependencies.
 from uuid import uuid4
@@ -122,40 +122,36 @@ def formattedSummary(price, cap, supplyValue, percentChange, name, symbol):
 	summary = "***" + name + "***" + " (" + symbol + ")" + '\n \n' + '***Price***: $' + price + '\n' + '***Market Capitalization***: $' + cap + '\n' + '***Circulating Supply***: ' + supplyValue + " " + symbol + '\n' + '***24 Hour Percent Change***: ' + percentChange + "% \n"
 	return summary
 
-def determineInputCurrency(query):
-	# Returns price of input currency in a ConvertQuery.
-	for x in range (0, 1314):
-		if JSON_DATA[x]['symbol'] in query.upper():
-			return float(JSON_DATA[x]['price_usd'])
+def calculatePrice(query, convertQuerySymbol):
 
-def calculatePrice(query):
-
-	for x in range (0, 1314):
-		if JSON_DATA[x]['symbol'] in query:
-			userInputCryptoSymbol = JSON_DATA[x]['symbol']
 	userInputValue = float(re.findall(r"[-+]?\d*\.\d+|\d+", query)[0])
-	userInputCryptoPrice = determineInputCurrency(query)
-	calculatedPrice = (userInputValue * userInputCryptoPrice)
-
-	formattedPrice = round(calculatedPrice, 2)
-	formattedPrice = "{:,}".format(formattedPrice)
-
-	return formattedPrice 
+	
+	for x in range (0, 1314): 
+		if convertQuerySymbol == JSON_DATA[x]['symbol']:
+			userInputCryptoPrice = float(JSON_DATA[x]['price_usd'])
+			calculatedPrice = (userInputValue * userInputCryptoPrice)
+			formattedPrice = round(calculatedPrice, 2)
+			formattedPrice = "{:,}".format(formattedPrice)
+			return formattedPrice
 
 def retrieveConvertQueryUserInputValue(query):
 
 	return (re.findall(r"[-+]?\d*\.\d+|\d+", query)[0])
 
-def retrieveConvertQuerySymbol(query):
+def retrieveConvertQueryCryptoName(query):
 
-	for x in range (0, 1314):
-		if JSON_DATA[x]['symbol'] in query.upper():
-			return JSON_DATA[x]['symbol']
+	convertQueryName = ""
+	splitQueryLength = len(query.split(" "))
+	for x in range (1, splitQueryLength):
+		convertQueryName += query.split(" ")[x] + " "
+
+	return convertQueryName[:-1]
 
 def inlinequery(bot, update):
 
 	# This function handles all queries to the bot. 
-	# It directs user choice by providing 6 options: 
+	# It directs user choice by providing 7 options: 
+		# CryptoCalculator (done!)
 		# Price (done!)
 		# Market capitalization (done!)
 		# Circulating supply (done!)
@@ -164,20 +160,26 @@ def inlinequery(bot, update):
 			# data in a single message. (done!)
 
 	query = update.inline_query.query
-	
 
 	if query[0].isdigit():
+		# CryptoCalculator.
 		convertQueryInputValue = retrieveConvertQueryUserInputValue(query)
-		convertQuerySymbol = retrieveConvertQuerySymbol(query)
-		convertQueryPrice = calculatePrice(query)
+		nameConvertQuery = retrieveConvertQueryCryptoName(query)
+		convertQuerySymbol = retrieveCryptoSymbol(nameConvertQuery)
+		convertQueryID = retrieveCryptoID(nameConvertQuery)
+		convertQueryPrice = calculatePrice(query, convertQuerySymbol)
 		results = [
 			InlineQueryResultArticle(
 				id=uuid4(),
+				thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' + convertQueryID + '.png',
 				title=("Convert " + convertQueryInputValue + " " + convertQuerySymbol + " to USD"),
 				input_message_content=InputTextMessageContent(convertQueryInputValue + " " + convertQuerySymbol + " = $" + convertQueryPrice))
 		]
 	
 	else:
+
+		# Main Cryptogram functions.
+
 		# Cryptocurrency data, stored and properly formatted in different variables.
 		cryptoName = convertToFullName(query)
 		formattedCryptoPrice = retrieveAndFormatCryptoPrice(cryptoName) 
@@ -220,6 +222,7 @@ def inlinequery(bot, update):
         	InlineQueryResultArticle(
             	id=uuid4(),
             	title=("Circulating Supply"),
+            	thumb_url=("https://i.imgur.com/vXAN23U.png"),
             	input_message_content=\
             	InputTextMessageContent("Circulating Supply of " + cryptoName + \
             		" (" + str(retrieveCryptoSymbol(query)) + ")" + ": " + \
@@ -230,6 +233,7 @@ def inlinequery(bot, update):
         	InlineQueryResultArticle(
             	id=uuid4(),
             	title=("Percent Change (24 hours)"),
+            	thumb_url=("https://imgur.com/iAoXFQc.png"),
             	input_message_content=\
             	InputTextMessageContent("24 Hour Change in " + cryptoName + " (" + \
 			 	str(retrieveCryptoSymbol(cryptoName)) + ")" + " Price: " + \
