@@ -1,6 +1,6 @@
 ''' CRYPTOGRAM '''
 # A Telegram bot built in Python that specializes in retrieving information 
-# about your favorite cryptocurrency. Current data sourced from CoinMarketCap. Historical data sourced from Coinbase.
+# about your favorite cryptocurrency. Current data sourced from CoinMarketCap. Historical data sourced from Coinbase. News articles sourced from Coindesk.
 
 # Dependencies.
 from uuid import uuid4
@@ -12,10 +12,12 @@ import logging
 import sys
 import requests
 from decimal import Decimal
+from bs4 import BeautifulSoup
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=1315'
 JSON_DATA = requests.get(JSON_API_URL).json()
+NEWS_URL = "https://feeds.feedburner.com/CoinDesk"
 token = '463277822:AAGhIn--7kELcYSB7MhVp-JUTkOOZtCWZUo'
 
 # Enable logging
@@ -144,8 +146,41 @@ def retrieveConvertQueryCryptoName(query):
 	splitQueryLength = len(query.split(" "))
 	for x in range (1, splitQueryLength):
 		convertQueryName += query.split(" ")[x] + " "
-
 	return convertQueryName[:-1]
+
+def scrapeArticleTitle(order):
+
+	page = requests.get(NEWS_URL)
+	soup = BeautifulSoup(page.content, 'html.parser')
+	unformattedTitle = str(soup.find_all('title')[order])
+	title = unformattedTitle[7:][:-8]
+
+	return title
+
+def scrapeArticleURL(order):
+
+	page = requests.get(NEWS_URL)
+	soup = BeautifulSoup(page.content, 'html.parser')
+	unformattedLink = ((str(soup.find_all('item')[order])).split(">"))[4]
+	return unformattedLink[:-11]
+
+def scrapeArticleSubtitle(order):
+
+	page = requests.get(NEWS_URL)
+	soup = BeautifulSoup(page.content, 'html.parser')
+	unformattedDescription = str(soup.find_all('description')[order])
+	subtitle = unformattedDescription[22:][:-17]
+	return subtitle
+
+def scrapeArticleImage(URL):
+
+	page = requests.get(URL)
+	soup = BeautifulSoup(page.content, 'html.parser')
+
+	unformattedLink = str((soup.find_all('div', class_="article-top-image-section"))).split(">")[0]
+
+	return unformattedLink[69:][:-3]
+
 
 def inlinequery(bot, update):
 
@@ -171,11 +206,109 @@ def inlinequery(bot, update):
 		results = [
 			InlineQueryResultArticle(
 				id=uuid4(),
-				thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' + convertQueryID + '.png',
+				thumb_url='https://files.coinmarketcap.com/static/img/coins/200x200/' + convertQueryID + '.png',
 				title=("Convert " + convertQueryInputValue + " " + convertQuerySymbol + " to USD"),
 				input_message_content=InputTextMessageContent(convertQueryInputValue + " " + convertQuerySymbol + " = $" + convertQueryPrice))
 		]
 	
+	elif query[0] == "$":
+		# Reverse CryptoCalculator.
+		requestedCrypto = ""
+		reverseCryptoCalculatorQuery = query.split(" ")
+		splitReverseCryptoQueryLength = len(reverseCryptoCalculatorQuery)
+		dollarValue = float(reverseCryptoCalculatorQuery[0][1:])
+		if reverseCryptoCalculatorQuery[1] == "to":
+			for x in range (2, splitReverseCryptoQueryLength):
+				requestedCrypto += query.split(" ")[x] + " "
+		else:
+			for x in range (1, splitReverseCryptoQueryLength):
+				requestedCrypto += query.split(" ")[x] + " "
+
+		requestedCrypto = requestedCrypto[:-1]
+		requestedCryptoSymbol = retrieveCryptoSymbol(requestedCrypto)
+		requestedCryptoID = retrieveCryptoID(requestedCrypto)
+
+		for x in range (0, 1314): 
+			if requestedCrypto.title() == JSON_DATA[x]['name'] or requestedCrypto.upper() == JSON_DATA[x]['symbol']:
+				requestedCryptoPrice = float(JSON_DATA[x]['price_usd'])
+
+		cryptoValue = round((float(dollarValue / requestedCryptoPrice)), 5)
+		formattedCryptoValue = str(reverseCryptoCalculatorQuery[0]) + " = " + str(cryptoValue) + " " + str(requestedCryptoSymbol.upper())
+
+		results = [
+			InlineQueryResultArticle(
+				id=uuid4(),
+				thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' + requestedCryptoID + '.png',
+				title=("Convert " + str(reverseCryptoCalculatorQuery[0]) + " to " + requestedCryptoSymbol),
+				input_message_content=InputTextMessageContent(formattedCryptoValue))
+		]
+
+	elif query == "news":
+
+		results = [
+		
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(1)),
+				title=(scrapeArticleTitle(2)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(0))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(2)),
+				title=(scrapeArticleTitle(3)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(1))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(3)),
+				title=(scrapeArticleTitle(4)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(2))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(4)),
+				title=(scrapeArticleTitle(5)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(3))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(5)),
+				title=(scrapeArticleTitle(6)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(4))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(6)),
+				title=(scrapeArticleTitle(7)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(5))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(7)),
+				title=(scrapeArticleTitle(8)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(6))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(8)),
+				title=(scrapeArticleTitle(9)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(7))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(9)),
+				title=(scrapeArticleTitle(10)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(8))),
+
+			InlineQueryResultArticle(
+				id=uuid4(),
+				description=(scrapeArticleSubtitle(10)),
+				title=(scrapeArticleTitle(11)),
+				input_message_content=InputTextMessageContent(scrapeArticleURL(9)))
+
+		]
+		
 	else:
 
 		# Main Cryptogram functions.
@@ -237,7 +370,7 @@ def inlinequery(bot, update):
             	input_message_content=\
             	InputTextMessageContent("24 Hour Change in " + cryptoName + " (" + \
 			 	str(retrieveCryptoSymbol(cryptoName)) + ")" + " Price: " + \
-			 	retrieveAndFormatCirculatingSupply(cryptoName) + "%"))
+			 	retrieveAndFormat24HourPercentChange(cryptoName) + "%"))
         ]
 
 	update.inline_query.answer(results)
