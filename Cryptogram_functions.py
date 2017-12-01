@@ -1,4 +1,33 @@
+# Cryptogram_functions.py
+# Helper functions for Cryptogram.py. 
+
 from Cryptogram import *
+
+# This class defines a cryptocurrency. It stores all of the relevant data.
+
+class Coin:
+	def __init__(self, query, rank):
+		if rank == None:
+			self.name = str(convertToFullName(query))
+		else:
+			self.name = str(convertToFullName(rank))
+
+		self.rank = str(retrieveRank(self.name))
+		self.id = str(retrieveCryptoID(self.name))
+		self.price_USD = str(retrieveAndFormatCryptoPrice(self.name))
+		self.marketCap = str(retrieveAndFormatCryptoMarketCap(self.name))
+		self.supply = str(retrieveAndFormatCirculatingSupply(self.name))
+		self.percentChange = str(retrieveAndFormat24HourPercentChange(self.name))
+		self.symbol = str(retrieveCryptoSymbol(self.name))
+		self.summary = str(formattedSummary(self.price_USD, self.marketCap, self.supply, self.percentChange, self.name, self.symbol))
+
+class CryptoCalculatorInstance:
+	def __init__(self, query):
+		self.input = str(retrieveConvertQueryUserInputValue(query))
+		self.name = str(retrieveConvertQueryCryptoName(query))
+		self.symbol = str(retrieveCryptoSymbol(self.name))
+		self.id = str(retrieveCryptoID(self.name))
+		self.price_USD = str(calculatePrice(query, self.symbol))
 
 def retrieveRank(query):
 	for x in range (0, 1314):
@@ -14,10 +43,10 @@ def convertToFullName(query):
 	# return the properly formatted name. 
     
 	for x in range (0, 1314): 
-		if query.upper() == JSON_DATA[x]['symbol'] or \
-		(query.lower() == JSON_DATA[x]['id']) or \
-		(query.title() == JSON_DATA[x]['name']) or \
-		(query == JSON_DATA[x]['rank']):
+		if str(query).upper() == JSON_DATA[x]['symbol'] or \
+		(str(query).lower() == JSON_DATA[x]['id']) or \
+		(str(query).title() == JSON_DATA[x]['name']) or \
+		(str(query) == JSON_DATA[x]['rank']):
 			fullCryptoCurrencyName = JSON_DATA[x]['name']
 			return fullCryptoCurrencyName
 
@@ -51,12 +80,12 @@ def retrieveAndFormatCryptoPrice(query):
 	# to two decimal places. It also intelligently adds comma separators.
 
 	for x in range (0, 1314): 
-		if query == JSON_DATA[x]['name'] or query == JSON_DATA[x]['rank']:
+		if query.upper() == JSON_DATA[x]['symbol'] or (query.lower() == JSON_DATA[x]['id']) or (query.title() == JSON_DATA[x]['name']) or query == JSON_DATA[x]['rank']:
 			unformattedCryptoPrice = float(JSON_DATA[x]['price_usd'])
 			if unformattedCryptoPrice > 0.01:
 				unformattedCryptoPrice = round(unformattedCryptoPrice, 2)
 			formattedCryptoPrice = "{:,}".format(unformattedCryptoPrice)
-			return formattedCryptoPrice
+			return str(formattedCryptoPrice)
 
 def retrieveAndFormatCryptoMarketCap(query):
 
@@ -64,7 +93,9 @@ def retrieveAndFormatCryptoMarketCap(query):
 	# market capitalization. 
 
 	for x in range (0, 1314):
-		if query == JSON_DATA[x]['name']:
+		if query.upper() == JSON_DATA[x]['symbol'] or \
+		(query.lower() == JSON_DATA[x]['id']) or \
+		(query.title() == JSON_DATA[x]['name']):
 			unformattedMarketCap = float((JSON_DATA[x]['market_cap_usd']))
 			unformattedMarketCap = Decimal(unformattedMarketCap)
 			formattedMarketCap = "{:,}".format(unformattedMarketCap)
@@ -76,7 +107,9 @@ def retrieveAndFormatCirculatingSupply(query):
 	# count.
 
 	for x in range (0, 1314):
-		if query == JSON_DATA[x]['name']:
+		if query.upper() == JSON_DATA[x]['symbol'] or \
+		(query.lower() == JSON_DATA[x]['id']) or \
+		(query.title() == JSON_DATA[x]['name']):
 			unformattedSupplyValue = float((JSON_DATA[x]['available_supply']))
 			unformattedSupplyValue = Decimal(unformattedSupplyValue)
 			formattedSupplyValue = "{:,}".format(unformattedSupplyValue)
@@ -88,7 +121,9 @@ def retrieveAndFormat24HourPercentChange(query):
 	# the last 24 hours.
 
 	for x in range (0, 1314):
-		if query == JSON_DATA[x]['name']:
+		if query.upper() == JSON_DATA[x]['symbol'] or \
+		(query.lower() == JSON_DATA[x]['id']) or \
+		(query.title() == JSON_DATA[x]['name']):
 			formattedPercentChange = JSON_DATA[x]['percent_change_24h']
 			return formattedPercentChange
 
@@ -131,6 +166,8 @@ def scrapeArticleTitle(order):
 	title = unformattedTitle[7:][:-8]
 
 	return title
+
+# Deprecated code. Faster solution (FeedParser) incoming.
 
 def scrapeArticleURL(order):
 

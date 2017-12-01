@@ -2,6 +2,17 @@
 # A Telegram bot built in Python that specializes in retrieving information 
 # about your favorite cryptocurrency. Current data sourced from CoinMarketCap. Historical data sourced from Coinbase. News articles sourced from Coindesk.
 
+
+''' TODO (In no particular order):
+
+1. Implement Historical Pricing Data from Coinbase.
+2. Clean up code and implement classes.
+3. Implement a faster solution to retrieving news via FeedParser. 
+4. Write documentation and comments.
+5. Finish Top X feature.
+
+'''
+
 # Dependencies.
 from uuid import uuid4
 import re
@@ -44,22 +55,19 @@ def inlinequery(bot, update):
 
 	if query[0].isdigit():
 		# CryptoCalculator.
-		convertQueryInputValue = retrieveConvertQueryUserInputValue(query)
-		nameConvertQuery = retrieveConvertQueryCryptoName(query)
-		convertQuerySymbol = retrieveCryptoSymbol(nameConvertQuery)
-		convertQueryID = retrieveCryptoID(nameConvertQuery)
-		convertQueryPrice = calculatePrice(query, convertQuerySymbol)
+		calcQuery = CryptoCalculatorInstance(query)
 		results = [
 			InlineQueryResultArticle(
 				id=uuid4(),
-				thumb_url='https://files.coinmarketcap.com/static/img/coins/200x200/' + convertQueryID + '.png',
-				title=("Convert " + convertQueryInputValue + " " + convertQuerySymbol + " to USD"),
-				description="$" + convertQueryPrice,
-				input_message_content=InputTextMessageContent(convertQueryInputValue + " " + convertQuerySymbol + " = $" + convertQueryPrice))
+				thumb_url='https://files.coinmarketcap.com/static/img/coins/200x200/' + calcQuery.id + '.png',
+				title=("Convert " + calcQuery.input + " " + calcQuery.symbol + " to USD"),
+				description="$" + calcQuery.price_USD,
+				input_message_content=InputTextMessageContent(calcQuery.input + " " + calcQuery.symbol + " = $" + calcQuery.price_USD))
 		]
 	
 	elif query[0] == "$":
 		# Reverse CryptoCalculator.
+		# Gigantic mess of spaghetti code that needs to be cleaned up.
 		requestedCrypto = ""
 		reverseCryptoCalculatorQuery = query.split(" ")
 		splitReverseCryptoQueryLength = len(reverseCryptoCalculatorQuery)
@@ -92,7 +100,6 @@ def inlinequery(bot, update):
 		]
 
 	elif query == "news":
-
 		results = []
 		for x in range (1, 10):
 
@@ -107,95 +114,71 @@ def inlinequery(bot, update):
 				)
 
 	elif "top" in query:
-
-		"top 5 cryptocurrencies"
-
-		requestedQuantity = int(query.split(" ")[1])
 		results = []
-
-		for x in range (1, requestedQuantity + 1):
-
-			name = convertToFullName(str(x))
-			price = retrieveAndFormatCryptoPrice(str(x))
-			ID = retrieveCryptoID(str(x))
+		listSize = (int(query.split(" ")[1]) + 1)
+		for rank in range (1, listSize):
+			listElement = Coin(query, rank)	
 			results.append(
-
 				InlineQueryResultArticle(
 					id=uuid4(),
-					thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' + ID + '.png',
-					description=("$" + price),
-					title=(str(x) + ". " + name),
-					input_message_content=InputTextMessageContent("Test"))
-
+					thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' + listElement.id + '.png',
+					description=("$" + listElement.price_USD),
+					title=(str(rank) + ". " + listElement.name),
+					input_message_content=InputTextMessageContent(listElement.summary, ParseMode.MARKDOWN))
 				)
 
 	else:
-
-		# Main Cryptogram functions.
-
-		# Cryptocurrency data, stored and properly formatted in different variables.
-		cryptoName = convertToFullName(query)
-		formattedCryptoPrice = retrieveAndFormatCryptoPrice(cryptoName) 
-		formattedMarketCap = retrieveAndFormatCryptoMarketCap(cryptoName)
-		formattedSupplyValue = retrieveAndFormatCirculatingSupply(cryptoName)
-		formattedPercentChange = retrieveAndFormat24HourPercentChange(cryptoName)
-		cryptoSymbol = retrieveCryptoSymbol(cryptoName)
-		summary = formattedSummary(formattedCryptoPrice, formattedMarketCap, formattedSupplyValue, formattedPercentChange, cryptoName, cryptoSymbol)
-		cryptoID = retrieveCryptoID(cryptoName)
+		coin = Coin(query, None)
+		if coin.name == "None":
+			# Makes sure if the user types an invalid cryptocurrency name, it doesn't pop up with a "None" currency with "None" values. This essentially throws off the inline bot by feeding it junk it can't comprehend. 
+			results = [
+				InlineQueryResultArticle(
+            		id=uuid4(),
+            		title=(),
+            		thumb_url=(),
+            		input_message_content=InputTextMessageContent()) 
+				]
 
 		results = [
     		# Summary
     		InlineQueryResultArticle(
             	id=uuid4(),
-            	title=(cryptoName + " (" + cryptoSymbol + ")"),
+            	title=(coin.name + " (" + coin.symbol + ")"),
             	description="View summary...",
-            	thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' \
-            	 + cryptoID + '.png',
-            	input_message_content=InputTextMessageContent(summary, parse_mode=ParseMode.MARKDOWN)),
+            	thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' + coin.id + '.png',
+            	input_message_content=InputTextMessageContent(coin.summary, ParseMode.MARKDOWN)),
 
     		# USD Price
     		InlineQueryResultArticle(
         		id=uuid4(),
         		title=("Price"),
-        		description="$" + formattedCryptoPrice,
+        		description="$" + coin.price_USD,
         		thumb_url="https://imgur.com/7RCGCoc.png",
-        		input_message_content=InputTextMessageContent("1 " + \
-        			str(retrieveCryptoSymbol(query)) + " = $" + \
-        			str(retrieveAndFormatCryptoPrice(cryptoName)))),
+        		input_message_content=InputTextMessageContent("1 " + coin.symbol + " = $" + coin.price_USD)),
 
     		# Market Capitalization (USD)
         	InlineQueryResultArticle(
             	id=uuid4(),
-            	title=("Market Capitalization (USD)"),
-            	description="$" + formattedMarketCap,
+            	title=("Market Capitalization"),
+            	description="$" + coin.marketCap,
             	thumb_url="https://i.imgur.com/UMczLVP.png",
-            	input_message_content=InputTextMessageContent\
-            	("Market Capitalization of " + cryptoName + " (" + \
-				 	str(retrieveCryptoSymbol(query)) + ")" + ": $" + \
-			 		str(retrieveAndFormatCryptoMarketCap(cryptoName)))),
+            	input_message_content=InputTextMessageContent("Market Capitalization of " + coin.name + " (" + coin.symbol + ")" + ": $" + coin.marketCap)),
 
         	# Circulating Supply 
         	InlineQueryResultArticle(
             	id=uuid4(),
             	title=("Circulating Supply"),
-            	description=formattedSupplyValue + " " + cryptoSymbol,
+            	description=coin.supply + " " + coin.symbol,
             	thumb_url=("https://i.imgur.com/vXAN23U.png"),
-            	input_message_content=\
-            	InputTextMessageContent("Circulating Supply of " + cryptoName + \
-            		" (" + str(retrieveCryptoSymbol(query)) + ")" + ": " + \
-            		str(retrieveAndFormatCirculatingSupply(cryptoName)) + \
-            		" " + str(retrieveCryptoSymbol(query)))),
+            	input_message_content=InputTextMessageContent("Circulating Supply of " + coin.name + " (" + coin.symbol + ")" + ": " + coin.supply + " " + coin.symbol)),
 
         	# 24 Hour Percent Change
         	InlineQueryResultArticle(
             	id=uuid4(),
             	title=("Percent Change (24 hours)"),
-            	description=formattedPercentChange + "%",
+            	description=coin.percentChange + "%",
             	thumb_url=("https://imgur.com/iAoXFQc.png"),
-            	input_message_content=\
-            	InputTextMessageContent("24 Hour Change in " + cryptoName + " (" + \
-			 	str(retrieveCryptoSymbol(cryptoName)) + ")" + " Price: " + \
-			 	retrieveAndFormat24HourPercentChange(cryptoName) + "%"))
+            	input_message_content=InputTextMessageContent("24 Hour Change in " + coin.name + " (" + coin.symbol + ")" + " Price: " + coin.percentChange + "%"))
         ]
 
 	update.inline_query.answer(results)
