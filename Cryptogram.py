@@ -1,23 +1,7 @@
-''' CRYPTOGRAM '''
-# A Telegram bot built in Python that specializes in retrieving information 
-# about your favorite cryptocurrency. Current data sourced from CoinMarketCap. Historical data sourced from Coinbase. News articles sourced from Coindesk.
-
-
-''' TODO (In no particular order):
-
-1. Implement Historical Pricing Data from Coinbase.
-2. Clean up code and implement classes.
-3. Implement a faster solution to retrieving news via FeedParser. 
-4. Write documentation and comments.
-5. Finish Top X feature.
-
-'''
-
-# Dependencies.
 from uuid import uuid4
 import re
 from telegram.utils.helpers import escape_markdown
-from telegram import InlineQueryResultArticle, ParseMode,InputTextMessageContent, InlineQueryResultPhoto
+from telegram import InlineQueryResultArticle, ParseMode,InputTextMessageContent
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler
 import logging
 import sys
@@ -41,83 +25,65 @@ logger = logging.getLogger(__name__)
 
 def inlinequery(bot, update):
 
-	# This function handles all queries to the bot. 
-	# It directs user choice by providing 7 options: 
-		# CryptoCalculator (done!)
-		# Price (done!)
-		# Market capitalization (done!)
-		# Circulating supply (done!)
-		# 24hr % change (done!)
-		# A summary of the cryptocurrency, which provides the aforementioned 
-			# data in a single message. (done!)
-
 	query = update.inline_query.query
 
+	# CryptoCalculator
 	if query[0].isdigit():
-		# CryptoCalculator.
-		calcQuery = CryptoCalculatorInstance(query)
+		inputCoin = Coin(str(query.split(" ")[1]), None, False)
+		instance = CryptoCalculatorInstance(query, inputCoin.symbol, False, None, None)
 		results = [
 			InlineQueryResultArticle(
 				id=uuid4(),
-				thumb_url='https://files.coinmarketcap.com/static/img/coins/200x200/' + calcQuery.id + '.png',
-				title=("Convert " + calcQuery.input + " " + calcQuery.symbol + " to USD"),
-				description="$" + calcQuery.price_USD,
-				input_message_content=InputTextMessageContent(calcQuery.input + " " + calcQuery.symbol + " = $" + calcQuery.price_USD))
+				thumb_url='https://files.coinmarketcap.com/static/img/coins/200x200/' + inputCoin.id + '.png',
+				title=("Convert " + instance.inputValue + " " + inputCoin.symbol + " to USD"),
+				description="$" + instance.calculatedValue,
+				input_message_content=InputTextMessageContent(instance.inputValue + " " + inputCoin.symbol + " = $" + instance.calculatedValue))
 		]
 	
-	elif query[0] == "$":
-		# Reverse CryptoCalculator.
-		# Gigantic mess of spaghetti code that needs to be cleaned up.
-		requestedCrypto = ""
-		reverseCryptoCalculatorQuery = query.split(" ")
-		splitReverseCryptoQueryLength = len(reverseCryptoCalculatorQuery)
-		dollarValue = float(reverseCryptoCalculatorQuery[0][1:])
-		if reverseCryptoCalculatorQuery[1] == "to":
-			for x in range (2, splitReverseCryptoQueryLength):
-				requestedCrypto += query.split(" ")[x] + " "
+	# Reverse CryptoCalculator
+	elif query[0] == "$":	
+		splitQuery = query.split(" ")
+		length = len(splitQuery)
+		inputDollarValue = (splitQuery[0])[1:]
+		currency = ""
+
+		if splitQuery[1] == "to":
+			for x in range (2, length):
+				currency += splitQuery[x] + " "
 		else:
-			for x in range (1, splitReverseCryptoQueryLength):
-				requestedCrypto += query.split(" ")[x] + " "
+			for x in range (1, length):
+				currency += splitQuery[x] + " "
 
-		requestedCrypto = requestedCrypto[:-1]
-		requestedCryptoSymbol = retrieveCryptoSymbol(requestedCrypto)
-		requestedCryptoID = retrieveCryptoID(requestedCrypto)
-
-		for x in range (0, 1314): 
-			if requestedCrypto.title() == JSON_DATA[x]['name'] or requestedCrypto.upper() == JSON_DATA[x]['symbol']:
-				requestedCryptoPrice = float(JSON_DATA[x]['price_usd'])
-
-		cryptoValue = round((float(dollarValue / requestedCryptoPrice)), 5)
-		formattedCryptoValue = str(reverseCryptoCalculatorQuery[0]) + " = " + str(cryptoValue) + " " + str(requestedCryptoSymbol.upper())
+		currency = currency[:-1]
+		inputCoin = Coin(currency, None, True)
+		value = CryptoCalculatorInstance(query, inputCoin.symbol, True, inputCoin.price_USD, inputDollarValue)
 
 		results = [
 			InlineQueryResultArticle(
 				id=uuid4(),
-				thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' + requestedCryptoID + '.png',
-				title=("Convert " + str(reverseCryptoCalculatorQuery[0]) + " to " + requestedCryptoSymbol),
-				description=formattedCryptoValue.split(" ")[2] + " " + formattedCryptoValue.split(" ")[3],
-				input_message_content=InputTextMessageContent(formattedCryptoValue))
+				title=("Convert $" + inputDollarValue + " to " + inputCoin.symbol),
+				thumb_url='https://files.coinmarketcap.com/static/img/coins/200x200/' + inputCoin.id + '.png',
+				description=(str(value.calculatedValue) + " " + str(inputCoin.symbol)),
+				input_message_content=InputTextMessageContent("$" + str(inputDollarValue) + " = " + str(value.calculatedValue) + " " + str(inputCoin.symbol)))
 		]
 
+	# News
 	elif query == "news":
 		results = []
 		for x in range (1, 10):
-
 			results.append(
-
 				InlineQueryResultArticle(
 					id=uuid4(),
 					description=(scrapeArticleSubtitle(x)),
 					title=(scrapeArticleTitle(x + 1)),
 					input_message_content=InputTextMessageContent(scrapeArticleURL(x - 1))),
-
 				)
-
+	# Top X
 	elif "top" in query:
 		results = []
 		listSize = (int(query.split(" ")[1]) + 1)
 		for rank in range (1, listSize):
-			listElement = Coin(query, rank)	
+			listElement = Coin(query, str(rank), False)	
 			results.append(
 				InlineQueryResultArticle(
 					id=uuid4(),
@@ -127,8 +93,9 @@ def inlinequery(bot, update):
 					input_message_content=InputTextMessageContent(listElement.summary, ParseMode.MARKDOWN))
 				)
 
+	# Cryptocurrency information
 	else:
-		coin = Coin(query, None)
+		coin = Coin(query, None, False)
 		if coin.name == "None":
 			# Makes sure if the user types an invalid cryptocurrency name, it doesn't pop up with a "None" currency with "None" values. This essentially throws off the inline bot by feeding it junk it can't comprehend. 
 			results = [
