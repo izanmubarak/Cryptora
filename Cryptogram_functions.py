@@ -29,7 +29,7 @@ class Coin:
 
 	def get_rank(self, query):
 
-		for x in range (0, 1314):
+		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
 			query.title() == JSON_DATA[x]['name'] or \
@@ -40,7 +40,7 @@ class Coin:
 
 		# With this function, a user can type in the symbol or the name of the cryptocurrency in any case (lower or upper case), and this function will return the properly formatted name. 
 	    
-		for x in range (0, 1314): 
+		for x in range (0, len(JSON_DATA)): 
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
 			query.title() == JSON_DATA[x]['name'] or \
@@ -51,7 +51,7 @@ class Coin:
 
 		# This function will retrieve the cryptocurrency symbol for the chosen currency.
 
-		for x in range (0, 1314): 
+		for x in range (0, len(JSON_DATA)): 
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
 			query.title() == JSON_DATA[x]['name'] or \
@@ -62,7 +62,7 @@ class Coin:
 
 		# Retrieves cryptocurrency ID on CoinMarketCap.
 
-		for x in range (0, 1314):
+		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
 			query.title() == JSON_DATA[x]['name'] or \
@@ -73,13 +73,13 @@ class Coin:
 
 		# This function retrieves and properly formats the chosen cryptocurrency's price. If the price of the coin is above $0.01, it automatically rounds to two decimal places. It also intelligently adds comma separators.
 
-		for x in range (0, 1314): 
+		for x in range (0, len(JSON_DATA)): 
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
 			query.title() == JSON_DATA[x]['name'] or \
 			query == JSON_DATA[x]['rank']:
 
-				if noCommas == True:
+				if noCommas == True or float(JSON_DATA[x]['price_usd']) < 1.00:
 					return JSON_DATA[x]['price_usd']
 				else:
 					price = Decimal((JSON_DATA[x]['price_usd'])).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')
@@ -89,7 +89,7 @@ class Coin:
 
 		# This function retrieves and properly formats the chosen cryptocurrency's market capitalization. 
 
-		for x in range (0, 1314):
+		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
 			query.title() == JSON_DATA[x]['name'] or \
@@ -100,7 +100,7 @@ class Coin:
 
 		# Retrieves and properly formats chosen cryptocurrency's circulating supply count.
 
-		for x in range (0, 1314):
+		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
 			query.title() == JSON_DATA[x]['name'] or \
@@ -112,7 +112,7 @@ class Coin:
 		# Retrieves and properly formats chosen cryptocurrency's change in value in
 		# the last 24 hours.
 
-		for x in range (0, 1314):
+		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
 			query.title() == JSON_DATA[x]['name'] or \
@@ -142,7 +142,7 @@ class CryptoCalculatorInstance:
 
 		userInputValue = (query.split(" "))[0]
 
-		for x in range (0, 1314): 
+		for x in range (0, len(JSON_DATA)): 
 			if symbol == JSON_DATA[x]['symbol']:
 				inputPrice = float(JSON_DATA[x]['price_usd'])
 				calculatedPrice = (float(userInputValue) * inputPrice)
@@ -160,7 +160,10 @@ class CryptoCalculatorInstance:
 		self.title 
 		self.subtitle
 		self.URL
-		self.thumbnailURL'''
+		self.thumbnailURL
+		self.dayPublished
+		self.monthPublished
+		self.yearPublished'''
 
 '''def get_image(URL):
 		page = requests.get(URL)

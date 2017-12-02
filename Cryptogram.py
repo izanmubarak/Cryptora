@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from Cryptogram_functions import *
 
 # Constant variables. 
-JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=1315'
+JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 JSON_DATA = requests.get(JSON_API_URL).json()
 NEWS_URL = "https://feeds.feedburner.com/CoinDesk"
 token = '463277822:AAGhIn--7kELcYSB7MhVp-JUTkOOZtCWZUo'
