@@ -8,12 +8,13 @@ import sys
 import requests
 from decimal import Decimal
 from bs4 import BeautifulSoup
+import feedparser
 from Cryptogram_functions import *
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 JSON_DATA = requests.get(JSON_API_URL).json()
-NEWS_URL = "https://feeds.feedburner.com/CoinDesk"
+NEWS_URL = "http://coindesk.com/feed"
 token = '463277822:AAGhIn--7kELcYSB7MhVp-JUTkOOZtCWZUo'
 
 # Enable logging
@@ -29,7 +30,12 @@ def inlinequery(bot, update):
 
 	# CryptoCalculator
 	if query[0].isdigit():
-		inputCoin = Coin(str(query.split(" ")[1]), None, False)
+
+		userInputName = ""
+		for x in range (1, len(query.split(" "))):
+			userInputName += query.split(" ")[x] + " "
+
+		inputCoin = Coin((userInputName[:-1]).title(), None, False)
 		instance = CryptoCalculatorInstance(query, inputCoin.symbol, False, None, None)
 		results = [
 			InlineQueryResultArticle(
@@ -68,15 +74,18 @@ def inlinequery(bot, update):
 		]
 
 	# News
-	elif query == "news":
+	elif "news" in query:
 		results = []
-		for x in range (1, 10):
+		feed = feedparser.parse("http://coindesk.com/feed")
+		for x in range (0, (len(feed['entries']) - 1)):
+			article = NewsArticle(x, feed)
 			results.append(
 				InlineQueryResultArticle(
 					id=uuid4(),
-					description=(scrapeArticleSubtitle(x)),
-					title=(scrapeArticleTitle(x + 1)),
-					input_message_content=InputTextMessageContent(scrapeArticleURL(x - 1))),
+					thumb_url=article.thumbnailURL,
+					description=(article.subtitle),
+					title=(article.title),
+					input_message_content=InputTextMessageContent(article.URL)),
 				)
 	# Top X
 	elif "top" in query:
@@ -103,7 +112,7 @@ def inlinequery(bot, update):
             		id=uuid4(),
             		title=(),
             		thumb_url=(),
-            		input_message_content=InputTextMessageContent()) 
+            		input_message_content=InputTextMessageContent())
 				]
 
 		results = [
