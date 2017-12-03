@@ -77,7 +77,7 @@ def inlinequery(bot, update):
 	elif "news" in query:
 		results = []
 		feed = feedparser.parse("http://coindesk.com/feed")
-		for x in range (0, (len(feed['entries']) - 1)):
+		for x in range (0, 9):
 			article = NewsArticle(x, feed)
 			results.append(
 				InlineQueryResultArticle(
@@ -101,6 +101,54 @@ def inlinequery(bot, update):
 					title=(str(rank) + ". " + listElement.name),
 					input_message_content=InputTextMessageContent(listElement.summary, ParseMode.MARKDOWN))
 				)
+
+	elif "historical" in query:
+
+		coin = Coin(query.split(" ")[1], None, True)
+
+		day = (query.split(" ")[2]).split("/")[1]
+		month = (query.split(" ")[2]).split("/")[0]
+		year = (query.split(" ")[2]).split("/")[2]
+
+		data = PriceOnDay(coin.id, day, month, year)
+
+		string = ("***Price Data for " + coin.name + " on " + query.split(" ")[2] + "***" + "\n \n" + "***High:*** $" + data.high + "\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + "\n***Close:*** $" + data.close)
+
+		description = query.split(" ")[2]
+
+		results = [
+				InlineQueryResultArticle(
+            		id=uuid4(),
+            		title=("View Price Data for " + coin.name),
+            		thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' + coin.id + '.png',
+            		description=(description),
+            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN)),
+
+				InlineQueryResultArticle(
+            		id=uuid4(),
+            		title=("High"),
+            		description=("$" + data.high),
+            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN)),
+
+				InlineQueryResultArticle(
+            		id=uuid4(),
+            		title=("Low"),
+            		description=("$" + data.low),
+            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN)),
+
+				InlineQueryResultArticle(
+            		id=uuid4(),
+            		title=("Open"),
+            		description=("$" + data.open),
+            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN)),
+
+				InlineQueryResultArticle(
+            		id=uuid4(),
+            		title=("Close"),
+            		description=("$" + data.close),
+            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN))
+
+				]
 
 	# Cryptocurrency information
 	else:

@@ -181,3 +181,21 @@ class NewsArticle:
 		soup = BeautifulSoup(page.content, 'html.parser')
 		unformattedLink = str((soup.find_all('div', class_="article-top-image-section"))).split(">")[0]
 		return unformattedLink[69:][:-3]
+
+class PriceOnDay:
+
+	def __init__(self, ID, day, month, year):
+
+		self.day = day
+		self.month = month
+		self.year = year
+		self.URL = 'https://coinmarketcap.com/currencies/' + ID + '/historical-data/?start=' + year + month + day + "&end=" + year + month + day
+
+		self.page = requests.get(self.URL)
+		self.soup = BeautifulSoup(self.page.content, 'html.parser')
+
+		self.open = str(((self.soup.find_all('td'))[1]))[4:][:-5]
+		self.low = str(((self.soup.find_all('td'))[3]))[4:][:-5]
+		self.marketCap = str(((self.soup.find_all('td'))[5]))[4:][:-5]
+		self.high = str(((self.soup.find_all('td'))[2]))[4:][:-5]
+		self.close = str(((self.soup.find_all('td'))[4]))[4:][:-5]
