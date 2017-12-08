@@ -1,4 +1,4 @@
-# Cryptora (beta 0.7.0)
+# Cryptora (beta 0.8.0)
 
 Cryptora is an easy-to-use Telegram bot service that can retrieve cryptocurrency data and news on demand for you, or your Telegram group.
 
