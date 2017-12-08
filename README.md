@@ -28,7 +28,7 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 - `news` - Cryptora will retrieve the latest 10 articles from CoinDesk.com and display them in a list. You can choose to share the article with your chat, or you can peruse through the headlines. 
 
-- `historical [cryptocurrency] [date]` - Type this command (replace `[cryptocurrency]` with your desired cryptocurrency, and `[date]` with a date formatted in `MM/DD/YYYY` format), and Cryptora will retrieve the high, low, opening, and closing price on that date, if data for the cryptocurrency is available.
+- `[cryptocurrency] [date]` - Type this command, replacing `[cryptocurrency]` with your desired cryptocurrency, and `[date]` with a date formatted in `MM/DD/YYYY` format (or `Month Day, Year` format), and Cryptora will retrieve the high, low, opening, and closing price of the cryptocurrency on that date, if data is available.
 
 - `top [x]` - Type this command (replace `[x]` with any number less than or equal to 50) to see the top *x* cryptocurrencies, ranked by their market capitalization.
 
