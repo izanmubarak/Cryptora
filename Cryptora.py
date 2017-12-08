@@ -9,7 +9,8 @@ import requests
 from decimal import Decimal
 from bs4 import BeautifulSoup
 import feedparser
-from Cryptogram_functions import *
+import datefinder
+from Cryptora_functions import *
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
@@ -27,6 +28,7 @@ logger = logging.getLogger(__name__)
 def inlinequery(bot, update):
 
 	query = update.inline_query.query
+	dateInString = determine_if_date_in_string(query)
 
 	# CryptoCalculator
 	if query[0].isdigit():
@@ -82,8 +84,8 @@ def inlinequery(bot, update):
 			results.append(
 				InlineQueryResultArticle(
 					id=uuid4(),
-					thumb_url=article.thumbnailURL,
 					description=(article.subtitle),
+					thumb_url=article.thumbnailURL,
 					title=(article.title),
 					input_message_content=InputTextMessageContent(article.URL)),
 				)
@@ -102,19 +104,31 @@ def inlinequery(bot, update):
 					input_message_content=InputTextMessageContent(listElement.summary, ParseMode.MARKDOWN))
 				)
 
-	elif "historical" in query:
+	elif dateInString == True:
+		
+		name = get_coin_name_from_historical_query(get_coin_word_count(query), query)
 
-		coin = Coin(query.split(" ")[1], None, True)
+		day = str(get_day(query, True))
+		month = str(get_month(query, True))
+		year = str(get_year(query, True))
 
-		day = (query.split(" ")[2]).split("/")[1]
-		month = (query.split(" ")[2]).split("/")[0]
-		year = (query.split(" ")[2]).split("/")[2]
-
+		coin = Coin(name, None, True)
 		data = PriceOnDay(coin.id, day, month, year)
 
-		string = ("***Price Data for " + coin.name + " on " + query.split(" ")[2] + "***" + "\n \n" + "***High:*** $" + data.high + "\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + "\n***Close:*** $" + data.close)
+		monthName = convert_month_number_to_name(data.month)
 
-		description = query.split(" ")[2]
+		description = monthName + " " + data.day + ", " + data.year
+
+		string = ("***Price Data for " + coin.name + "*** \n" + description + "\n \n" + "***High:*** $" + data.high + "\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + "\n***Close:*** $" + data.close)
+
+		if len(data.year) != 4:
+			results = [
+				InlineQueryResultArticle(
+            		id=uuid4(),
+            		title=(),
+            		thumb_url=(),
+            		input_message_content=InputTextMessageContent())
+				]
 
 		results = [
 				InlineQueryResultArticle(
@@ -128,25 +142,29 @@ def inlinequery(bot, update):
             		id=uuid4(),
             		title=("High"),
             		description=("$" + data.high),
-            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN)),
+            		thumb_url="https://imgur.com/ntXndWR.png",
+            		input_message_content=InputTextMessageContent("***" + coin.name + " High Price*** \n" + description + "\n \n$" + data.high,  ParseMode.MARKDOWN)),
 
 				InlineQueryResultArticle(
             		id=uuid4(),
             		title=("Low"),
             		description=("$" + data.low),
-            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN)),
+            		thumb_url="https://imgur.com/zOfZSYj.png",
+            		input_message_content=InputTextMessageContent("***" + coin.name + " Low Price*** \n" + description + "\n \n$" +data.low, ParseMode.MARKDOWN)),
 
 				InlineQueryResultArticle(
             		id=uuid4(),
             		title=("Open"),
+            		thumb_url="https://imgur.com/EYOqB1W.png",
             		description=("$" + data.open),
-            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN)),
+            		input_message_content=InputTextMessageContent("***" + coin.name + " Opening Price*** \n" + description + "\n \n$" + data.open, ParseMode.MARKDOWN)),
 
 				InlineQueryResultArticle(
             		id=uuid4(),
             		title=("Close"),
+            		thumb_url="https://imgur.com/iQXqgYU.png",
             		description=("$" + data.close),
-            		input_message_content=InputTextMessageContent(string, ParseMode.MARKDOWN))
+            		input_message_content=InputTextMessageContent("***" + coin.name + " Closing Price*** \n" + description + "\n \n$" + data.close, ParseMode.MARKDOWN))
 
 				]
 

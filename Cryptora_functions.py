@@ -1,9 +1,7 @@
-# Cryptogram_functions.py
-# Helper functions for Cryptogram.py. 
+# Cryptora_functions.py
+# Helper functions for Cryptora.py. 
 
-from Cryptogram import *
-
-# This class defines a cryptocurrency. It stores all of the relevant data.
+from Cryptora import *
 
 class Coin:
 
@@ -152,7 +150,7 @@ class CryptoCalculatorInstance:
 
 	def calculate_crypto_quantity(self, symbol, coinPrice, dollarValue):
 
-		return str("{:,}".format(Decimal(float(dollarValue) / float(coinPrice)).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')))
+		return str(round((float(dollarValue) / float(coinPrice)), 6))
 			
 class NewsArticle:
 
@@ -186,10 +184,10 @@ class PriceOnDay:
 
 	def __init__(self, ID, day, month, year):
 
-		self.day = day
-		self.month = month
+		self.day = str('%02d' % int(day))
+		self.month = str('%02d' % int(month))
 		self.year = year
-		self.URL = 'https://coinmarketcap.com/currencies/' + ID + '/historical-data/?start=' + year + month + day + "&end=" + year + month + day
+		self.URL = 'https://coinmarketcap.com/currencies/' + ID + '/historical-data/?start=' + self.year + self.month + self.day + "&end=" + self.year + self.month + self.day
 
 		self.page = requests.get(self.URL)
 		self.soup = BeautifulSoup(self.page.content, 'html.parser')
@@ -199,3 +197,69 @@ class PriceOnDay:
 		self.marketCap = str(((self.soup.find_all('td'))[5]))[4:][:-5]
 		self.high = str(((self.soup.find_all('td'))[2]))[4:][:-5]
 		self.close = str(((self.soup.find_all('td'))[4]))[4:][:-5]
+
+
+# Historical Pricing specific functions. No need to make a class here.
+
+def get_coin_word_count(string):
+
+	string = string.title()
+	string = string.split(" ")
+	for x in range (0, len(string)):
+		if "/" in string[x] \
+		or string[x] == "January" \
+		or string[x] == "February" \
+		or string[x] == "March" \
+		or string[x] == "April" \
+		or string[x] == "May" \
+		or string[x] == "June" \
+		or string[x] == "July" \
+		or string[x] == "August" \
+		or string[x] == "September" \
+		or string[x] == "October" \
+		or string[x] == "November" \
+		or string[x] == "December":
+			return x
+
+def get_coin_name_from_historical_query(wordCount, query):
+	
+	splitQuery = query.split(" ")
+
+	name = ""
+	for x in range (0, wordCount):
+		name += splitQuery[x] + " "
+
+	return name[:-1]
+
+def convert_month_number_to_name(string):
+
+	monthNumber = int(string)
+	months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+	return months[monthNumber - 1]
+
+def determine_if_date_in_string(string):
+
+	dates = list(datefinder.find_dates(string))
+	if len(dates) > 0:
+		return True
+	else:
+		return False
+
+def get_day(string, dateInString):
+
+	if dateInString == True:
+		dates = list(datefinder.find_dates(string))
+		return dates[0].day
+
+def get_month(string, dateInString):
+
+	if dateInString == True:
+		dates = list(datefinder.find_dates(string))
+		return dates[0].month
+
+def get_year(string, dateInString):
+
+	if dateInString == True:
+		dates = list(datefinder.find_dates(string))
+		return dates[0].year
