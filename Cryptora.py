@@ -13,11 +13,29 @@ import datefinder
 import dateparser
 from Cryptora_functions import *
 
+# -*- coding: utf-8 -*-
+import redis
+import os
+# import some_api_lib
+# import ...
+
+# Example of your code beginning
+#           Config vars
+token = os.environ['TELEGRAM_TOKEN']
+#             ...
+
+# If you use redis, install this add-on https://elements.heroku.com/addons/heroku-redis
+r = redis.from_url(os.environ.get("REDIS_URL"))
+
+#       Your bot code below
+# bot = telebot.TeleBot(token)
+# some_api = some_api_lib.connect(some_api_token)
+#              ...
+
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 JSON_DATA = requests.get(JSON_API_URL).json()
 NEWS_URL = "http://coindesk.com/feed"
-token = '463277822:AAGhIn--7kELcYSB7MhVp-JUTkOOZtCWZUo'
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
