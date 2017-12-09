@@ -323,7 +323,16 @@ def error(bot, update, error):
 
 def main():
     # Create the Updater and pass it your bot's token.
-    updater = Updater("463277822:AAGhIn--7kELcYSB7MhVp-JUTkOOZtCWZUo")
+    updater = Updater(token)
+
+	PORT = int(os.environ.get('PORT', '5000'))
+	updater = Updater(token)
+	# add handlers
+	updater.start_webhook(listen="0.0.0.0",
+                      port=PORT,
+                      url_path=token)
+	updater.bot.set_webhook("https://cryptora.herokuapp.com/" + token)
+	updater.idle()
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
