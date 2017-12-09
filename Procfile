@@ -1,1 +1,1 @@
-web: python Cryptora.py
+web: python Cryptora_heroku.py

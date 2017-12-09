@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+import redis
+import os
+import telebot
+# import some_api_lib
+# import ...
+
+# Example of your code beginning
+#           Config vars
+token = os.environ['TELEGRAM_TOKEN']
+
+# If you use redis, install this add-on https://elements.heroku.com/addons/heroku-redis
+r = redis.from_url(os.environ.get("REDIS_URL"))
+
 from uuid import uuid4
 import re
 from telegram.utils.helpers import escape_markdown
