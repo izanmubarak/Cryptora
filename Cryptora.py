@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import feedparser
 import datefinder
 import dateparser
+import gdax
 from Cryptora_functions import *
 
 # Constant variables. 
@@ -105,6 +106,46 @@ def inlinequery(bot, update):
 					input_message_content=InputTextMessageContent(listElement.summary, ParseMode.MARKDOWN))
 				)
 
+	elif query.upper() == "GDAX":
+
+		public_client = gdax.PublicClient()
+
+		bitcoin = str("{:,}".format(Decimal(public_client.get_product_ticker(product_id='BTC-USD')['price']).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')))
+
+		ethereum = str("{:,}".format(Decimal(public_client.get_product_ticker(product_id='ETH-USD')['price']).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')))
+
+		litecoin = str("{:,}".format(Decimal(public_client.get_product_ticker(product_id='LTC-USD')['price']).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')))
+
+		results = [
+					InlineQueryResultArticle(
+            			id=uuid4(),
+            			title=("GDAX Pricing"),
+            			thumb_url="https://blockexplorer.com/news/wp-content/uploads/2017/11/gdax.jpg",
+            			description=("View summary..."),
+            			input_message_content=InputTextMessageContent(("***GDAX Trading Prices*** \n \n ***Bitcoin:*** $" + bitcoin + "\n ***Litecoin:*** $" + litecoin + "\n ***Ethereum:*** $" + ethereum), ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+            			id=uuid4(),
+            			title=("Bitcoin"),
+            			thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/bitcoin.png',
+            			description=("$" + bitcoin),
+            			input_message_content=InputTextMessageContent(("***GDAX Bitcoin Trading Price:*** $" + bitcoin), ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+            			id=uuid4(),
+            			title=("Litecoin"),
+            			description=("$" + litecoin),
+            			thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/litecoin.png',
+            			input_message_content=InputTextMessageContent(("***GDAX Litecoin Trading Price:*** $" + litecoin), ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+	            		id=uuid4(),
+	            		title=("Ethereum"),
+	            		description=("$" + ethereum),
+	            		thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/ethereum.png',
+	            		input_message_content=InputTextMessageContent(("***GDAX Ethereum Trading Price:*** $" + ethereum), ParseMode.MARKDOWN))
+					]
+
 	elif dateInString == True or "ago" in query:
 
 		if "ago" in query:
@@ -177,7 +218,6 @@ def inlinequery(bot, update):
 					]
 
 		else:
-		
 			name = get_coin_name_from_historical_query(get_coin_word_count(query), query)
 
 			day = str(get_day(query, True))
@@ -239,8 +279,6 @@ def inlinequery(bot, update):
 	            		input_message_content=InputTextMessageContent("***" + coin.name + " Closing Price*** \n" + description + "\n \n$" + data.close, ParseMode.MARKDOWN))
 
 					]
-
-		
 
 	# Cryptocurrency information
 	else:
