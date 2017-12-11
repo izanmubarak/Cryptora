@@ -1,14 +1,6 @@
-# Cryptora (beta 0.8.0)
+# Cryptora (beta 0.9.0)
 
 Cryptora is an easy-to-use Telegram bot service that can retrieve cryptocurrency data and news on demand for you, or your Telegram group.
-
-## How it was built
-
-Cryptora was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework, a powerful, easy-to-use platform for building Telegram bots in Python. Up-to-date prices are retrieved from [CoinMarketCap](http://coinmarketcap.com) using the CoinMarketCap API, while historical data is retrieved using a webscraper implemented in BeautifulSoup4. News articles are retrieved from [CoinDesk](http://coindesk.com) through its RSS feed. 
- 
-## Using Cryptora
-
-Using Cryptora is super simple. In any Telegram chat, simply type `@CryptoraBot` and then your command - you do not need to add the bot to any group chat. You will receive the requested information in-line, and you can tap on a result to share it with your chat if you wish. You can also create a new private chat with Cryptora if you'd like to interact with it separately.
 
 ## Features
 
@@ -21,6 +13,10 @@ Using Cryptora is super simple. In any Telegram chat, simply type `@CryptoraBot`
 - **Browse the latest cryptocurrency news.** Read and share the 10 latest headlines from Coindesk.com.
 - **View the rankings.** See the top cryptocurrencies and their prices at any given moment, sorted by market capitalization.
 
+## Using Cryptora
+
+Using Cryptora is super simple. In any Telegram chat, simply type `@CryptoraBot` and then any of the commands below - you do not need to add the bot to any group chat. You will receive the requested information in-line, and you can tap on a result to share it with your chat if you wish. You can also create a new private chat with Cryptora if you'd like to interact with it separately.
+
 ## Supported Commands
 
 In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cryptora:
@@ -29,7 +25,7 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 - `news` - Retrieve the latest 10 articles from CoinDesk.com and display them in a list. You can choose to share the article with your chat, or you can browse the latest cryptocurrency headlines. 
 
-- `gdax` - Rtrieve the trading price of bitcoin, litecoin, and ethereum from the GDAX trading exchange.
+- `gdax` - Retrieve the trading price of bitcoin, litecoin, and ethereum from the GDAX trading exchange.
 
 - `[cryptocurrency] [date]` - Type this command, replacing `[cryptocurrency]` with your desired cryptocurrency, and `[date]` with a date formatted in `MM/DD/YYYY` format (or `Month Day, Year` format), and Cryptora will retrieve the high, low, opening, and closing price of the cryptocurrency on that date, if data is available.
 
@@ -39,8 +35,16 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 - `$[x] [cryptocurrency]` - Type this command (replace `[x]` with any number, and `[cryptocurrency]` with your desired cryptocurrency) to instantly convert an amount of U.S. dollars to the desired cryptocurrency.
 
+- `help` - You can type `help` in Cryptora to get these supported commands in-line, so that you don't have to keep referring to Cryptora's GitHub.
+
+## How it was built
+
+Cryptora was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework, a powerful, easy-to-use platform for building Telegram bots in Python. Data is retrieved from a variety of sources, using a combination of API access and webscraping. News articles are retrieved from [CoinDesk](http://coindesk.com) through its RSS feed. 
+ 
 ## Acknowledgements and Notes
 
 A special thank you to Michael Yousif (@mjyousif) and Augustine Osagie (@osagie98) for testing my bot in its beta stages and providing inspiration for new features and ideas.
 
-Please invest responsibly. Use Cryptora as a tool to *help* you make investment decisions, but do not use it as your *only* source of information.
+Cryptora's feature set would not have been possible without the following Python packages: Dateparser, Feedparser, BeautifulSoup4, Datefinder, and gdax. Thank you to the developers who have created and maintained these amazingly useful modules.
+
+Please invest responsibly. Use Cryptora as a tool to help you make investment decisions, but do not use it as your *only* source of information. As always, the price of whatever coin you purchase is entirely contingent on where you purchase the coins. 
