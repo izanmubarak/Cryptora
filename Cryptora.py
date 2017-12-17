@@ -402,7 +402,6 @@ if __name__ == "__main__":
     dp = updater.dispatcher
 
     # Start the webhook
-    updater.start_polling()
     updater.start_webhook(listen="0.0.0.0",
                           port=PORT,
                           url_path=token)
