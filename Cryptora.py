@@ -402,7 +402,7 @@ if __name__ == "__main__":
     dp = updater.dispatcher
 
     # Start the webhook
-    updater.start_webhook(listen="0.0.0.0",
+    updater.start_webhook(listen="127.0.0.1",
                           port=PORT,
                           url_path=TOKEN)
     updater.bot.setWebhook("https://cryptora.herokuapp.com/" + TOKEN)
