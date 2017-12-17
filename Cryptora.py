@@ -402,8 +402,9 @@ if __name__ == "__main__":
     dp = updater.dispatcher
 
     # Start the webhook
+    updater.start_polling()
     updater.start_webhook(listen="0.0.0.0",
-                          port=int(PORT),
+                          port=PORT,
                           url_path=token)
-    updater.bot.setWebhook("https://{}.herokuapp.com/{}".format(NAME, token))
+    updater.bot.setWebhook("http://cryptora.herokuapp.com/" + token)
     updater.idle()
