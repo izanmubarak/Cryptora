@@ -390,7 +390,7 @@ if __name__ == "__main__":
     NAME = "cryptora"
 
     # Port is given by Heroku
-    PORT = os.environ.get('PORT')
+    PORT = int(os.environ.get('PORT', '5000'))
 
     # Enable logging
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
