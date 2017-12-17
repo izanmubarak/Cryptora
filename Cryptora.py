@@ -21,7 +21,7 @@ from Cryptora_functions import *
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 JSON_DATA = requests.get(JSON_API_URL).json()
 NEWS_URL = "http://coindesk.com/feed"
-token = '463277822:AAGhIn--7kELcYSB7MhVp-JUTkOOZtCWZUo'
+TOKEN = os.environ['TOKEN']
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
@@ -398,12 +398,12 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
 
     # Set up the Updater
-    updater = Updater(token)
+    updater = Updater(TOKEN)
     dp = updater.dispatcher
 
     # Start the webhook
     updater.start_webhook(listen="0.0.0.0",
                           port=PORT,
-                          url_path=token)
-    updater.bot.setWebhook("https://cryptora.herokuapp.com/" + token)
+                          url_path=TOKEN)
+    updater.bot.setWebhook("https://cryptora.herokuapp.com/" + TOKEN)
     updater.idle()
