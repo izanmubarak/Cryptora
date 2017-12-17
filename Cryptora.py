@@ -1,5 +1,5 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 # -*- coding: utf-8 -*-
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from uuid import uuid4
 import re
 from telegram.utils.helpers import escape_markdown
