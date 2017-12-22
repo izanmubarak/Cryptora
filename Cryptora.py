@@ -20,7 +20,7 @@ from Cryptora_functions import *
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 JSON_DATA = requests.get(JSON_API_URL).json()
 NEWS_URL = "http://coindesk.com/feed"
-token = os.getenv("TELEGRAM_BOT_TOKEN") 
+token = str(os.environ['TELEGRAM_BOT_TOKEN'])
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
