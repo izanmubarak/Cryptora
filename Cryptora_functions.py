@@ -1,7 +1,7 @@
 # Cryptora_functions.py
 # Helper functions for Cryptora.py. 
 
-from Cryptora import *
+from app import *
 
 class Coin:
 
