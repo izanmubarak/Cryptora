@@ -13,14 +13,13 @@ import feedparser
 import datefinder
 import dateparser
 import gdax
-import os
 from Cryptora_functions import *
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 JSON_DATA = requests.get(JSON_API_URL).json()
 NEWS_URL = "http://coindesk.com/feed"
-token = '488131377:AAGqibrO_D6nHsTnvNGzsBtPogoojpXK2eU'
+token = os.environ['TOKEN']
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
@@ -499,7 +498,7 @@ def error(bot, update, error):
 
 def main():
     # Create the Updater and pass it your bot's token.
-    updater = Updater('488131377:AAGqibrO_D6nHsTnvNGzsBtPogoojpXK2eU')
+    updater = Updater(token)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
