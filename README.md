@@ -8,7 +8,7 @@ Cryptora is an easy-to-use Telegram bot service that can retrieve cryptocurrency
 
 - **Look up cryptocurrencies.** Find the price (and other useful data) of thousands of cryptocurrencies, just by typing the name or the shorthand abbreviation.
 - **Get historical data.** Find the low, high, opening, and closing price of thousands of cryptocurrencies on a given date, as well as the market capitalization.
-- **Get real-time exchange data from GDAX.** See the trading price of bitcoin, litecoin, and ethereum on GDAX, one of the leading cryptocurrency exchanges.
+- **Get real-time exchange data from GDAX.** See the trading price of Bitcoin, Litecoin, Ethereum, and Bitcoin Cash on GDAX, one of the leading cryptocurrency exchanges.
 - **Calculations made easy.** Instantly convert cryptocurrency amounts to U.S. dollars, and vice versa.
 - **Browse the latest cryptocurrency news.** Read and share the 10 latest headlines from Coindesk.com.
 - **View the rankings.** See the top cryptocurrencies and their prices at any given moment, sorted by market capitalization.
@@ -25,7 +25,7 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 - `news` - Retrieve the latest 10 articles from CoinDesk.com and display them in a list. You can choose to share the article with your chat, or you can browse the latest cryptocurrency headlines. 
 
-- `gdax` - Retrieve the trading price of bitcoin, bitcoin cash, litecoin, and ethereum from the GDAX trading exchange.
+- `gdax` - Retrieve the trading price of Bitcoin, Bitcoin Cash, Litecoin, and Ethereum from the GDAX trading exchange.
 
 - `[cryptocurrency] [date]` - Type this command, replacing `[cryptocurrency]` with your desired cryptocurrency, and `[date]` with a date formatted in `MM/DD/YYYY` format (or `Month Day, Year` format), and Cryptora will retrieve the high, low, opening, and closing price of the cryptocurrency on that date, if data is available.
 

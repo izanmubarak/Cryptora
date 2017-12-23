@@ -360,7 +360,7 @@ def inlinequery(bot, update):
 	    			id=uuid4(),
 	    			title=("Retrieve cryptocurrency prices"),
 	    			description="Type the name or the abbreviation of your" + \
-	    			 "favorite cryptocurrency.",
+	    			 " favorite cryptocurrency.",
 	    			thumb_url="https://imgur.com/joQ2gGR.png",
 	    			input_message_content=InputTextMessageContent(\
 	    				"To get information about a cryptocurrency, just type " \
@@ -386,7 +386,7 @@ def inlinequery(bot, update):
 	        		input_message_content=InputTextMessageContent("Cryptora " \
 	        		+ "can convert cryptocurrency values to U.S. dollars. Just " \
 	        		+ "type in a cryptocurrency value – for instance, `50 ETH` " \
-	        		+ "– to see the USD value of that amount of cryptocurrency. " \
+	        		+ "– to see the USD value of 50 ETH. " \
 	        		+ "\n\nYou can also type in a U.S. dollar amount and follow " \
 	        		+ "that with a cryptocurrency to convert from dollars to a " \
 	        		+ "cryptocurrency. For example, `$50 ETH` will retrieve the " \
@@ -417,11 +417,11 @@ def inlinequery(bot, update):
 	        		id=uuid4(),
 	        		title=("See real-time trading prices on GDAX"),
 	        		thumb_url="https://imgur.com/Eyh7KSb.png",
-	        		description="Type GDAX to see real-time ETH, BTC, and LTC trading prices.",
+	        		description="Type 'gdax' to see real-time ETH, BTC, and LTC trading prices.",
 	        		input_message_content=InputTextMessageContent("Need more up-to-the-minute " \
 	        		+ "prices than the standard cryptocurrency lookup? Cryptora can retrieve " \
 	        		+ "the prices of bitcoin, litecoin, and ethereum on GDAX. Just type " \
-	        		+ "`GDAX` to get the prices in-line.", ParseMode.MARKDOWN)),
+	        		+ "`gdax` to get the prices in-line.", ParseMode.MARKDOWN)),
 
 				]
 

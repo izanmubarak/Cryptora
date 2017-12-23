@@ -150,7 +150,7 @@ class CryptoCalculatorInstance:
 
 		if reverse == False:	
 			self.inputValue = str((query.split(" "))[0])
-			self.calculatedValue = str(self.calculate_price(query, symbol))
+			self.calculatedValue = str(self.calculate_price(query, symbol, self.inputValue))
 
 		else:
 			self.calculatedValue = self.calculate_crypto_quantity(symbol, \
@@ -158,14 +158,14 @@ class CryptoCalculatorInstance:
 
 	# CryptoCalculator specific function.
 
-	def calculate_price(self, query, symbol):
+	def calculate_price(self, query, symbol, userInput):
 
 		JSON_DATA = requests.get(JSON_API_URL).json()
 
 		for x in range (0, len(JSON_DATA)): 
 			if symbol == JSON_DATA[x]['symbol']:
 				inputPrice = float(JSON_DATA[x]['price_usd'])
-				calculatedPrice = (float(userInputValue) * inputPrice)
+				calculatedPrice = (float(userInput) * inputPrice)
 				return str("{:,}".format(Decimal(calculatedPrice).\
 					quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')))
 
