@@ -19,7 +19,6 @@ from Cryptora_functions import *
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 JSON_DATA = requests.get(JSON_API_URL).json()
 NEWS_URL = "http://coindesk.com/feed"
-token = '463277822:AAGhIn--7kELcYSB7MhVp-JUTkOOZtCWZUo'
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
@@ -498,7 +497,7 @@ def error(bot, update, error):
 
 def main():
     # Create the Updater and pass it your bot's token.
-    updater = Updater("463277822:AAGhIn--7kELcYSB7MhVp-JUTkOOZtCWZUo")
+    updater = Updater('503063276:AAGlYaAk0y4A3Jkim-Y6F-dVIGDE9EsYNSw')
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
