@@ -6,131 +6,132 @@ from app import *
 class Coin:
 
 	def __init__(self, query, rank, noCommas):
-		if rank == None:
-			self.name = str(self.get_name(query))
-		else:
-			self.name = str(self.get_name(rank))
 
-		self.rank = str(self.get_rank(self.name))
-		self.id = str(self.get_id(self.name))
+		self.data = requests.get(JSON_API_URL).json()
+
+		if rank == None:
+			self.name = str(self.get_name(query, self.data))
+		else:
+			self.name = str(self.get_name(rank, self.data))
+
+		self.rank = str(self.get_rank(self.name, self.data))
+		self.id = str(self.get_id(self.name, self.data))
 
 		if noCommas == False:
-			self.price_USD = str(self.get_price(self.name, False))
+			self.price_USD = str(self.get_price(self.name, False, self.data))
 		else:
-			self.price_USD = str(self.get_price(self.name, True))
+			self.price_USD = str(self.get_price(self.name, True, self.data))
 
-		self.JSON_DATA = requests.get(JSON_API_URL).json()
-
-		self.marketCap = str(self.get_market_cap(self.name))
-		self.supply = str(self.get_supply(self.name))
-		self.percentChange = str(self.get_percent_change(self.name))
-		self.symbol = str(self.get_symbol(self.name))
+		self.marketCap = str(self.get_market_cap(self.name, self.data))
+		self.supply = str(self.get_supply(self.name, self.data))
+		self.percentChange = str(self.get_percent_change(self.name, self.data))
+		self.symbol = str(self.get_symbol(self.name, self.data))
 		self.summary = str(self.generate_summary(self.price_USD, \
 			self.marketCap, self.supply, self.percentChange, self.name, \
 			self.symbol))
 
-	def get_rank(self, query):
+	def get_rank(self, query, data):
 
-		for x in range (0, len(self.JSON_DATA)):
-			if query.upper() == self.JSON_DATA[x]['symbol'] or \
-			query.lower() == self.JSON_DATA[x]['id'] or \
-			query.title() == self.JSON_DATA[x]['name'] or \
-			query == self.JSON_DATA[x]['rank']:
+		for x in range (0, len(data)):
+			if query.upper() == data[x]['symbol'] or \
+			query.lower() == data[x]['id'] or \
+			query.title() == data[x]['name'] or \
+			query == data[x]['rank']:
 				return int(x)
 
-	def get_name(self, query):
+	def get_name(self, query, data):
 
 		# With this function, a user can type in the symbol or the name of the 
 		# cryptocurrency in any case (lower or upper case), and this function 
 		# will return the properly formatted name. 
 	    
-		for x in range (0, len(self.JSON_DATA)): 
-			if query.upper() == self.JSON_DATA[x]['symbol'] or \
-			query.lower() == self.JSON_DATA[x]['id'] or \
-			query.title() == self.JSON_DATA[x]['name'] or \
-			query == self.JSON_DATA[x]['rank']:
-				return self.JSON_DATA[x]['name']
+		for x in range (0, len(data)): 
+			if query.upper() == data[x]['symbol'] or \
+			query.lower() == data[x]['id'] or \
+			query.title() == data[x]['name'] or \
+			query == data[x]['rank']:
+				return data[x]['name']
 
-	def get_symbol(self, query):
+	def get_symbol(self, query, data):
 
 		# This function will retrieve the cryptocurrency symbol for the chosen
 		# currency.
 
-		for x in range (0, len(self.JSON_DATA)): 
-			if query.upper() == self.JSON_DATA[x]['symbol'] or \
-			query.lower() == self.JSON_DATA[x]['id'] or \
-			query.title() == self.JSON_DATA[x]['name'] or \
-			query == self.JSON_DATA[x]['rank']:
-				return self.JSON_DATA[x]['symbol']
+		for x in range (0, len(data)): 
+			if query.upper() == data[x]['symbol'] or \
+			query.lower() == data[x]['id'] or \
+			query.title() == data[x]['name'] or \
+			query == data[x]['rank']:
+				return data[x]['symbol']
 
-	def get_id(self, query):
+	def get_id(self, query, data):
 
 		# Retrieves cryptocurrency ID on CoinMarketCap.
 
-		for x in range (0, len(self.JSON_DATA)):
-			if query.upper() == self.JSON_DATA[x]['symbol'] or \
-			query.lower() == self.JSON_DATA[x]['id'] or \
-			query.title() == self.JSON_DATA[x]['name'] or \
-			query == self.JSON_DATA[x]['rank']:
-				return self.JSON_DATA[x]['id']
+		for x in range (0, len(data)):
+			if query.upper() == data[x]['symbol'] or \
+			query.lower() == data[x]['id'] or \
+			query.title() == data[x]['name'] or \
+			query == data[x]['rank']:
+				return data[x]['id']
 
-	def get_price(self, query, noCommas):
+	def get_price(self, query, noCommas, data):
 
 		# This function retrieves and properly formats the chosen 
 		# cryptocurrency's price. If the price of the coin is above $0.01, 
 		# it automatically rounds to two decimal places. It also intelligently
 		# adds comma separators.
 
-		for x in range (0, len(self.JSON_DATA)): 
-			if query.upper() == self.JSON_DATA[x]['symbol'] or \
-			query.lower() == self.JSON_DATA[x]['id'] or \
-			query.title() == self.JSON_DATA[x]['name'] or \
-			query == self.JSON_DATA[x]['rank']:
+		for x in range (0, len(data)): 
+			if query.upper() == data[x]['symbol'] or \
+			query.lower() == data[x]['id'] or \
+			query.title() == data[x]['name'] or \
+			query == data[x]['rank']:
 
-				if noCommas == True or float(self.JSON_DATA[x]['price_usd']) < 1.00:
-					return self.JSON_DATA[x]['price_usd']
+				if noCommas == True or float(data[x]['price_usd']) < 1.00:
+					return data[x]['price_usd']
 				else:
-					price = Decimal((self.JSON_DATA[x]['price_usd'])).\
+					price = Decimal((data[x]['price_usd'])).\
 					quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')
 					return str("{:,}".format(price))
 
-	def get_market_cap(self, query):
+	def get_market_cap(self, query, data):
 
 		# This function retrieves and properly formats the chosen 
 		# cryptocurrency's market capitalization. 
 
-		for x in range (0, len(self.JSON_DATA)):
-			if query.upper() == self.JSON_DATA[x]['symbol'] or \
-			query.lower() == self.JSON_DATA[x]['id'] or \
-			query.title() == self.JSON_DATA[x]['name'] or \
-			query == self.JSON_DATA[x]['rank']:
+		for x in range (0, len(data)):
+			if query.upper() == data[x]['symbol'] or \
+			query.lower() == data[x]['id'] or \
+			query.title() == data[x]['name'] or \
+			query == data[x]['rank']:
 				return str("{:,}".format(Decimal(\
-					float(self.JSON_DATA[x]['market_cap_usd']))))
+					float(data[x]['market_cap_usd']))))
 
-	def get_supply(self, query):
+	def get_supply(self, query, data):
 
 		# Retrieves and properly formats chosen cryptocurrency's circulating
 		# supply count.
 
-		for x in range (0, len(self.JSON_DATA)):
-			if query.upper() == self.JSON_DATA[x]['symbol'] or \
-			query.lower() == self.JSON_DATA[x]['id'] or \
-			query.title() == self.JSON_DATA[x]['name'] or \
-			query == self.JSON_DATA[x]['rank']:
+		for x in range (0, len(data)):
+			if query.upper() == data[x]['symbol'] or \
+			query.lower() == data[x]['id'] or \
+			query.title() == data[x]['name'] or \
+			query == data[x]['rank']:
 				return "{:,}".format(Decimal(float(\
-					self.JSON_DATA[x]['available_supply'])))
+					data[x]['available_supply'])))
 
-	def get_percent_change(self, query):
+	def get_percent_change(self, query, data):
 
 		# Retrieves and properly formats chosen cryptocurrency's change in
 		# value in the last 24 hours.
 
-		for x in range (0, len(self.JSON_DATA)):
-			if query.upper() == self.JSON_DATA[x]['symbol'] or \
-			query.lower() == self.JSON_DATA[x]['id'] or \
-			query.title() == self.JSON_DATA[x]['name'] or \
-			query == self.JSON_DATA[x]['rank']:
-				return self.JSON_DATA[x]['percent_change_24h']
+		for x in range (0, len(data)):
+			if query.upper() == data[x]['symbol'] or \
+			query.lower() == data[x]['id'] or \
+			query.title() == data[x]['name'] or \
+			query == data[x]['rank']:
+				return data[x]['percent_change_24h']
 
 	def generate_summary(self, price, cap, supplyValue, percentChange, \
 		name, symbol):
@@ -159,11 +160,11 @@ class CryptoCalculatorInstance:
 
 	def calculate_price(self, query, symbol):
 
-		userInputValue = (query.split(" "))[0]
+		JSON_DATA = requests.get(JSON_API_URL).json()
 
-		for x in range (0, len(self.JSON_DATA)): 
-			if symbol == self.JSON_DATA[x]['symbol']:
-				inputPrice = float(self.JSON_DATA[x]['price_usd'])
+		for x in range (0, len(JSON_DATA)): 
+			if symbol == JSON_DATA[x]['symbol']:
+				inputPrice = float(JSON_DATA[x]['price_usd'])
 				calculatedPrice = (float(userInputValue) * inputPrice)
 				return str("{:,}".format(Decimal(calculatedPrice).\
 					quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')))
