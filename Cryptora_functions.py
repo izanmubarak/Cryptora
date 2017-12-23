@@ -29,6 +29,8 @@ class Coin:
 
 	def get_rank(self, query):
 
+		JSON_DATA = requests.get(JSON_API_URL).json()
+
 		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
@@ -42,6 +44,8 @@ class Coin:
 		# cryptocurrency in any case (lower or upper case), and this function 
 		# will return the properly formatted name. 
 	    
+		JSON_DATA = requests.get(JSON_API_URL).json()
+
 		for x in range (0, len(JSON_DATA)): 
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
@@ -54,6 +58,8 @@ class Coin:
 		# This function will retrieve the cryptocurrency symbol for the chosen
 		# currency.
 
+		JSON_DATA = requests.get(JSON_API_URL).json()
+
 		for x in range (0, len(JSON_DATA)): 
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
@@ -64,6 +70,8 @@ class Coin:
 	def get_id(self, query):
 
 		# Retrieves cryptocurrency ID on CoinMarketCap.
+
+		JSON_DATA = requests.get(JSON_API_URL).json()
 
 		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
@@ -78,6 +86,8 @@ class Coin:
 		# cryptocurrency's price. If the price of the coin is above $0.01, 
 		# it automatically rounds to two decimal places. It also intelligently
 		# adds comma separators.
+
+		JSON_DATA = requests.get(JSON_API_URL).json()
 
 		for x in range (0, len(JSON_DATA)): 
 			if query.upper() == JSON_DATA[x]['symbol'] or \
@@ -97,6 +107,8 @@ class Coin:
 		# This function retrieves and properly formats the chosen 
 		# cryptocurrency's market capitalization. 
 
+		JSON_DATA = requests.get(JSON_API_URL).json()
+
 		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
@@ -110,6 +122,8 @@ class Coin:
 		# Retrieves and properly formats chosen cryptocurrency's circulating
 		# supply count.
 
+		JSON_DATA = requests.get(JSON_API_URL).json()
+
 		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
 			query.lower() == JSON_DATA[x]['id'] or \
@@ -122,6 +136,8 @@ class Coin:
 
 		# Retrieves and properly formats chosen cryptocurrency's change in
 		# value in the last 24 hours.
+
+		JSON_DATA = requests.get(JSON_API_URL).json()
 
 		for x in range (0, len(JSON_DATA)):
 			if query.upper() == JSON_DATA[x]['symbol'] or \
@@ -157,6 +173,7 @@ class CryptoCalculatorInstance:
 
 	def calculate_price(self, query, symbol):
 
+		JSON_DATA = requests.get(JSON_API_URL).json()
 		userInputValue = (query.split(" "))[0]
 
 		for x in range (0, len(JSON_DATA)): 

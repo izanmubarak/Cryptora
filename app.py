@@ -17,7 +17,6 @@ from Cryptora_functions import *
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
-JSON_DATA = requests.get(JSON_API_URL).json()
 NEWS_URL = "http://coindesk.com/feed"
 
 # Enable logging
