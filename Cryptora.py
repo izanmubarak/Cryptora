@@ -19,7 +19,6 @@ from Cryptora_functions import *
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 JSON_DATA = requests.get(JSON_API_URL).json()
 NEWS_URL = "http://coindesk.com/feed"
-token = '488131377:AAGqibrO_D6nHsTnvNGzsBtPogoojpXK2eU'
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
@@ -497,26 +496,11 @@ def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"', update, error)
 
 def main():
-    # Create the Updater and pass it your bot's token.
-    updater = Updater('488131377:AAGqibrO_D6nHsTnvNGzsBtPogoojpXK2eU')
-
-    # Get the dispatcher to register handlers
+    updater = Updater('503063276:AAGlYaAk0y4A3Jkim-Y6F-dVIGDE9EsYNSw')
     dp = updater.dispatcher
-
-    # on different commands - answer in Telegram
-
-    # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(InlineQueryHandler(inlinequery))
-
-    # log all errors
     dp.add_error_handler(error)
-
-    # Start the Bot
     updater.start_polling()
-
-    # Block until the user presses Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
 
 if __name__ == '__main__':
