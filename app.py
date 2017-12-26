@@ -231,21 +231,12 @@ def inlinequery(bot, update):
 			results = [
 					InlineQueryResultArticle(
             			id=uuid4(),
-            			title=("Price Data for " + coin.name),
+            			title=("View Price Data for " + coin.name),
             			thumb_url='https://files.coinmarketcap.com/static/' + \
             			'img/coins/128x128/' + coin.id + '.png',
             			description=(description),
             			input_message_content=InputTextMessageContent(string, \
             			 ParseMode.MARKDOWN)),
-
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=("Market Capitalization"),
-            			description=("$" + data.marketCap),
-            			thumb_url="https://i.imgur.com/UMczLVP.png",
-            			input_message_content=InputTextMessageContent("***" + \
-            			 coin.name + " Market Capitalization*** \n" + description + \
-            			  "\n \n$" + data.marketCap, ParseMode.MARKDOWN)),
 
 					InlineQueryResultArticle(
             			id=uuid4(),
@@ -323,15 +314,6 @@ def inlinequery(bot, update):
             			description=(description),
             			input_message_content=InputTextMessageContent(string, \
             				ParseMode.MARKDOWN)),
-
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=("Market Capitalization"),
-            			description=("$" + data.marketCap),
-            			thumb_url="https://i.imgur.com/UMczLVP.png",
-            			input_message_content=InputTextMessageContent("***" + \
-            			 coin.name + " Market Capitalization*** \n" + description + \
-            			  "\n \n$" + data.marketCap, ParseMode.MARKDOWN)),
 
 					InlineQueryResultArticle(
             			id=uuid4(),

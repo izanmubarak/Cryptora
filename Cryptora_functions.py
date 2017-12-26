@@ -220,7 +220,7 @@ class PriceOnDay:
 
 		self.open = str(((self.soup.find_all('td'))[1]))[4:][:-5]
 		self.low = str(((self.soup.find_all('td'))[3]))[4:][:-5]
-		self.marketCap = str(((self.soup.find_all('td'))[6]))[4:][:-5]
+		self.marketCap = str(((self.soup.find_all('td'))[5]))[4:][:-5]
 		self.high = str(((self.soup.find_all('td'))[2]))[4:][:-5]
 		self.close = str(((self.soup.find_all('td'))[4]))[4:][:-5]
 

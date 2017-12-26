@@ -27,7 +27,7 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 - `gdax` - Retrieve the trading price of Bitcoin, Bitcoin Cash, Litecoin, and Ethereum from the GDAX trading exchange.
 
-- `[cryptocurrency] [date]` - Type this command, replacing `[cryptocurrency]` with your desired cryptocurrency, and `[date]` with a date formatted in `MM/DD/YYYY` format (or `Month Day, Year` format), and Cryptora will retrieve the high, low, opening, and closing price of the cryptocurrency on that date, if data is available. You can also type in relative dates, so typing `bitcoin 2 days ago` will get you historical pricing data for Bitcoin 2 days prior to whatever the current date is. You can do this for months, years, and days. If pricing data does not exist for a specified date, the bot will return nothing.
+- `[cryptocurrency] [date]` - Type this command, replacing `[cryptocurrency]` with your desired cryptocurrency, and `[date]` with a date formatted in `MM/DD/YYYY` format (or `Month Day, Year` format), and Cryptora will retrieve the high, low, opening, and closing price of the cryptocurrency on that date, if data is available.
 
 - `top [x]` - Type this command (replace `[x]` with any number less than or equal to 50) to see the top *x* cryptocurrencies, ranked by their market capitalization.
 
