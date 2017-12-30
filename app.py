@@ -12,10 +12,8 @@ from bs4 import BeautifulSoup
 import feedparser
 import datefinder
 import dateparser
-import os
 import gdax
 from Cryptora_functions import *
-from config import *
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
@@ -498,7 +496,7 @@ def error(bot, update, error):
 
 def main():
     # Create the Updater and pass it your bot's token.
-    updater = Updater(token)
+    updater = Updater('503063276:AAGlYaAk0y4A3Jkim-Y6F-dVIGDE9EsYNSw')
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
