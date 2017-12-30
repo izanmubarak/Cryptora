@@ -12,12 +12,14 @@ from bs4 import BeautifulSoup
 import feedparser
 import datefinder
 import dateparser
+import os
 import gdax
 from Cryptora_functions import *
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 NEWS_URL = "http://coindesk.com/feed"
+token = str(os.environ['TOKEN'])
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
@@ -496,7 +498,7 @@ def error(bot, update, error):
 
 def main():
     # Create the Updater and pass it your bot's token.
-    updater = Updater('503063276:AAGlYaAk0y4A3Jkim-Y6F-dVIGDE9EsYNSw')
+    updater = Updater(token)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
