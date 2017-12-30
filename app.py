@@ -15,11 +15,11 @@ import dateparser
 import os
 import gdax
 from Cryptora_functions import *
+from config import *
 
 # Constant variables. 
 JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
 NEWS_URL = "http://coindesk.com/feed"
-token = str(os.environ['TOKEN'])
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
