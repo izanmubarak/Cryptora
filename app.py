@@ -124,23 +124,20 @@ def inlinequery(bot, update):
 			name = data[rank - 1]['name']
 			supplyValue = "{:,}".format(Decimal(float(\
 					data[rank - 1]['available_supply'])))
-			price = data[rank - 1]['price_usd']
 			cap = str("{:,}".format(Decimal(\
 					float(data[rank - 1]['market_cap_usd']))))
 			percentChange = data[rank - 1]['percent_change_24h']
 
-			if price > 1.00:
+			if float(data[rank - 1]['price_usd']) < 1.00:		
+				price = data[rank - 1]['price_usd']
 
-				decimalizedPrice = Decimal(price).quantize(Decimal('1.00'), \
-					rounding = 'ROUND_HALF_DOWN')
-				priceWithCommas = str("{:,}".format(decimalizedPrice))
-
-			else: 
-				priceWithCommas = price
-
+			else:
+				decimalizedPrice = Decimal(data[rank - 1]['price_usd']).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')
+				price = str("{:,}".format(decimalizedPrice))
+				
 
 			summary = ("***" + name + "***" + " (" + symbol + ")" + '\n \n' + \
-			'***Price***: $' + priceWithCommas + '\n' + '***Market Capitalization***: $' \
+			'***Price***: $' + price + '\n' + '***Market Capitalization***: $' \
 			 + cap + '\n' + '***Circulating Supply***: ' + supplyValue + " " + \
 			  symbol + '\n' + '***24 Hour Percent Change***: ' + \
 			   percentChange + "% \n")
@@ -151,7 +148,7 @@ def inlinequery(bot, update):
 					id=uuid4(),
 					thumb_url='https://files.coinmarketcap.com/static/img/' \
 					+ 'coins/128x128/' + ID + '.png',
-					description=("$" + priceWithCommas),
+					description=("$" + price),
 					title=(str(rank) + ". " + name),
 					input_message_content=InputTextMessageContent(\
 						summary, ParseMode.MARKDOWN))
