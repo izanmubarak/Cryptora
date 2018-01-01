@@ -115,18 +115,46 @@ def inlinequery(bot, update):
 	# Top X
 	elif "top" in query:
 		results = []
+		data = requests.get(JSON_API_URL).json()
 		listSize = (int(query.split(" ")[1]) + 1)
 		for rank in range (1, listSize):
-			listElement = Coin(query, str(rank), False)	
+			
+			ID = data[rank - 1]['id']
+			symbol = data[rank - 1]['symbol']
+			name = data[rank - 1]['name']
+			supplyValue = "{:,}".format(Decimal(float(\
+					data[rank - 1]['available_supply'])))
+			price = data[rank - 1]['price_usd']
+			cap = str("{:,}".format(Decimal(\
+					float(data[rank - 1]['market_cap_usd']))))
+			percentChange = data[rank - 1]['percent_change_24h']
+
+			if price > 1.00:
+
+				decimalizedPrice = Decimal(price).quantize(Decimal('1.00'), \
+					rounding = 'ROUND_HALF_DOWN')
+				priceWithCommas = str("{:,}".format(decimalizedPrice))
+
+			else: 
+				priceWithCommas = price
+
+
+			summary = ("***" + name + "***" + " (" + symbol + ")" + '\n \n' + \
+			'***Price***: $' + priceWithCommas + '\n' + '***Market Capitalization***: $' \
+			 + cap + '\n' + '***Circulating Supply***: ' + supplyValue + " " + \
+			  symbol + '\n' + '***24 Hour Percent Change***: ' + \
+			   percentChange + "% \n")
+
+	
 			results.append(
 				InlineQueryResultArticle(
 					id=uuid4(),
 					thumb_url='https://files.coinmarketcap.com/static/img/' \
-					+ 'coins/128x128/' + listElement.id + '.png',
-					description=("$" + listElement.price_USD),
-					title=(str(rank) + ". " + listElement.name),
+					+ 'coins/128x128/' + ID + '.png',
+					description=("$" + priceWithCommas),
+					title=(str(rank) + ". " + name),
 					input_message_content=InputTextMessageContent(\
-						listElement.summary, ParseMode.MARKDOWN))
+						summary, ParseMode.MARKDOWN))
 				)
 
 	elif query.upper() == "GDAX":
