@@ -13,6 +13,7 @@ import feedparser
 import datefinder
 import dateparser
 import gdax
+from collections import OrderedDict
 from Cryptora_functions import *
 
 # Constant variables. 
@@ -30,6 +31,8 @@ def inlinequery(bot, update):
 
 	query = update.inline_query.query
 	dateInString = determine_if_date_in_string(query)
+	if query.endswith(","):
+		query = query[:-1]
 
 	# CryptoCalculator
 	if query[0].isdigit():
@@ -102,7 +105,7 @@ def inlinequery(bot, update):
 	elif "news" in query:
 		results = []
 		feed = feedparser.parse("http://coindesk.com/feed")
-		for x in range (0, 9):
+		for x in range (0, 10):
 			article = NewsArticle(x, feed)
 			results.append(
 				InlineQueryResultArticle(
@@ -116,7 +119,11 @@ def inlinequery(bot, update):
 	elif "top" in query:
 		results = []
 		data = requests.get(JSON_API_URL).json()
-		listSize = (int(query.split(" ")[1]) + 1)
+		if query.lower() == "top":
+			listSize = 51
+		else:
+			listSize = (int(query.split(" ")[1]) + 1)
+
 		for rank in range (1, listSize):
 			
 			ID = data[rank - 1]['id']
@@ -132,7 +139,8 @@ def inlinequery(bot, update):
 				price = data[rank - 1]['price_usd']
 
 			else:
-				decimalizedPrice = Decimal(data[rank - 1]['price_usd']).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')
+				decimalizedPrice = Decimal(data[rank - 1]['price_usd']).quantize(\
+					Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')
 				price = str("{:,}".format(decimalizedPrice))
 				
 
@@ -217,9 +225,97 @@ def inlinequery(bot, update):
 
 					]
 
-	elif dateInString == True or "ago" in query:
+	elif dateInString == True or "ago" in query or "yesterday" in query:
+		
+		if "yesterday" in query:
 
-		if "ago" in query:
+			day = str((dateparser.parse("yesterday")).day)
+			month = str((dateparser.parse("yesterday")).month)
+			year = str((dateparser.parse("yesterday")).year)
+
+			splitQuery = query.split(" ")
+			del splitQuery[-1]
+			name = " ".join(splitQuery)
+
+			coin = Coin(name, None, True)
+			data = PriceOnDay(coin.id, day, month, year)
+
+			monthName = convert_month_number_to_name(data.month)
+
+			description = monthName + " " + data.day + ", " + data.year
+
+			string = ("***Price Data for " + coin.name + "*** \n" + \
+				description + "\n \n" + "***High:*** $" + data.high + \
+				"\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + \
+				"\n***Close:*** $" + data.close)
+
+			if len(data.year) != 4:
+				results = [
+					InlineQueryResultArticle(
+            			id=uuid4(),
+            			title=(),
+            			thumb_url=(),
+            			input_message_content=InputTextMessageContent())
+					]
+
+			results = [
+					InlineQueryResultArticle(
+            			id=uuid4(),
+            			title=("Price Data for " + coin.name),
+            			thumb_url='https://files.coinmarketcap.com/static/' + \
+            			'img/coins/128x128/' + coin.id + '.png',
+            			description=(description),
+            			input_message_content=InputTextMessageContent(string, \
+            			 ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+            			id=uuid4(),
+            			title=("Market Capitalization"),
+            			description=("$" + data.marketCap),
+            			thumb_url="https://i.imgur.com/UMczLVP.png",
+            			input_message_content=InputTextMessageContent("***" + \
+            			 coin.name + " Market Capitalization*** \n" + description + \
+            			  "\n \n$" + data.marketCap,  ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+            			id=uuid4(),
+            			title=("High"),
+            			description=("$" + data.high),
+            			thumb_url="https://imgur.com/ntXndWR.png",
+            			input_message_content=InputTextMessageContent("***" + \
+            				coin.name + " High Price*** \n" + description + \
+            				"\n \n$" + data.high,  ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+	            		id=uuid4(),
+	            		title=("Low"),
+	            		description=("$" + data.low),
+	            		thumb_url="https://imgur.com/zOfZSYj.png",
+	            		input_message_content=InputTextMessageContent("***" + \
+	            			coin.name + " Low Price*** \n" + description + \
+	            			"\n \n$" +data.low, ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+	            		id=uuid4(),
+	            		title=("Open"),
+	            		thumb_url="https://imgur.com/EYOqB1W.png",
+	            		description=("$" + data.open),
+	            		input_message_content=InputTextMessageContent("***" + \
+	            			coin.name + " Opening Price*** \n" + description + \
+	            			 "\n \n$" + data.open, ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+	            		id=uuid4(),
+	            		title=("Close"),
+	            		thumb_url="https://imgur.com/iQXqgYU.png",
+	            		description=("$" + data.close),
+	            		input_message_content=InputTextMessageContent("***" + \
+	            			coin.name + " Closing Price*** \n" + description + \
+	            			"\n \n$" + data.close, ParseMode.MARKDOWN))
+
+					]
+
+		elif "ago" in query:
 
 			splitQuery = query.split(" ")
 			relativeDate = splitQuery[-3:]
@@ -256,12 +352,21 @@ def inlinequery(bot, update):
 			results = [
 					InlineQueryResultArticle(
             			id=uuid4(),
-            			title=("View Price Data for " + coin.name),
+            			title=("Price Data for " + coin.name),
             			thumb_url='https://files.coinmarketcap.com/static/' + \
             			'img/coins/128x128/' + coin.id + '.png',
             			description=(description),
             			input_message_content=InputTextMessageContent(string, \
             			 ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+            			id=uuid4(),
+            			title=("Market Capitalization"),
+            			description=("$" + data.marketCap),
+            			thumb_url="https://i.imgur.com/UMczLVP.png",
+            			input_message_content=InputTextMessageContent("***" + \
+            			 coin.name + " Market Capitalization*** \n" + description + \
+            			  "\n \n$" + data.marketCap,  ParseMode.MARKDOWN)),
 
 					InlineQueryResultArticle(
             			id=uuid4(),
@@ -342,6 +447,15 @@ def inlinequery(bot, update):
 
 					InlineQueryResultArticle(
             			id=uuid4(),
+            			title=("Market Capitalization"),
+            			description=("$" + data.marketCap),
+            			thumb_url="https://i.imgur.com/UMczLVP.png",
+            			input_message_content=InputTextMessageContent("***" + \
+            			 coin.name + " Market Capitalization*** \n" + description + \
+            			  "\n \n$" + data.marketCap,  ParseMode.MARKDOWN)),
+
+					InlineQueryResultArticle(
+            			id=uuid4(),
             			title=("High"),
             			description=("$" + data.high),
             			thumb_url="https://imgur.com/ntXndWR.png",
@@ -384,8 +498,7 @@ def inlinequery(bot, update):
 				InlineQueryResultArticle(
 	    			id=uuid4(),
 	    			title=("Retrieve cryptocurrency prices"),
-	    			description="Type the name or the abbreviation of your" + \
-	    			 " favorite cryptocurrency.",
+	    			description=('"BTC", "bitcoin"'),
 	    			thumb_url="https://imgur.com/joQ2gGR.png",
 	    			input_message_content=InputTextMessageContent(\
 	    				"To get information about a cryptocurrency, just type " \
@@ -404,9 +517,7 @@ def inlinequery(bot, update):
 				InlineQueryResultArticle(
 	        		id=uuid4(),
 	        		title=("Convert between cryptocurrencies and U.S. dollars"),
-	        		description=("Type a U.S. dollar value followed by a " \
-	        			+ "cryptocurrency to convert to – or type in a " \
-	        			+ "cryptocurrency value to see its value in dollars"),
+	        		description=('"$2000 BTC", "50 BTC"'),
 	        		thumb_url="https://imgur.com/8XwhAWO.png",
 	        		input_message_content=InputTextMessageContent("Cryptora " \
 	        		+ "can convert cryptocurrency values to U.S. dollars. Just " \
@@ -420,7 +531,7 @@ def inlinequery(bot, update):
 				InlineQueryResultArticle(
 	    			id=uuid4(),
 	    			title=("Read the latest cryptocurrency headlines"),
-	    			description=("Type 'news' to get the 10 latest headlines from CoinDesk."),
+	    			description=('"news"'),
 	    			thumb_url="https://imgur.com/FUX10Vi.png",
 	    			input_message_content=InputTextMessageContent("You can type " \
 	    			+ "`news` to get the ten latest headlines from CoinDesk.com " \
@@ -430,87 +541,108 @@ def inlinequery(bot, update):
 	        		id=uuid4(),
 	        		title=("See the top cryptocurrencies"),
 	        		thumb_url="https://imgur.com/g6YajTp.png",
-	        		description=("Type 'top x', (x ≤ 50), to see the top cryptocurrencies " \
-	        			+ "ranked by market cap value."),
-	        		input_message_content=InputTextMessageContent("To see the top 20 " \
-	        		+ "cryptocurrencies, you need only type `top 20` into Cryptora. " \
-	        		+ "You can see the rankings for up to the top 50 cryptocurrencies " \
-	        		+ "– just type `top` followed by the number of cryptocurrencies " \
-	        		+ "you'd like to see.", ParseMode.MARKDOWN)),
+	        		description=('"top"'),
+	        		input_message_content=InputTextMessageContent("Type `top` " \
+	        			+ "to see the top 50 cryptocurrencies, ranked by " \
+	        			+ "their market capitalization. If you'd like to see " \
+	        			+ "a specific number of cryptocurrencies, you can type " \
+	        			+ "`top x` (where x ≤ 50) – so typing `top 20` will display " \
+	        			+ "the top 20 cryptocurrencies.", ParseMode.MARKDOWN)),
 
 				InlineQueryResultArticle(
 	        		id=uuid4(),
 	        		title=("See real-time trading prices on GDAX"),
 	        		thumb_url="https://imgur.com/Eyh7KSb.png",
-	        		description="Type 'gdax' to see real-time ETH, BTC, and LTC trading prices.",
+	        		description='"gdax"',
 	        		input_message_content=InputTextMessageContent("Need more up-to-the-minute " \
 	        		+ "prices than the standard cryptocurrency lookup? Cryptora can retrieve " \
 	        		+ "the prices of bitcoin, litecoin, and ethereum on GDAX. Just type " \
 	        		+ "`gdax` to get the prices in-line.", ParseMode.MARKDOWN)),
 
-				]
+				InlineQueryResultArticle(
+	        		id=uuid4(),
+	        		title=("Compare multiple cryptocurrencies"),
+	        		thumb_url="https://imgur.com/Gbnrtod.png",
+	        		description='"btc, ltc, eth, dash, iota, ripple"',
+	        		input_message_content=InputTextMessageContent("You can " \
+	        		+ "search for multiple cryptocurrencies in a single "\
+	        		+ "query by typing a selection of cryptocurrencies " \
+	        		+ "(either their name, their symbol, or you can even " \
+	        		+ "mix it up), separated by commas. For example, you " \
+	        		+ "can type `btc, ethereum, omg, xrb, monero, ripple` to send the " \
+	        		+ "prices, market capitalizations, or percent change " \
+	        		+ "values of Bitcoin, Ethereum, OmiseGO, RaiBlocks, " \
+	        		+ "Monero, and Ripple in one message.", ParseMode.MARKDOWN)),
 
+				]
 
 	# Cryptocurrency information
 	else:
-		coin = Coin(query, None, False)
-		if coin.name == "None":
-			# Makes sure if the user types an invalid cryptocurrency name, it 
-			# doesn't pop up with a "None" currency with "None" values. 
+
+		if "," in query:
+
+			results = generate_multi_currency_list(query)
+
+		else:
+
+			coin = Coin(query, None, False)
+			if coin.name == "None":
+				# Makes sure if the user types an invalid cryptocurrency name, it 
+				# doesn't pop up with a "None" currency with "None" values. 
+				results = [
+					InlineQueryResultArticle(
+	            		id=uuid4(),
+	            		title=(),
+	            		thumb_url=(),
+	            		input_message_content=InputTextMessageContent())
+					]
+
 			results = [
-				InlineQueryResultArticle(
-            		id=uuid4(),
-            		title=(),
-            		thumb_url=(),
-            		input_message_content=InputTextMessageContent())
-				]
+	    		# Summary
+	    		InlineQueryResultArticle(
+	            	id=uuid4(),
+	            	title=(coin.name + " (" + coin.symbol + ")"),
+	            	description="View summary...",
+	            	thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' \
+	            	+ coin.id + '.png',
+	            	input_message_content=InputTextMessageContent(coin.summary, ParseMode.MARKDOWN)),
 
-		results = [
-    		# Summary
-    		InlineQueryResultArticle(
-            	id=uuid4(),
-            	title=(coin.name + " (" + coin.symbol + ")"),
-            	description="View summary...",
-            	thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' \
-            	+ coin.id + '.png',
-            	input_message_content=InputTextMessageContent(coin.summary, ParseMode.MARKDOWN)),
+	    		# USD Price
+	    		InlineQueryResultArticle(
+	        		id=uuid4(),
+	        		title=("Price"),
+	        		description="$" + coin.price_USD,
+	        		thumb_url="https://imgur.com/7RCGCoc.png",
+	        		input_message_content=InputTextMessageContent("1 " + coin.symbol + " = $" \
+	        			+ coin.price_USD)),
 
-    		# USD Price
-    		InlineQueryResultArticle(
-        		id=uuid4(),
-        		title=("Price"),
-        		description="$" + coin.price_USD,
-        		thumb_url="https://imgur.com/7RCGCoc.png",
-        		input_message_content=InputTextMessageContent("1 " + coin.symbol + " = $" \
-        			+ coin.price_USD)),
+	    		# Market Capitalization (USD)
+	        	InlineQueryResultArticle(
+	            	id=uuid4(),
+	            	title=("Market Capitalization"),
+	            	description="$" + coin.marketCap,
+	            	thumb_url="https://i.imgur.com/UMczLVP.png",
+	            	input_message_content=InputTextMessageContent("Market Capitalization of " \
+	            		+ coin.name + " (" + coin.symbol + ")" + ": $" + coin.marketCap)),
 
-    		# Market Capitalization (USD)
-        	InlineQueryResultArticle(
-            	id=uuid4(),
-            	title=("Market Capitalization"),
-            	description="$" + coin.marketCap,
-            	thumb_url="https://i.imgur.com/UMczLVP.png",
-            	input_message_content=InputTextMessageContent("Market Capitalization of " \
-            		+ coin.name + " (" + coin.symbol + ")" + ": $" + coin.marketCap)),
+	        	# Circulating Supply 
+	        	InlineQueryResultArticle(
+	            	id=uuid4(),
+	            	title=("Circulating Supply"),
+	            	description=coin.supply + " " + coin.symbol,
+	            	thumb_url=("https://i.imgur.com/vXAN23U.png"),
+	            	input_message_content=InputTextMessageContent("Circulating Supply of " \
+	            		+ coin.name + " (" + coin.symbol + ")" + ": " + coin.supply + " " \
+	            		+ coin.symbol)),
 
-        	# Circulating Supply 
-        	InlineQueryResultArticle(
-            	id=uuid4(),
-            	title=("Circulating Supply"),
-            	description=coin.supply + " " + coin.symbol,
-            	thumb_url=("https://i.imgur.com/vXAN23U.png"),
-            	input_message_content=InputTextMessageContent("Circulating Supply of " \
-            		+ coin.name + " (" + coin.symbol + ")" + ": " + coin.supply + " " \
-            		+ coin.symbol)),
-
-        	# 24 Hour Percent Change
-        	InlineQueryResultArticle(
-            	id=uuid4(),
-            	title=("Percent Change (24 hours)"),
-            	description=coin.percentChange + "%",
-            	thumb_url=("https://imgur.com/iAoXFQc.png"),
-            	input_message_content=InputTextMessageContent("24 Hour Change in " \
-            		+ coin.name + " (" + coin.symbol + ")" + " Price: " + coin.percentChange + "%"))
+	        	# 24 Hour Percent Change
+	        	InlineQueryResultArticle(
+	            	id=uuid4(),
+	            	title=("Percent Change (24 hours)"),
+	            	description=coin.percentChange + "%",
+	            	thumb_url=("https://imgur.com/iAoXFQc.png"),
+	            	input_message_content=InputTextMessageContent("24 Hour Change in " \
+	            		+ coin.name + " (" + coin.symbol + ")" + " Price: " + coin.percentChange + "%"))
         ]
 
 	update.inline_query.answer(results)
@@ -526,9 +658,6 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # on different commands - answer in Telegram
-
-    # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(InlineQueryHandler(inlinequery))
 
     # log all errors
