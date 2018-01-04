@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Cryptora - Public Repository
 from uuid import uuid4
 import re
 from telegram.utils.helpers import escape_markdown
@@ -62,10 +63,10 @@ def inlinequery(bot, update):
 
 			results = [
 				InlineQueryResultArticle(
-            		id=uuid4(),
-            		title=(),
-            		thumb_url=(),
-            		input_message_content=InputTextMessageContent())
+        			id=uuid4(),
+        			title=(),
+        			thumb_url=(),
+        			input_message_content=InputTextMessageContent())
 			]
 	
 	# Reverse CryptoCalculator
@@ -580,6 +581,11 @@ def inlinequery(bot, update):
 	else:
 
 		if "," in query:
+
+			query = query.split(",")
+			while '' in query:
+				index = query.index('')
+				del query[index]
 
 			results = generate_multi_currency_list(query)
 
