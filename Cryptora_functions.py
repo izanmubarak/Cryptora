@@ -32,7 +32,7 @@ class Coin:
 		for x in range (0, len(data)):
 			if query.upper() == data[x]['symbol'] or \
 			query.lower() == data[x]['id'] or \
-			query.title() == data[x]['name'] or \
+			query.lower() == (data[x]['name']).lower() or \
 			query == data[x]['rank']:
 				return int(x) + 1
 
@@ -45,7 +45,7 @@ class Coin:
 		for x in range (0, len(data)): 
 			if query.upper() == data[x]['symbol'] or \
 			query.lower() == data[x]['id'] or \
-			query.title() == data[x]['name'] or \
+			query.lower() == (data[x]['name']).lower() or \
 			query == data[x]['rank']:
 				return data[x]['name']
 
@@ -57,7 +57,7 @@ class Coin:
 		for x in range (0, len(data)): 
 			if query.upper() == data[x]['symbol'] or \
 			query.lower() == data[x]['id'] or \
-			query.title() == data[x]['name'] or \
+			query.lower() == (data[x]['name']).lower() or \
 			query == data[x]['rank']:
 				return data[x]['symbol']
 
@@ -68,7 +68,7 @@ class Coin:
 		for x in range (0, len(data)):
 			if query.upper() == data[x]['symbol'] or \
 			query.lower() == data[x]['id'] or \
-			query.title() == data[x]['name'] or \
+			query.lower() == (data[x]['name']).lower() or \
 			query == data[x]['rank']:
 				return data[x]['id']
 
@@ -82,7 +82,7 @@ class Coin:
 		for x in range (0, len(data)): 
 			if query.upper() == data[x]['symbol'] or \
 			query.lower() == data[x]['id'] or \
-			query.title() == data[x]['name'] or \
+			query.lower() == (data[x]['name']).lower() or \
 			query == data[x]['rank']:
 
 				if noCommas == True or float(data[x]['price_usd']) < 1.00:
@@ -100,7 +100,7 @@ class Coin:
 		for x in range (0, len(data)):
 			if query.upper() == data[x]['symbol'] or \
 			query.lower() == data[x]['id'] or \
-			query.title() == data[x]['name'] or \
+			query.lower() == (data[x]['name']).lower() or \
 			query == data[x]['rank']:
 				return str("{:,}".format(Decimal(\
 					float(data[x]['market_cap_usd']))))
@@ -113,7 +113,7 @@ class Coin:
 		for x in range (0, len(data)):
 			if query.upper() == data[x]['symbol'] or \
 			query.lower() == data[x]['id'] or \
-			query.title() == data[x]['name'] or \
+			query.lower() == (data[x]['name']).lower() or \
 			query == data[x]['rank']:
 				return "{:,}".format(Decimal(float(\
 					data[x]['available_supply'])))
@@ -126,7 +126,7 @@ class Coin:
 		for x in range (0, len(data)):
 			if query.upper() == data[x]['symbol'] or \
 			query.lower() == data[x]['id'] or \
-			query.title() == data[x]['name'] or \
+			query.lower() == (data[x]['name']).lower() or \
 			query == data[x]['rank']:
 				return data[x]['percent_change_24h']
 

@@ -506,6 +506,7 @@ def inlinequery(bot, update):
 			InlineQueryResultArticle(
     			id=uuid4(),
     			title=("Total Market Capitalization"),
+				thumb_url="https://i.imgur.com/UMczLVP.png",
     			description=("$" + str(data.marketCap)),
     			input_message_content=InputTextMessageContent("***Total Market Capitalization:*** " + "$" + str(data.marketCap), \
     				ParseMode.MARKDOWN)),
@@ -513,6 +514,7 @@ def inlinequery(bot, update):
 			InlineQueryResultArticle(
     			id=uuid4(),
     			title=("Total 24 Hour Volume"),
+				thumb_url="https://imgur.com/Qw4y4Ed.png",
     			description=("$" + str(data.volume24h)),
     			input_message_content=InputTextMessageContent("***Total 24 Hour Volume:*** $" + str(data.volume24h),  ParseMode.MARKDOWN)),
 
@@ -520,16 +522,19 @@ def inlinequery(bot, update):
     			id=uuid4(),
     			title=("Bitcoin Dominance"),
     			description=(str(data.dominanceBTC) + "%"),
+    			thumb_url="https://imgur.com/tXiapTn.png",
     			input_message_content=InputTextMessageContent("***Bitcoin Dominance:*** " + str(data.dominanceBTC) + "%",  ParseMode.MARKDOWN)),
 
 			InlineQueryResultArticle(
         		id=uuid4(),
         		title=("Active Cryptocurrencies"),
+        		thumb_url="https://imgur.com/g6YajTp.png",
         		description=(str(data.activeCryptoCount) + " active cryptocurrencies"),
         		input_message_content=InputTextMessageContent(str(data.activeCryptoCount) + " active cryptocurrencies on CoinMarketCap.", ParseMode.MARKDOWN)),
 
 			InlineQueryResultArticle(
         		id=uuid4(),
+        		thumb_url="https://imgur.com/qO0rcCI.png",
         		title=("Markets"),
         		description=(str(data.marketCount) + " markets"),
         		input_message_content=InputTextMessageContent(str(data.marketCount) + " markets on CoinMarketCap." , ParseMode.MARKDOWN)),
@@ -608,7 +613,7 @@ def inlinequery(bot, update):
 	        		id=uuid4(),
 	        		title=("See global stats"),
 	        		thumb_url="https://imgur.com/MyjXCmb.png",
-	        		description='"gdax"',
+	        		description='"global"',
 	        		input_message_content=InputTextMessageContent("Type 'global' to see a variety of up-to-the-minute" + \
 	        			" global statistics." , ParseMode.MARKDOWN)),
 
