@@ -25,7 +25,7 @@ class Coin:
 		self.symbol = str(self.get_symbol(self.name, self.data))
 		self.summary = str(self.generate_summary(self.price_USD, \
 			self.marketCap, self.supply, self.percentChange, self.name, \
-			self.symbol))
+			self.symbol, self.rank, self.data))
 
 	def get_rank(self, query, data):
 
@@ -34,7 +34,7 @@ class Coin:
 			query.lower() == data[x]['id'] or \
 			query.title() == data[x]['name'] or \
 			query == data[x]['rank']:
-				return int(x)
+				return int(x) + 1
 
 	def get_name(self, query, data):
 
@@ -131,11 +131,13 @@ class Coin:
 				return data[x]['percent_change_24h']
 
 	def generate_summary(self, price, cap, supplyValue, percentChange, \
-		name, symbol):
+		name, symbol, rank, data):
 
 		# Returns a summary of the cryptocurrency.
 
 		return ("***" + name + "***" + " (" + symbol + ")" + '\n \n' + \
+
+			'***Rank***: #' + str(rank) + " out of " + str(len(data)) + "\n" + \
 			'***Price***: $' + price + '\n' + '***Market Capitalization***: $' \
 			 + cap + '\n' + '***Circulating Supply***: ' + supplyValue + " " + \
 			  symbol + '\n' + '***24 Hour Percent Change***: ' + \
@@ -329,6 +331,7 @@ def get_GDAX_price(string):
 def convert_list_to_names(query):
 
 	JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
+
 	currencyList = query.replace(", ", ",")
 	currencyList = currencyList.split(",")
 
@@ -421,28 +424,29 @@ def generate_multi_currency_list(query):
 	marketCaps = get_market_capitalizations(currencyList, data)
 	percentChanges = get_percent_changes(currencyList, data)
 
-	results = [
-		InlineQueryResultArticle(
-    		id=uuid4(),
-    		title=('Prices'),
-    		description='Tap to send.',
-    		thumb_url="https://imgur.com/7RCGCoc.png",
-    		input_message_content=InputTextMessageContent(prices, ParseMode.MARKDOWN)),
+	if currencyList:
+		results = [
+			InlineQueryResultArticle(
+	    		id=uuid4(),
+	    		title=('Prices'),
+	    		description='Tap to send.',
+	    		thumb_url="https://imgur.com/7RCGCoc.png",
+	    		input_message_content=InputTextMessageContent(prices, ParseMode.MARKDOWN)),
 
-		InlineQueryResultArticle(
-    		id=uuid4(),
-    		title=('Market Capitalizations'),
-    		description='Tap to send.',
-			thumb_url="https://i.imgur.com/UMczLVP.png",
-    		input_message_content=InputTextMessageContent(marketCaps, ParseMode.MARKDOWN)),
+			InlineQueryResultArticle(
+	    		id=uuid4(),
+	    		title=('Market Capitalizations'),
+	    		description='Tap to send.',
+				thumb_url="https://i.imgur.com/UMczLVP.png",
+	    		input_message_content=InputTextMessageContent(marketCaps, ParseMode.MARKDOWN)),
 
-		InlineQueryResultArticle(
-    		id=uuid4(),
-    		title=('Percent Change Values'),
-    		description='Tap to send.',
-    		thumb_url=("https://imgur.com/iAoXFQc.png"),
-    		input_message_content=InputTextMessageContent(percentChanges, ParseMode.MARKDOWN)),
-	]
+			InlineQueryResultArticle(
+	    		id=uuid4(),
+	    		title=('Percent Change Values'),
+	    		description='Tap to send.',
+	    		thumb_url=("https://imgur.com/iAoXFQc.png"),
+	    		input_message_content=InputTextMessageContent(percentChanges, ParseMode.MARKDOWN)),
+		]
 
 	if len(currencyList) > 10:
 		length = 10
@@ -465,3 +469,43 @@ def generate_multi_currency_list(query):
 			)
 
 	return results
+
+class GeneralStats:
+
+	def __init__(self):
+
+		self.URL = 'https://api.coinmarketcap.com/v1/global/'
+		self.data = requests.get(self.URL).json()
+
+		self.activeCryptoCount = self.get_active_cryptos(self.data)
+		self.dominanceBTC = self.get_BTC_dominance(self.data)
+		self.marketCount = self.get_market_count(self.data)
+		self.volume24h = self.get_volume_24h(self.data)
+		self.marketCap = self.get_market_cap(self.data)
+
+	def get_market_cap(self, data):
+
+		unformatted = data['total_market_cap_usd']
+		cap = Decimal(unformatted).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')
+		cap = str("{:,}".format(cap))
+		return cap
+
+	def get_BTC_dominance(self, data):
+ 
+		dominance = Decimal(data['bitcoin_percentage_of_market_cap']).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')
+		dominance = str("{:,}".format(dominance))
+		return dominance
+
+	def get_active_cryptos(self, data):
+ 
+		return data['active_currencies']
+
+	def get_market_count(self, data):
+
+		return data['active_markets']
+
+	def get_volume_24h(self, data):
+
+		volume = Decimal(data['total_24h_volume_usd']).quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')
+		volume = str("{:,}".format(volume))
+		return volume

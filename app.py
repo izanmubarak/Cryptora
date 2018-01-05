@@ -32,8 +32,12 @@ def inlinequery(bot, update):
 
 	query = update.inline_query.query
 	dateInString = determine_if_date_in_string(query)
-	if query.endswith(","):
-		query = query[:-1]
+	
+	for x in range (0, len(query)):
+		if query.endswith(","):
+			query = query[:-1]
+		if query.startswith(","):
+			query = query[1:]
 
 	# CryptoCalculator
 	if query[0].isdigit():
@@ -179,9 +183,9 @@ def inlinequery(bot, update):
             			thumb_url="https://imgur.com/Eyh7KSb.png",
             			description=("View summary..."),
             			input_message_content=InputTextMessageContent((\
-            				"***GDAX Trading Prices*** \n \n ***Bitcoin:*** $" \
-            				+ bitcoin + "\n ***Litecoin:*** $" + litecoin + \
-            				"\n ***Ethereum:*** $" + ethereum + "\n***Bitcoin Cash:*** $" + \
+            				"***GDAX Trading Prices*** \n \n***Bitcoin:*** $" \
+            				+ bitcoin + "\n***Litecoin:*** $" + litecoin + \
+            				"\n***Ethereum:*** $" + ethereum + "\n***Bitcoin Cash:*** $" + \
             				bitcoinCash), ParseMode.MARKDOWN)),
 
 					InlineQueryResultArticle(
@@ -493,6 +497,46 @@ def inlinequery(bot, update):
 
 					]
 
+	elif query.lower() == "global":
+
+		data = GeneralStats()
+
+		results = [
+
+			InlineQueryResultArticle(
+    			id=uuid4(),
+    			title=("Total Market Capitalization"),
+    			description=("$" + str(data.marketCap)),
+    			input_message_content=InputTextMessageContent("***Total Market Capitalization:*** " + "$" + str(data.marketCap), \
+    				ParseMode.MARKDOWN)),
+
+			InlineQueryResultArticle(
+    			id=uuid4(),
+    			title=("Total 24 Hour Volume"),
+    			description=("$" + str(data.volume24h)),
+    			input_message_content=InputTextMessageContent("***Total 24 Hour Volume:*** $" + str(data.volume24h),  ParseMode.MARKDOWN)),
+
+			InlineQueryResultArticle(
+    			id=uuid4(),
+    			title=("Bitcoin Dominance"),
+    			description=(str(data.dominanceBTC) + "%"),
+    			input_message_content=InputTextMessageContent("***Bitcoin Dominance:*** " + str(data.dominanceBTC) + "%",  ParseMode.MARKDOWN)),
+
+			InlineQueryResultArticle(
+        		id=uuid4(),
+        		title=("Active Cryptocurrencies"),
+        		description=(str(data.activeCryptoCount) + " active cryptocurrencies"),
+        		input_message_content=InputTextMessageContent(str(data.activeCryptoCount) + " active cryptocurrencies on CoinMarketCap.", ParseMode.MARKDOWN)),
+
+			InlineQueryResultArticle(
+        		id=uuid4(),
+        		title=("Markets"),
+        		description=(str(data.marketCount) + " markets"),
+        		input_message_content=InputTextMessageContent(str(data.marketCount) + " markets on CoinMarketCap." , ParseMode.MARKDOWN)),
+
+			]
+
+
 	elif "help" == query.lower():
 
 		results = [
@@ -562,6 +606,14 @@ def inlinequery(bot, update):
 
 				InlineQueryResultArticle(
 	        		id=uuid4(),
+	        		title=("See global stats"),
+	        		thumb_url="https://imgur.com/MyjXCmb.png",
+	        		description='"gdax"',
+	        		input_message_content=InputTextMessageContent("Type 'global' to see a variety of up-to-the-minute" + \
+	        			" global statistics." , ParseMode.MARKDOWN)),
+
+				InlineQueryResultArticle(
+	        		id=uuid4(),
 	        		title=("Compare multiple cryptocurrencies"),
 	        		thumb_url="https://imgur.com/Gbnrtod.png",
 	        		description='"btc, ltc, eth, dash, iota, ripple"',
@@ -581,12 +633,7 @@ def inlinequery(bot, update):
 	else:
 
 		if "," in query:
-
-			query = query.split(",")
-			while '' in query:
-				index = query.index('')
-				del query[index]
-
+			
 			results = generate_multi_currency_list(query)
 
 		else:
@@ -608,7 +655,7 @@ def inlinequery(bot, update):
 	    		InlineQueryResultArticle(
 	            	id=uuid4(),
 	            	title=(coin.name + " (" + coin.symbol + ")"),
-	            	description="View summary...",
+	            	description="#" + coin.rank + " out of " + str(len(coin.data)),
 	            	thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' \
 	            	+ coin.id + '.png',
 	            	input_message_content=InputTextMessageContent(coin.summary, ParseMode.MARKDOWN)),
