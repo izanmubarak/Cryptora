@@ -8,6 +8,7 @@ Cryptora is an easy-to-use Telegram bot service that can retrieve cryptocurrency
 
 - **Look up cryptocurrencies.** Find the price (and other useful data) of thousands of cryptocurrencies, just by typing the name or the shorthand abbreviation.
 - **Get historical data.** Find the low, high, opening, and closing price of thousands of cryptocurrencies on a given date, as well as the market capitalization.
+- **See global statistics.** See statistics across all cryptocurrencies, including the global market cap, Bitcoin's percentage share of the global market cap, the number of active currencies, and more.
 - **Get real-time exchange data from GDAX.** See the trading price of Bitcoin, Litecoin, Ethereum, and Bitcoin Cash on GDAX, one of the leading cryptocurrency exchanges.
 - **Calculations made easy.** Instantly convert cryptocurrency amounts to U.S. dollars, and vice versa.
 - **Browse the latest cryptocurrency news.** Read and share the 10 latest headlines from Coindesk.com.
@@ -24,6 +25,8 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 - `[cryptocurrency]` – Type the name of any cryptocurrency, and Cryptora will retrieve essential information (price, market cap, circulating supply, and 24 hour percent change) and display it in a list. You can also type the cryptocurrency's shorthand abbreviation. For example, you can type `bitcoin` or `BTC` to get essential information about Bitcoin. The bot is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. You can also type multiple cryptocurrencies, separated by commas, and send a list of cryptocurrency prices, percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries. So, typing `ripple, iota, xmr, raiblocks, bitcoin` will get you a list of their prices, market capitalizations, and percent changes that you can share with a chat.
 
 - `news` - Retrieve the latest 10 articles from CoinDesk.com and display them in a list. You can choose to share the article with your chat, or you can browse the latest cryptocurrency headlines. 
+
+- `global` - Retrieve global statistics from CoinMarketCap, including the total market capitalization, the total 24 hour volume, bitcoin's dominance, and the number of active cryptocurrencies and markets.
 
 - `gdax` - Retrieve the trading price of Bitcoin, Bitcoin Cash, Litecoin, and Ethereum from the GDAX trading exchange.
 
