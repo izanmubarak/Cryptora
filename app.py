@@ -65,46 +65,48 @@ def inlinequery(bot, update):
 
 		if inputCoin.name == "None":
 
-			results = [
-				InlineQueryResultArticle(
-        			id=uuid4(),
-        			title=(),
-        			thumb_url=(),
-        			input_message_content=InputTextMessageContent())
-			]
+			bot.answerInlineQuery(update.inline_query.id, results=[], \
+				switch_pm_text='No cryptocurrency found. Please try again.', \
+				switch_pm_parameter='do_something')
 	
 	# Reverse CryptoCalculator
 	elif query[0] == "$":	
-		splitQuery = query.split(" ")
-		length = len(splitQuery)
-		inputDollarValue = (splitQuery[0])[1:]
-		currency = ""
+		try:
+			splitQuery = query.split(" ")
+			length = len(splitQuery)
+			inputDollarValue = (splitQuery[0])[1:]
+			currency = ""
 
-		if splitQuery[1] == "to":
-			for x in range (2, length):
-				currency += splitQuery[x] + " "
-		else:
-			for x in range (1, length):
-				currency += splitQuery[x] + " "
+			if splitQuery[1] == "to":
+				for x in range (2, length):
+					currency += splitQuery[x] + " "
+			else:
+				for x in range (1, length):
+					currency += splitQuery[x] + " "
 
-		currency = currency[:-1]
-		inputCoin = Coin(currency, None, True)
-		value = CryptoCalculatorInstance(query, inputCoin.symbol, True, \
-			inputCoin.price_USD, inputDollarValue)
+			currency = currency[:-1]
+			inputCoin = Coin(currency, None, True)
+			value = CryptoCalculatorInstance(query, inputCoin.symbol, True, \
+				inputCoin.price_USD, inputDollarValue)
 
-		results = [
-			InlineQueryResultArticle(
-				id=uuid4(),
-				title=("Convert $" + inputDollarValue + " to " \
-					+ inputCoin.symbol),
-				thumb_url='https://files.coinmarketcap.com/static/img/coins/' \
-				+ '200x200/' + inputCoin.id + '.png',
-				description=(str(value.calculatedValue) + " " + \
-					str(inputCoin.symbol)),
-				input_message_content=InputTextMessageContent("$" + \
-					str(inputDollarValue) + " = " + str(value.calculatedValue) \
-					+ " " + str(inputCoin.symbol)))
-		]
+			results = [
+				InlineQueryResultArticle(
+					id=uuid4(),
+					title=("Convert $" + inputDollarValue + " to " \
+						+ inputCoin.symbol),
+					thumb_url='https://files.coinmarketcap.com/static/img/coins/' \
+					+ '200x200/' + inputCoin.id + '.png',
+					description=(str(value.calculatedValue) + " " + \
+						str(inputCoin.symbol)),
+					input_message_content=InputTextMessageContent("$" + \
+						str(inputDollarValue) + " = " + str(value.calculatedValue) \
+						+ " " + str(inputCoin.symbol)))
+			]
+		except:
+
+			bot.answerInlineQuery(update.inline_query.id, results=[], \
+				switch_pm_text='No cryptocurrency found. Please try again.', \
+				switch_pm_parameter='do_something')
 
 	# News
 	elif "news" in query:
@@ -254,15 +256,6 @@ def inlinequery(bot, update):
 				"\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + \
 				"\n***Close:*** $" + data.close)
 
-			if len(data.year) != 4:
-				results = [
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=(),
-            			thumb_url=(),
-            			input_message_content=InputTextMessageContent())
-					]
-
 			results = [
 					InlineQueryResultArticle(
             			id=uuid4(),
@@ -322,180 +315,178 @@ def inlinequery(bot, update):
 
 		elif "ago" in query:
 
-			splitQuery = query.split(" ")
-			relativeDate = splitQuery[-3:]
-			relativeDate = " ".join(relativeDate)
+			try:
 
-			day = str((dateparser.parse(relativeDate)).day)
-			month = str((dateparser.parse(relativeDate)).month)
-			year = str((dateparser.parse(relativeDate)).year)
+				splitQuery = query.split(" ")
+				relativeDate = splitQuery[-3:]
+				relativeDate = " ".join(relativeDate)
 
-			name = splitQuery[:len(splitQuery)-3]
-			name = " ".join(name)
+				day = str((dateparser.parse(relativeDate)).day)
+				month = str((dateparser.parse(relativeDate)).month)
+				year = str((dateparser.parse(relativeDate)).year)
 
-			coin = Coin(name, None, True)
-			data = PriceOnDay(coin.id, day, month, year)
+				name = splitQuery[:len(splitQuery)-3]
+				name = " ".join(name)
 
-			monthName = convert_month_number_to_name(data.month)
+				coin = Coin(name, None, True)
+				data = PriceOnDay(coin.id, day, month, year)
 
-			description = monthName + " " + data.day + ", " + data.year
+				monthName = convert_month_number_to_name(data.month)
 
-			string = ("***Price Data for " + coin.name + "*** \n" + \
-				description + "\n \n" + "***High:*** $" + data.high + \
-				"\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + \
-				"\n***Close:*** $" + data.close)
+				description = monthName + " " + data.day + ", " + data.year
 
-			if len(data.year) != 4:
+				string = ("***Price Data for " + coin.name + "*** \n" + \
+					description + "\n \n" + "***High:*** $" + data.high + \
+					"\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + \
+					"\n***Close:*** $" + data.close)
+
 				results = [
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=(),
-            			thumb_url=(),
-            			input_message_content=InputTextMessageContent())
-					]
+						InlineQueryResultArticle(
+	            			id=uuid4(),
+	            			title=("Price Data for " + coin.name),
+	            			thumb_url='https://files.coinmarketcap.com/static/' + \
+	            			'img/coins/128x128/' + coin.id + '.png',
+	            			description=(description),
+	            			input_message_content=InputTextMessageContent(string, \
+	            			 ParseMode.MARKDOWN)),
 
-			results = [
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=("Price Data for " + coin.name),
-            			thumb_url='https://files.coinmarketcap.com/static/' + \
-            			'img/coins/128x128/' + coin.id + '.png',
-            			description=(description),
-            			input_message_content=InputTextMessageContent(string, \
-            			 ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+	            			id=uuid4(),
+	            			title=("Market Capitalization"),
+	            			description=("$" + data.marketCap),
+	            			thumb_url="https://i.imgur.com/UMczLVP.png",
+	            			input_message_content=InputTextMessageContent("***" + \
+	            			 coin.name + " Market Capitalization*** \n" + description + \
+	            			  "\n \n$" + data.marketCap,  ParseMode.MARKDOWN)),
 
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=("Market Capitalization"),
-            			description=("$" + data.marketCap),
-            			thumb_url="https://i.imgur.com/UMczLVP.png",
-            			input_message_content=InputTextMessageContent("***" + \
-            			 coin.name + " Market Capitalization*** \n" + description + \
-            			  "\n \n$" + data.marketCap,  ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+	            			id=uuid4(),
+	            			title=("High"),
+	            			description=("$" + data.high),
+	            			thumb_url="https://imgur.com/ntXndWR.png",
+	            			input_message_content=InputTextMessageContent("***" + \
+	            				coin.name + " High Price*** \n" + description + \
+	            				"\n \n$" + data.high,  ParseMode.MARKDOWN)),
 
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=("High"),
-            			description=("$" + data.high),
-            			thumb_url="https://imgur.com/ntXndWR.png",
-            			input_message_content=InputTextMessageContent("***" + \
-            				coin.name + " High Price*** \n" + description + \
-            				"\n \n$" + data.high,  ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+		            		id=uuid4(),
+		            		title=("Low"),
+		            		description=("$" + data.low),
+		            		thumb_url="https://imgur.com/zOfZSYj.png",
+		            		input_message_content=InputTextMessageContent("***" + \
+		            			coin.name + " Low Price*** \n" + description + \
+		            			"\n \n$" +data.low, ParseMode.MARKDOWN)),
 
-					InlineQueryResultArticle(
-	            		id=uuid4(),
-	            		title=("Low"),
-	            		description=("$" + data.low),
-	            		thumb_url="https://imgur.com/zOfZSYj.png",
-	            		input_message_content=InputTextMessageContent("***" + \
-	            			coin.name + " Low Price*** \n" + description + \
-	            			"\n \n$" +data.low, ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+		            		id=uuid4(),
+		            		title=("Open"),
+		            		thumb_url="https://imgur.com/EYOqB1W.png",
+		            		description=("$" + data.open),
+		            		input_message_content=InputTextMessageContent("***" + \
+		            			coin.name + " Opening Price*** \n" + description + \
+		            			 "\n \n$" + data.open, ParseMode.MARKDOWN)),
 
-					InlineQueryResultArticle(
-	            		id=uuid4(),
-	            		title=("Open"),
-	            		thumb_url="https://imgur.com/EYOqB1W.png",
-	            		description=("$" + data.open),
-	            		input_message_content=InputTextMessageContent("***" + \
-	            			coin.name + " Opening Price*** \n" + description + \
-	            			 "\n \n$" + data.open, ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+		            		id=uuid4(),
+		            		title=("Close"),
+		            		thumb_url="https://imgur.com/iQXqgYU.png",
+		            		description=("$" + data.close),
+		            		input_message_content=InputTextMessageContent("***" + \
+		            			coin.name + " Closing Price*** \n" + description + \
+		            			"\n \n$" + data.close, ParseMode.MARKDOWN))
 
-					InlineQueryResultArticle(
-	            		id=uuid4(),
-	            		title=("Close"),
-	            		thumb_url="https://imgur.com/iQXqgYU.png",
-	            		description=("$" + data.close),
-	            		input_message_content=InputTextMessageContent("***" + \
-	            			coin.name + " Closing Price*** \n" + description + \
-	            			"\n \n$" + data.close, ParseMode.MARKDOWN))
-
-					]
+						]
+			except:
+				bot.answerInlineQuery(update.inline_query.id, results=[], \
+					switch_pm_text='Invalid date query. Please try again.', \
+					switch_pm_parameter='do_something')
 
 		else:
 
-			name = get_coin_name_from_historical_query(get_coin_word_count(query), query)
+			try:
+				name = get_coin_name_from_historical_query(get_coin_word_count(query), query)
 
-			day = str(get_day(query, True))
-			month = str(get_month(query, True))
-			year = str(get_year(query, True))
+				day = str(get_day(query, True))
+				month = str(get_month(query, True))
+				year = str(get_year(query, True))
 
-			coin = Coin(name, None, True)
-			data = PriceOnDay(coin.id, day, month, year)
+				coin = Coin(name, None, True)
+				data = PriceOnDay(coin.id, day, month, year)
 
-			monthName = convert_month_number_to_name(data.month)
+				monthName = convert_month_number_to_name(data.month)
 
-			description = monthName + " " + data.day + ", " + data.year
+				description = monthName + " " + data.day + ", " + data.year
 
-			string = ("***Price Data for " + coin.name + "*** \n" + \
-				description + "\n \n" + "***High:*** $" + data.high + \
-				"\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + \
-				 "\n***Close:*** $" + data.close)
+				string = ("***Price Data for " + coin.name + "*** \n" + \
+					description + "\n \n" + "***High:*** $" + data.high + \
+					"\n***Low:*** $" + data.low + "\n***Open:*** $" + data.open + \
+					 "\n***Close:*** $" + data.close)
 
-			if len(data.year) != 4:
+				if len(data.year) != 4:
+					bot.answerInlineQuery(update.inline_query.id, results=[], \
+						switch_pm_text='Invalid date entered. Please try again.', \
+						switch_pm_parameter='do_something')
+
 				results = [
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=(),
-            			thumb_url=(),
-            			input_message_content=InputTextMessageContent())
-					]
+						InlineQueryResultArticle(
+	            			id=uuid4(),
+	            			title=("Price Data for " + coin.name),
+	            			thumb_url='https://files.coinmarketcap.com/static/img/' \
+	            			+ 'coins/128x128/' + coin.id + '.png',
+	            			description=(description),
+	            			input_message_content=InputTextMessageContent(string, \
+	            				ParseMode.MARKDOWN)),
 
-			results = [
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=("Price Data for " + coin.name),
-            			thumb_url='https://files.coinmarketcap.com/static/img/' \
-            			+ 'coins/128x128/' + coin.id + '.png',
-            			description=(description),
-            			input_message_content=InputTextMessageContent(string, \
-            				ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+	            			id=uuid4(),
+	            			title=("Market Capitalization"),
+	            			description=("$" + data.marketCap),
+	            			thumb_url="https://i.imgur.com/UMczLVP.png",
+	            			input_message_content=InputTextMessageContent("***" + \
+	            			 coin.name + " Market Capitalization*** \n" + description + \
+	            			  "\n \n$" + data.marketCap,  ParseMode.MARKDOWN)),
 
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=("Market Capitalization"),
-            			description=("$" + data.marketCap),
-            			thumb_url="https://i.imgur.com/UMczLVP.png",
-            			input_message_content=InputTextMessageContent("***" + \
-            			 coin.name + " Market Capitalization*** \n" + description + \
-            			  "\n \n$" + data.marketCap,  ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+	            			id=uuid4(),
+	            			title=("High"),
+	            			description=("$" + data.high),
+	            			thumb_url="https://imgur.com/ntXndWR.png",
+	            			input_message_content=InputTextMessageContent("***" + \
+	            			 coin.name + " High Price*** \n" + description + \
+	            			  "\n \n$" + data.high,  ParseMode.MARKDOWN)),
 
-					InlineQueryResultArticle(
-            			id=uuid4(),
-            			title=("High"),
-            			description=("$" + data.high),
-            			thumb_url="https://imgur.com/ntXndWR.png",
-            			input_message_content=InputTextMessageContent("***" + \
-            			 coin.name + " High Price*** \n" + description + \
-            			  "\n \n$" + data.high,  ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+		            		id=uuid4(),
+		            		title=("Low"),
+		            		description=("$" + data.low),
+		            		thumb_url="https://imgur.com/zOfZSYj.png",
+		            		input_message_content=InputTextMessageContent("***" + \
+		            			coin.name + " Low Price*** \n" + description + \
+		            			"\n \n$" +data.low, ParseMode.MARKDOWN)),
 
-					InlineQueryResultArticle(
-	            		id=uuid4(),
-	            		title=("Low"),
-	            		description=("$" + data.low),
-	            		thumb_url="https://imgur.com/zOfZSYj.png",
-	            		input_message_content=InputTextMessageContent("***" + \
-	            			coin.name + " Low Price*** \n" + description + \
-	            			"\n \n$" +data.low, ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+		            		id=uuid4(),
+		            		title=("Open"),
+		            		thumb_url="https://imgur.com/EYOqB1W.png",
+		            		description=("$" + data.open),
+		            		input_message_content=InputTextMessageContent("***" + \
+		            			coin.name + " Opening Price*** \n" + description + \
+		            			 "\n \n$" + data.open, ParseMode.MARKDOWN)),
 
-					InlineQueryResultArticle(
-	            		id=uuid4(),
-	            		title=("Open"),
-	            		thumb_url="https://imgur.com/EYOqB1W.png",
-	            		description=("$" + data.open),
-	            		input_message_content=InputTextMessageContent("***" + \
-	            			coin.name + " Opening Price*** \n" + description + \
-	            			 "\n \n$" + data.open, ParseMode.MARKDOWN)),
+						InlineQueryResultArticle(
+		            		id=uuid4(),
+		            		title=("Close"),
+		            		thumb_url="https://imgur.com/iQXqgYU.png",
+		            		description=("$" + data.close),
+		            		input_message_content=InputTextMessageContent("***" + \
+		            			coin.name + " Closing Price*** \n" + description + \
+		            			"\n \n$" + data.close, ParseMode.MARKDOWN))
 
-					InlineQueryResultArticle(
-	            		id=uuid4(),
-	            		title=("Close"),
-	            		thumb_url="https://imgur.com/iQXqgYU.png",
-	            		description=("$" + data.close),
-	            		input_message_content=InputTextMessageContent("***" + \
-	            			coin.name + " Closing Price*** \n" + description + \
-	            			"\n \n$" + data.close, ParseMode.MARKDOWN))
-
-					]
+						]
+			except:
+				bot.answerInlineQuery(update.inline_query.id, results=[], \
+					switch_pm_text='Invalid date entered. Please try again.', \
+					switch_pm_parameter='do_something')
 
 	elif query.lower() == "global":
 
@@ -508,36 +499,40 @@ def inlinequery(bot, update):
     			title=("Total Market Capitalization"),
 				thumb_url="https://i.imgur.com/UMczLVP.png",
     			description=("$" + str(data.marketCap)),
-    			input_message_content=InputTextMessageContent("***Total Market Capitalization:*** " + "$" + str(data.marketCap), \
-    				ParseMode.MARKDOWN)),
+    			input_message_content=InputTextMessageContent("***Total Market Capitalization:*** " \
+    				+ "$" + str(data.marketCap), ParseMode.MARKDOWN)),
 
 			InlineQueryResultArticle(
     			id=uuid4(),
     			title=("Total 24 Hour Volume"),
 				thumb_url="https://imgur.com/Qw4y4Ed.png",
     			description=("$" + str(data.volume24h)),
-    			input_message_content=InputTextMessageContent("***Total 24 Hour Volume:*** $" + str(data.volume24h),  ParseMode.MARKDOWN)),
+    			input_message_content=InputTextMessageContent("***Total 24 Hour Volume:*** $" \
+    				+ str(data.volume24h),  ParseMode.MARKDOWN)),
 
 			InlineQueryResultArticle(
     			id=uuid4(),
     			title=("Bitcoin Dominance"),
     			description=(str(data.dominanceBTC) + "%"),
     			thumb_url="https://imgur.com/tXiapTn.png",
-    			input_message_content=InputTextMessageContent("***Bitcoin Dominance:*** " + str(data.dominanceBTC) + "%",  ParseMode.MARKDOWN)),
+    			input_message_content=InputTextMessageContent("***Bitcoin Dominance:*** " \
+    				+ str(data.dominanceBTC) + "%",  ParseMode.MARKDOWN)),
 
 			InlineQueryResultArticle(
         		id=uuid4(),
         		title=("Active Cryptocurrencies"),
         		thumb_url="https://imgur.com/g6YajTp.png",
         		description=(str(data.activeCryptoCount) + " active cryptocurrencies"),
-        		input_message_content=InputTextMessageContent(str(data.activeCryptoCount) + " active cryptocurrencies on CoinMarketCap.", ParseMode.MARKDOWN)),
+        		input_message_content=InputTextMessageContent(str(data.activeCryptoCount) \
+        			+ " active cryptocurrencies on CoinMarketCap.", ParseMode.MARKDOWN)),
 
 			InlineQueryResultArticle(
         		id=uuid4(),
         		thumb_url="https://imgur.com/qO0rcCI.png",
         		title=("Markets"),
         		description=(str(data.marketCount) + " markets"),
-        		input_message_content=InputTextMessageContent(str(data.marketCount) + " markets on CoinMarketCap." , ParseMode.MARKDOWN)),
+        		input_message_content=InputTextMessageContent(str(data.marketCount) \
+        			+ " markets on CoinMarketCap." , ParseMode.MARKDOWN)),
 
 			]
 
@@ -614,8 +609,9 @@ def inlinequery(bot, update):
 	        		title=("See global stats"),
 	        		thumb_url="https://imgur.com/MyjXCmb.png",
 	        		description='"global"',
-	        		input_message_content=InputTextMessageContent("Type 'global' to see a variety of up-to-the-minute" + \
-	        			" global statistics." , ParseMode.MARKDOWN)),
+	        		input_message_content=InputTextMessageContent("Type 'global' to" \
+	        			+ "see a variety of up-to-the-minute global statistics." ,\
+	        			 ParseMode.MARKDOWN)),
 
 				InlineQueryResultArticle(
 	        		id=uuid4(),
@@ -638,22 +634,21 @@ def inlinequery(bot, update):
 	else:
 
 		if "," in query:
-			
-			results = generate_multi_currency_list(query)
+
+			try:
+				results = generate_multi_currency_list(query)
+			except:
+				bot.answerInlineQuery(update.inline_query.id, results=[], \
+					switch_pm_text='Invalid currencies entered. Please try again.', \
+					switch_pm_parameter='do_something')
 
 		else:
 
 			coin = Coin(query, None, False)
 			if coin.name == "None":
-				# Makes sure if the user types an invalid cryptocurrency name, it 
-				# doesn't pop up with a "None" currency with "None" values. 
-				results = [
-					InlineQueryResultArticle(
-	            		id=uuid4(),
-	            		title=(),
-	            		thumb_url=(),
-	            		input_message_content=InputTextMessageContent())
-					]
+				bot.answerInlineQuery(update.inline_query.id, results=[], \
+					switch_pm_text='No cryptocurrency found. Please try again.', \
+					switch_pm_parameter='do_something')
 
 			results = [
 	    		# Summary
@@ -663,7 +658,8 @@ def inlinequery(bot, update):
 	            	description="#" + coin.rank + " out of " + str(len(coin.data)),
 	            	thumb_url='https://files.coinmarketcap.com/static/img/coins/128x128/' \
 	            	+ coin.id + '.png',
-	            	input_message_content=InputTextMessageContent(coin.summary, ParseMode.MARKDOWN)),
+	            	input_message_content=InputTextMessageContent(coin.summary, \
+	            		ParseMode.MARKDOWN)),
 
 	    		# USD Price
 	    		InlineQueryResultArticle(
@@ -700,7 +696,8 @@ def inlinequery(bot, update):
 	            	description=coin.percentChange + "%",
 	            	thumb_url=("https://imgur.com/iAoXFQc.png"),
 	            	input_message_content=InputTextMessageContent("24 Hour Change in " \
-	            		+ coin.name + " (" + coin.symbol + ")" + " Price: " + coin.percentChange + "%"))
+	            		+ coin.name + " (" + coin.symbol + ")" + " Price: " + coin.percentChange \
+	            		+ "%"))
         ]
 
 	update.inline_query.answer(results)
