@@ -40,7 +40,7 @@ def inlinequery(bot, update):
 			query = query[1:]
 
 	# CryptoCalculator
-	if query[0].isdigit():
+	if query[0].isdigit() and query[0] != '0':
 
 		userInputName = ""
 		for x in range (1, len(query.split(" "))):
@@ -700,7 +700,7 @@ def inlinequery(bot, update):
 	            		+ "%"))
         ]
 
-	update.inline_query.answer(results)
+	bot.answerInlineQuery(update.inline_query.id, results=results, cache_time=1)
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""

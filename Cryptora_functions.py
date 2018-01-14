@@ -4,7 +4,7 @@ class Coin:
 
 	def __init__(self, query, rank, noCommas):
 
-		self.data = requests.get(JSON_API_URL).json()
+		self.data = requests.get('https://api.coinmarketcap.com/v1/ticker/?limit=10000', headers={'Cache-Control': 'no-cache'}).json()
 
 		if rank == None:
 			self.name = str(self.get_name(query, self.data))
