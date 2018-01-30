@@ -217,12 +217,22 @@ class PriceOnDay:
 		self.page = requests.get(self.URL)
 		self.soup = BeautifulSoup(self.page.content, 'html.parser')
 
-		self.open = str(((self.soup.find_all('td'))[1]))[4:][:-5]
-		self.low = str(((self.soup.find_all('td'))[3]))[4:][:-5]
-		self.marketCap = str(((self.soup.find_all('td'))[6]))[4:][:-5]
-		self.high = str(((self.soup.find_all('td'))[2]))[4:][:-5]
-		self.close = str(((self.soup.find_all('td'))[4]))[4:][:-5]
+		self.open = self.get_data(str(((self.soup.find_all('td'))[1]))[43:][:-5])
+		self.low = self.get_data(str(((self.soup.find_all('td'))[3]))[43:][:-5])
+		self.marketCap = self.get_market_cap(str(((self.soup.find_all('td'))[6]))[49:][:-5])
+		self.high = self.get_data(str(((self.soup.find_all('td'))[2]))[43:][:-5])
+		self.close = self.get_data(str(((self.soup.find_all('td'))[4]))[43:][:-5])
 
+	def get_data(self, string):
+
+		listt = string.split('">')
+		return str("{:,}".format(Decimal(listt[1]).\
+					quantize(Decimal('1.00'), rounding = 'ROUND_HALF_DOWN')))
+
+	def get_market_cap(self, string):
+
+		listt = string.split('">')
+		return str(listt[1])
 
 # Historical Pricing specific functions. Not in their own class.
 
