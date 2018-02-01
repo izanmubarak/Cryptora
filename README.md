@@ -46,8 +46,8 @@ Cryptora was built using the [python-telegram-bot](https://github.com/python-tel
  
 ## Acknowledgements and Notes
 
+It goes without saying, but please invest responsibly.
+
 Special thanks to Michael Yousif (@mjyousif) and Augustine Osagie (@osagie98) for testing my bot in its beta stages and helping me with the deployment process.
 
-Cryptora's feature set would not have been possible without the following Python packages: Dateparser, Feedparser, BeautifulSoup4, Datefinder, and gdax. Thank you to the developers who have created and maintained these amazingly useful modules.
-
-And finally, **please invest responsibly.**
+Cryptora's feature set would not have been possible without the following Python packages: Dateparser, Feedparser, BeautifulSoup4, Datefinder, and gdax. Thank you to the developers who have created and maintained these super useful modules.
