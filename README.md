@@ -2,6 +2,8 @@
 
 Cryptora is an easy-to-use Telegram bot service that can retrieve cryptocurrency data and news on demand for you, or your Telegram group.
 
+Version 2.2.1 fixes a bug with historical pricing displaying improperly.
+
 ## Features
 
 *Refer to "Supported Commands" to see how to use these features.*
@@ -42,7 +44,7 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 ## How it was built
 
-Cryptora was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework. Data is retrieved from a variety of sources, using a combination of API access and webscraping. News articles are retrieved from [CoinDesk](http://coindesk.com) through its RSS feed. The bot is hosted on RedHat OpenShift.
+Cryptora was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework. Data is retrieved from [CoinMarketCap](www.coinmarketcap.com), using a combination of API access and webscraping. News articles are retrieved from [CoinDesk](http://coindesk.com) through its RSS feed. The bot is hosted on RedHat OpenShift.
  
 ## Acknowledgements and Notes
 
