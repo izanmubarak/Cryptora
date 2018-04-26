@@ -1,8 +1,8 @@
-# Cryptora 2.2.1
+# Cryptora 2.3
 
 Cryptora is an easy-to-use Telegram bot service that can retrieve cryptocurrency data and news on demand for you, or your Telegram group.
 
-Version 2.2.1 fixes a bug with historical pricing displaying improperly.
+Version 2.3 fixes minor bugs and refactors the code for increased readability.
 
 ## Features
 
