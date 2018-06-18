@@ -45,8 +45,14 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 ## How it was built
 
 Cryptora was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework. Data is retrieved from [CoinMarketCap](https://coinmarketcap.com), using a combination of API access and webscraping. News articles are retrieved from [CoinDesk](https://coindesk.com) through its RSS feed. The bot is hosted on RedHat OpenShift.
+
+## Cryptora's future
+
+I've reached the point in Cryptora's development where I'm not actively adding any new features to the program. However, I will be maintaining the codebase for the forseeable future and making sure the program isn't broken by changes to CoinMarketCap or any of the other data sources used.
+
+CoinMarketCap recently upgraded their API to V2, and will deprecate V1 (which Cryptora still relies on) in November. Cryptora will soon be updated to utilize the V2 API. Updates like these will keep Cryptora going in the future.
  
-## Acknowledgements and Notes
+## Acknowledgements and notes
 
 It goes without saying, but please invest responsibly.
 
