@@ -6,19 +6,16 @@ from telegram.ext import Updater, InlineQueryHandler, CommandHandler
 import logging
 import sys
 from collections import OrderedDict
+from retrieve_tokens import *
 from coin import *
 from top import *
 from calculator import *
-from gdax_info import *
+from coinbase_pro import *
 from multicurrency import *
 from stats import *
 from historical import *
 from help_messages import *
 from news import *
-
-# Constant variables 
-JSON_API_URL = 'https://api.coinmarketcap.com/v1/ticker/?limit=10000'
-NEWS_URL = "http://coindesk.com/feed"
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - \
@@ -31,69 +28,72 @@ def inlinequery(bot, update):
 
 	# Initialize the query
 	query = update.inline_query.query
-	dateInString = determine_if_date_in_string(query)
 	results = []
 
-	for x in range (0, len(query)):
-		if query.endswith(","):
-			query = query[:-1]
-		if query.startswith(","):
-			query = query[1:]
-
-	# Crypto calculator
-	if query[0].isdigit() and query != '0x':
-		results = generate_cryptoCalculator_result(query)
-
-	# Reverse crypto calculator		
-	elif query[0] == "$":
-		results = generate_reverseCryptoCalculator_result(query)
-
-	# Help section
-	elif query.lower() == "help":
+	if not query:
 		results = get_help_messages()
 
-	# GDAX pricing
-	elif query.upper() == "GDAX":
-		results = get_GDAX_prices()
-
-	elif query.lower() == "global":
-		results = get_stats_list()
-
-	# Get the news
-	elif query.lower() == "news":
-		results = get_news_list()
-
-	# Top X
-	elif "top" in query:
-
-		if query.lower() == "top":
-			listSize = 51
-		else:
-			listSize = (int(query.split(" ")[1]) + 1)
-
-		results = get_top_cryptocurrencies(listSize)
-
-
-	# Historical pricing
-	elif dateInString == True or "ago" in query or "yesterday" in query:
-		results = get_historical_pricing_list(query, bot, update, dateInString)
-
-	# Cryptocurrency information
 	else:
 
-		if "," in query:
-
-			try:
-				results = generate_multi_currency_list(query)
-
-			except:
+		# Crypto calculator
+		if query[0].isdigit() and query != '0x':
+			results = crypto_calculator(query, False)
+			if not results:
 				bot.answerInlineQuery(update.inline_query.id, results=[], \
-				switch_pm_text='Invalid currencies entered. Please try again.',switch_pm_parameter='do_something')
+						switch_pm_text='Failed to convert cryptocurrency. Please try again.',\
+						switch_pm_parameter='do_something')
+
+		# Reverse crypto calculator		
+		elif query[0] == "$":
+			results = crypto_calculator(query, True)
+			if not results:
+				bot.answerInlineQuery(update.inline_query.id, results=[], \
+						switch_pm_text='Failed to convert cryptocurrency. Please try again.',\
+						switch_pm_parameter='do_something')
+
+		# GDAX pricing
+		elif query.upper() == "GDAX" or query.lower() == "coinbase pro":
+			results = get_GDAX_prices()
+
+		# Get global information
+		elif query.lower() == "global" or query.lower() == "stats":
+			results = get_stats_list()
+
+		# Get the news
+		elif query.lower() == "news":
+			results = get_news_list()
+
+		# Top X
+		elif "top" in query:
+
+			if query.lower() == "top":
+				listSize = 40
+			else:
+				listSize = (int(query.split(" ")[1]))
+				if listSize > 49:
+					bot.answerInlineQuery(update.inline_query.id, results=[], \
+						switch_pm_text='Requested list too large. Please try again.',\
+						switch_pm_parameter='do_something')
+
+			results = get_top_cryptocurrencies(listSize)
 
 
-			
+		# Historical pricing
+		elif determine_if_date_in_string(query):
+			results = generate_historical_pricing_list(query)
+
+		# Cryptocurrency information
 		else:
-			results = get_coin_info(query)
+
+			if "," in query:
+				results = generate_multi_currency_list(query)
+				
+			else:
+				results = get_coin_info(query)
+				if not results:
+					bot.answerInlineQuery(update.inline_query.id, results=[], \
+						switch_pm_text='Requested currency not found. Please try again.',\
+						switch_pm_parameter='do_something')
 
 	bot.answerInlineQuery(update.inline_query.id, results=results, cache_time=1)
 
@@ -103,7 +103,7 @@ def error(bot, update, error):
 
 def main():
     # Create the Updater and pass it your bot's token.
-    updater = Updater('token')
+    updater = Updater(get_token(False))
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher

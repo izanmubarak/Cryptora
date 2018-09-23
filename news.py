@@ -1,45 +1,26 @@
-import feedparser
+# Cryptora - Public Repository
+# This file downloads news articles from the CryptoCompare API and displays them to the user.
+
 from telegram import InlineQueryResultArticle, ParseMode,InputTextMessageContent
 from uuid import uuid4
 import requests
-from bs4 import BeautifulSoup
+
+newsData = (requests.get('https://min-api.cryptocompare.com/data/v2/news/?lang=EN').json())["Data"]
 
 class NewsArticle:
 
-	def __init__(self, rank, feed):
+	def __init__(self, rank):
 
-		self.title = self.get_article_title(rank, feed)
-		self.subtitle = self.get_article_subtitle(rank, feed)
-		self.URL = self.get_article_URL(rank, feed)
-		self.thumbnailURL = self.get_image(self.URL)
-		
-	def get_article_URL(self, rank, feed):
-
-		return feed['entries'][rank]['link']
-
-	def get_article_title(self, rank, feed):
-
-		return feed['entries'][rank]['title']
-
-	def get_article_subtitle(self, rank, feed):
-
-		return feed['entries'][rank]['description']
-
-	def get_image(self, URL):
-		
-		page = requests.get(URL)
-		soup = BeautifulSoup(page.content, 'html.parser')
-		unformattedLink = str((soup.find_all('div', \
-			class_="article-top-image-section"))).split(">")[0]
-		return unformattedLink[69:][:-3]
-
+		self.title = newsData[rank]['title']
+		self.subtitle = newsData[rank]['body']
+		self.URL = newsData[rank]['url']
+		self.thumbnailURL = newsData[rank]['imageurl']
 
 def get_news_list():
 
 	results = []
-	feed = feedparser.parse("http://coindesk.com/feed")
-	for x in range (0, 10):
-		article = NewsArticle(x, feed)
+	for x in range (0, 50):
+		article = NewsArticle(x)
 		results.append(
 			InlineQueryResultArticle(
 				id=uuid4(),

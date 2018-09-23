@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+# Cryptora – Public Repository
+# Displays help messages to the user.
+
 from telegram import InlineQueryResultArticle, ParseMode,InputTextMessageContent
 from uuid import uuid4
 
@@ -61,20 +65,20 @@ def get_help_messages():
 
 		InlineQueryResultArticle(
     		id=uuid4(),
-    		title=("See real-time trading prices on GDAX"),
-    		thumb_url="https://imgur.com/Eyh7KSb.png",
-    		description='"gdax"',
+    		title=("See real-time trading prices on Coinbase Pro"),
+    		thumb_url="https://i.imgur.com/nJff01I.png",
+    		description='"gdax, "coinbase pro"',
     		input_message_content=InputTextMessageContent("Need more up-to-the-minute " \
     		+ "prices than the standard cryptocurrency lookup? Cryptora can retrieve " \
-    		+ "the prices of bitcoin, litecoin, and ethereum on GDAX. Just type " \
-    		+ "`gdax` to get the prices in-line.", ParseMode.MARKDOWN)),
+    		+ "the prices of Bitcoin, Bitcoin Cash, Litecoin, Ethereum, and Ethereum Classic" \
+            + "on GDAX. Just type `coinbase pro` or `gdax` to get the prices in-line.", ParseMode.MARKDOWN)),
 
 		InlineQueryResultArticle(
     		id=uuid4(),
     		title=("See global stats"),
     		thumb_url="https://imgur.com/MyjXCmb.png",
-    		description='"global"',
-    		input_message_content=InputTextMessageContent("Type 'global' to" \
+    		description='"global", "stats"',
+    		input_message_content=InputTextMessageContent("Type `global` or `stats` to" \
     			+ "see a variety of up-to-the-minute global statistics." ,\
     			 ParseMode.MARKDOWN)),
 
@@ -82,7 +86,7 @@ def get_help_messages():
     		id=uuid4(),
     		title=("Compare multiple cryptocurrencies"),
     		thumb_url="https://imgur.com/Gbnrtod.png",
-    		description='"btc, ltc, eth, dash, iota, ripple"',
+    		description='"btc, ltc, eth, dash, iota, xrp"',
     		input_message_content=InputTextMessageContent("You can " \
     		+ "search for multiple cryptocurrencies in a single "\
     		+ "query by typing a selection of cryptocurrencies " \
