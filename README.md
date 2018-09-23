@@ -10,7 +10,8 @@ The changes in Version 3 include:
 - Now sources up to 50 news articles from a variety of cryptocurrency news sites, not just the latest 10 headlines from CoinDesk
 - Allows users to send the list of the top cryptocurrencies by market capitalization and global statistics to a chat, rather than just viewing it
 - Allows users to retrieve Coinbase Pro (formerly GDAX) prices for Ethereum Classic
-- Allows users to view and send 1 week and 1 hour percent changes to chats
+
+... and much more!
 
 ## Features
 
