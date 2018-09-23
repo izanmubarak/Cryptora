@@ -34,7 +34,6 @@ To locally host Cryptora, you must create a `tokens.txt` file that holds your Co
 ```
 CMC_TOKEN==(your CoinMarketCap API key here)
 BOT_TOKEN==(your Telegram Bot API key here)
-
 ```
 Once this file is created, Cryptora will automatically parse and use the keys where necessary.
 
@@ -42,7 +41,7 @@ Once this file is created, Cryptora will automatically parse and use the keys wh
 
 In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cryptora:
 
-- `[cryptocurrency]` – Type the name of any cryptocurrency, and Cryptora will retrieve essential information (price, market cap, circulating supply, and 24 hour percent change) and display it in a list. You can also type the cryptocurrency's symbol. For example, you can type `bitcoin` or `BTC` to get essential information about Bitcoin. The bot is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. You can also type multiple cryptocurrencies, separated by commas, and send a list of cryptocurrency prices, percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries. So, typing `ripple, iota, xmr, nano, bitcoin` will get you a list of their prices, market capitalizations, and percent changes that you can share with a chat.
+- `[cryptocurrency]` – Type the name of any cryptocurrency, and Cryptora will retrieve essential information (price, market cap, circulating supply, and 24 hour percent change) and display it in a list. You can also type the cryptocurrency's symbol. For example, you can type `bitcoin` or `BTC` to get essential information about Bitcoin. The bot is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. You can also type multiple cryptocurrencies, separated by commas, and send a list of cryptocurrency prices, percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries. So, typing `xrp, iota, xmr, nano, bitcoin` will get you a list of their prices, market capitalizations, and percent changes that you can share with a chat.
 
 - `news` - Retrieve the latest headlines from a variety of cryptocurrency news sites, and display them in a list. You can choose to share the article with your chat, or you can browse the latest cryptocurrency headlines. 
 
