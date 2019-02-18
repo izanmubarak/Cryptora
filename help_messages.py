@@ -71,7 +71,7 @@ def get_help_messages():
     		input_message_content=InputTextMessageContent("Need more up-to-the-minute " \
     		+ "prices than the standard cryptocurrency lookup? Cryptora can retrieve " \
     		+ "the prices of Bitcoin, Bitcoin Cash, Litecoin, Ethereum, and Ethereum Classic" \
-            + "on GDAX. Just type `coinbase pro` or `gdax` to get the prices in-line.", ParseMode.MARKDOWN)),
+            + " on GDAX. Just type `coinbase pro` or `gdax` to get the prices in-line.", ParseMode.MARKDOWN)),
 
 		InlineQueryResultArticle(
     		id=uuid4(),
@@ -79,7 +79,10 @@ def get_help_messages():
     		thumb_url="https://imgur.com/MyjXCmb.png",
     		description='"global", "stats"',
     		input_message_content=InputTextMessageContent("Type `global` or `stats` to" \
-    			+ "see a variety of up-to-the-minute global statistics." ,\
+    			+ " see a variety of up-to-the-minute global statistics, including" \
+                + " the dominance of Bitcoin and Ethereum, the global cryptocurrency" \
+                + " market capitalization, the number of cryptocurrencies on CoinMarketCap, " \
+                + "and more." ,\
     			 ParseMode.MARKDOWN)),
 
 		InlineQueryResultArticle(
