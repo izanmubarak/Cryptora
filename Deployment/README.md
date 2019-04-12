@@ -9,6 +9,7 @@ These days, Cryptora is hosted on Amazon Web Services. Before that, it was hoste
 Hosting Cryptora – locally or on a server platform such as AWS – requires you to generate a `tokens.txt` file which contains two token strings: the token that Telegram generated for you when you created your bot through BotFather, and the token that CoinMarketCap generates for you in order for you to use their API. In this folder, you'll see a `tokens_sample.txt` file that you can use as a template, but the format for `tokens.txt` is below:
 
 `CMC_TOKEN==Your_CMC_API_token_here`
+
 `BOT_TOKEN==Your_BotFather_token_here`
 
 You need only copy and paste the respective tokens after `CMC_TOKEN==` and `BOT_TOKEN==`. Do not put quotation marks or anything around the tokens. Also, ensure that there is **no newline** at the end of the file - this will throw errors when you attempt to run the program! Some text editors add a newline automatically - you can simply run `truncate -s -1 tokens.txt` in Terminal to remove it.
@@ -37,7 +38,7 @@ Once this is done, you can just run `python app.py` to start up Cryptora. You sh
 
 ## Hosting Cryptora on OpenShift
 
-Cryptora was once hosted on OpenShift, but a change in their service offerings made it so that you can't indefinitely run a free server - you have to renew it every 60 days, unless you choose one of their paid options. Hosting Cryptora on OpenShift is still possible, but with the main caveat that you cannot (as far as I know) add a `tokens.txt` file to your server after the fact - it needs to be in your git repository, as OpenShift actually connects directly to a GitHub repository. To get around this, you can fork this repository, add your `tokens.txt` file to your fork, and follow the setup process that OpenShift has for Python apps. Once you have it running, you can set your forked repository to "Private" on GitHub, so that your tokens are not exposed to the public. If you wish to make any changes to your fork, you have to set the repository to "Public", make the changes, and then set it back to "Private."
+Cryptora was once hosted on OpenShift, but a change in their service offerings made it so that you can't indefinitely run a free server - you have to renew it every 60 days, unless you choose one of their paid options. Hosting Cryptora on OpenShift is still possible, but with the main caveat that you cannot (as far as I know) add a `tokens.txt` file to your server after the fact - it needs to be in your git repository, as OpenShift actually connects directly to a GitHub repository. To get around this, you can fork this repository, add your `tokens.txt` file to your fork, and follow the setup process that OpenShift has for Python apps. Once you have it running, you can set your forked repository to "Private" on GitHub, so that your tokens are not exposed to the public. If you wish to make any changes to your fork, you have to set the repository to "Public", make the changes, set it back to "Private", and then make a new instance on OpenShift.
 
 ## Hosting Cryptora on PythonAnywhere
 
