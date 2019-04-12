@@ -43,7 +43,7 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 - `coinbase pro` - Retrieve the trading price of Bitcoin, Bitcoin Cash, Litecoin, Ethereum, and Ethereum Classic from the Coinbase Pro trading exchange.
 
-- `[cryptocurrency] [date]` - Type this command, replacing `[cryptocurrency]` with your desired cryptocurrency, and `[date]` with a date formatted in `MM/DD/YYYY` format (or `Month Day, Year` format), and Cryptora will retrieve the high, low, opening, and closing price - as well as the market capitalization - of the cryptocurrency on that date, if data is available. Relative dates work as well, so typing `ethereum two weeks ago` or `ethereum yesterday` will get you information about ethereum two weeks ago and yesterday, respectively.
+- `[cryptocurrency] [date]` - Type this command, replacing `[cryptocurrency]` with your desired cryptocurrency, and `[date]` with a date formatted in `MM/DD/YYYY` format (or `Month Day, Year` format), and Cryptora will retrieve the high, low, opening, and closing price - as well as the market capitalization - of the cryptocurrency on that date, if data is available. Relative dates work as well, so typing `ethereum 2 weeks ago` or `ethereum yesterday` will get you information about ethereum two weeks ago and yesterday, respectively. Note that for relative dates, your numerical value must be a numeral and not a word - for example, `ethereum two weeks ago` will not work, while `ethereum 2 weeks ago` will.
 
 - `top [x]` - Type this command (replace `[x]` with any number less than or equal to 50) to see the top *x* cryptocurrencies, ranked by their market capitalization.
 
