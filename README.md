@@ -60,7 +60,7 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 ## How it was built
 
-Cryptora was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework. Data is retrieved from [CoinMarketCap](https://coinmarketcap.com), using a combination of API access and webscraping. News articles are retrieved from [CryptoCompare](https://cryptocompare.com). The bot is hosted on RedHat OpenShift.
+Cryptora was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework. Data is retrieved from [CoinMarketCap](https://coinmarketcap.com), using a combination of API access and webscraping. News articles are retrieved from [CryptoCompare](https://cryptocompare.com). The bot is hosted on an Amazon EC2 server using Docker.
 
 ## Acknowledgements
 
