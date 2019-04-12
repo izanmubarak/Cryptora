@@ -6,8 +6,8 @@
 # Set the base image to Ubuntu
 FROM ubuntu:latest
 
-# File Author / Maintainer
-MAINTAINER Izan Mubarak
+# File Author / Maintainer (Put your name here!)
+MAINTAINER Anonymous
 
 # Get basic tools (Python, pip, git)
 RUN apt update

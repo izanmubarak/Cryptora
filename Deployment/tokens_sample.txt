@@ -1,0 +1,2 @@
+CMC_TOKEN==Your_CMC_API_token_here
+BOT_TOKEN==Your_BotFather_token_here

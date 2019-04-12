@@ -29,13 +29,7 @@ The changes in Version 3 include:
 
 Using Cryptora is easy. In any Telegram chat, simply type `@CryptoraBot` and then any of the commands below. The requested information will pop up as a list on your screen, and you can tap on a result to share it with your chat. You can also create a new private chat with Cryptora if you'd like to interact with it separately.
 
-To locally host Cryptora, you must create a `tokens.txt` file that holds your CoinMarketCap and Telegram Bot API keys. The format is below:
-
-```
-CMC_TOKEN==your CoinMarketCap API key here
-BOT_TOKEN==your Telegram Bot API key here
-```
-Once this file is created, Cryptora will automatically parse and use the keys where necessary.
+For information on hosting Cryptora by yourself, check out the "Deployment" folder's README.
 
 ## Supported Commands
 
