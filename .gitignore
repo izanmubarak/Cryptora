@@ -1,3 +1,4 @@
 tokens.txt
 *.pyc
 .DS_Store
+ec2.pem
