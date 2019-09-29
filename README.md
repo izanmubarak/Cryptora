@@ -1,17 +1,10 @@
-# Cryptora 3
+# Cryptora
 
-Cryptora is an easy-to-use Telegram bot service that can retrieve cryptocurrency data and news on demand.
+Cryptora is an easy-to-use Telegram bot that can retrieve cryptocurrency data and news on demand.
 
-The changes in Version 3 include:
-
-- Significantly cleaned up and rewritten code for faster performance, improved readability, and less code duplication
-- Minor bugs fixed all around, including coin logos not showing up
-- Fully updated and ready for the new CoinMarketCap Professional API
-- Now sources up to 50 news articles from a variety of cryptocurrency news sites, not just the latest 10 headlines from CoinDesk
-- Allows users to send the list of the top cryptocurrencies by market capitalization and global statistics to a chat, rather than just viewing it
-- Allows users to retrieve Coinbase Pro (formerly GDAX) prices for Ethereum Classic
-
-... and much more!
+<p align="center">
+  <img src="https://media.giphy.com/media/jRBB6gAu4PBSaXCyqw/giphy.gif">
+</p>
 
 ## Features
 
@@ -21,15 +14,15 @@ The changes in Version 3 include:
 - **Get historical data.** Find the low, high, opening, and closing price of thousands of cryptocurrencies on a given date, as well as the market capitalization.
 - **See global statistics.** See statistics across all cryptocurrencies, including the global market cap, Bitcoin's percentage share of the global market cap, the number of active currencies, and more.
 - **Get real-time exchange data from Coinbase Pro.** See the trading price of Bitcoin, Litecoin, Ethereum, Ethereum Classic, and Bitcoin Cash on Coinbase Pro (formerly GDAX), one of the leading cryptocurrency exchanges.
-- **Calculations made easy.** Instantly convert cryptocurrency amounts to U.S. dollars, and vice versa.
+- **Calculations made easy.** Instantly convert between cryptocurrency and U.S. dollars.
 - **Browse the latest cryptocurrency news.** Read and share news from a variety of cryptocurrency news sites.
 - **View the rankings.** See the top cryptocurrencies and their prices at any given moment, sorted by market capitalization.
 
 ## Using Cryptora
 
-Using Cryptora is easy. In any Telegram chat, simply type `@CryptoraBot` and then any of the commands below. The requested information will pop up as a list on your screen, and you can tap on a result to share it with your chat. You can also create a new private chat with Cryptora if you'd like to interact with it separately.
+In any Telegram chat, simply type `@CryptoraBot` and then any of the commands below. The requested information will pop up as a list on your screen, and you can tap on a result to share it with your chat. You can also create a new private chat with Cryptora if you'd like to interact with it separately.
 
-For information on hosting Cryptora by yourself, check out the "Deployment" folder's README.
+For information on hosting Cryptora locally, check out the "Deployment" folder's README.
 
 ## Supported Commands
 
@@ -37,7 +30,7 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 
 - `[cryptocurrency]` – Type the name of any cryptocurrency, and Cryptora will retrieve essential information (price, market cap, circulating supply, and 24 hour percent change) and display it in a list. You can also type the cryptocurrency's symbol. For example, you can type `bitcoin` or `BTC` to get essential information about Bitcoin. The bot is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. You can also type multiple cryptocurrencies, separated by commas, and send a list of cryptocurrency prices, percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries. So, typing `xrp, iota, xmr, nano, bitcoin` will get you a list of their prices, market capitalizations, and percent changes that you can share with a chat.
 
-- `news` - Retrieve the latest headlines from a variety of cryptocurrency news sites, and display them in a list. You can choose to share the article with your chat, or you can browse the latest cryptocurrency headlines. 
+- `news` - Retrieve the latest headlines from a variety of cryptocurrency news sites - aggregated by CryptoCompare – and display them in a list. You can choose to share the article with your chat, or you can browse the latest cryptocurrency headlines. 
 
 - `global` - Retrieve global statistics from CoinMarketCap, including the total market capitalization, the total 24 hour volume, bitcoin's dominance, and the number of active cryptocurrencies and markets.
 
@@ -50,7 +43,6 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 - `[x] [cryptocurrency]` - Type this command (replace `[x]` with any number, and `[cryptocurrency]` with your desired cryptocurrency) to instantly convert an amount of cryptocurrency to U.S. dollars.
 
 - `$[x] [cryptocurrency]` - Type this command (replace `[x]` with any number, and `[cryptocurrency]` with your desired cryptocurrency) to instantly convert an amount of U.S. dollars to the desired cryptocurrency.
-
 
 ## How it was built
 
