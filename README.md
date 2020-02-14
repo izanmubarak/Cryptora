@@ -6,6 +6,14 @@ Cryptora is an easy-to-use Telegram bot that can retrieve cryptocurrency data an
   <img src="https://media.giphy.com/media/jRBB6gAu4PBSaXCyqw/giphy.gif">
 </p>
 
+## Status
+
+As of February 2020, Cryptora is no longer live at @CryptoraBot and is EOL. This is due to rising server costs, as well as Cryptora's codebase being written in Python 2.7, which reached EOL status at the end of 2019.
+
+Cryptora's source code will continue to live here indefinitely, and those interested can easily deploy Cryptora on their own servers by following the README in this repository's "Deployment" folder. 
+
+Pull requests are welcome for rewriting the source code in Python 3.x or just providing general improvements.
+
 ## Features
 
 *Refer to "Supported Commands" to see how to use these features.*
@@ -18,15 +26,9 @@ Cryptora is an easy-to-use Telegram bot that can retrieve cryptocurrency data an
 - **Browse the latest cryptocurrency news.** Read and share news from a variety of cryptocurrency news sites.
 - **View the rankings.** See the top cryptocurrencies and their prices at any given moment, sorted by market capitalization.
 
-## Using Cryptora
+## Usage
 
-In any Telegram chat, simply type `@CryptoraBot` and then any of the commands below. The requested information will pop up as a list on your screen, and you can tap on a result to share it with your chat. You can also create a new private chat with Cryptora if you'd like to interact with it separately.
-
-For information on hosting Cryptora locally, check out the "Deployment" folder's README.
-
-## Supported Commands
-
-In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cryptora:
+Once you have deployed Cryptora – or have created a local instance – type the username of the instance in a Telegram chat, followed by any of these commands to use Cryptora:
 
 - `[cryptocurrency]` – Type the name of any cryptocurrency, and Cryptora will retrieve essential information (price, market cap, circulating supply, and 24 hour percent change) and display it in a list. You can also type the cryptocurrency's symbol. For example, you can type `bitcoin` or `BTC` to get essential information about Bitcoin. The bot is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. You can also type multiple cryptocurrencies, separated by commas, and send a list of cryptocurrency prices, percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries. So, typing `xrp, iota, xmr, nano, bitcoin` will get you a list of their prices, market capitalizations, and percent changes that you can share with a chat.
 
@@ -43,6 +45,8 @@ In a Telegram chat, type `@CryptoraBot` and then any of these commands to use Cr
 - `[x] [cryptocurrency]` - Type this command (replace `[x]` with any number, and `[cryptocurrency]` with your desired cryptocurrency) to instantly convert an amount of cryptocurrency to U.S. dollars.
 
 - `$[x] [cryptocurrency]` - Type this command (replace `[x]` with any number, and `[cryptocurrency]` with your desired cryptocurrency) to instantly convert an amount of U.S. dollars to the desired cryptocurrency.
+
+Cryptora will alert you if it detects an invalid command. A valid command will display a list of shareable entries on your screen.
 
 ## How it was built
 
