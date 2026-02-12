@@ -1,4 +1,11 @@
 tokens.txt
 *.pyc
+__pycache__/
 .DS_Store
 ec2.pem
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.env

@@ -1,25 +1,19 @@
 ############################################################
 # Dockerfile to build Cryptora
-# Based on Ubuntu
+# Based on Python 3.12 slim
 ############################################################
 
-# Set the base image to Ubuntu
-FROM ubuntu:latest
+FROM python:3.12-slim
 
 # File Author / Maintainer (Put your name here!)
-MAINTAINER Anonymous
+LABEL maintainer="Anonymous"
 
-# Get basic tools (Python, pip, git)
-RUN apt update
-RUN apt install -y python2.7 python-pip
-RUN apt install -y git
+# Install git
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 
-# Set time zone to allow for historical pricing to work (timezone strings at https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+# Set time zone to allow for historical pricing to work
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt-get install -y tzdata
-RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-RUN dpkg-reconfigure --frontend noninteractive tzdata
 
 # Download Cryptora
 RUN git clone https://github.com/izanmubarak/Cryptora.git
@@ -28,4 +22,4 @@ RUN git clone https://github.com/izanmubarak/Cryptora.git
 WORKDIR Cryptora
 
 # Install Cryptora dependencies
-RUN python -m pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt

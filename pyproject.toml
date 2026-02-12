@@ -1,0 +1,13 @@
+[project]
+name = "cryptora"
+version = "2.0.0"
+description = "A Telegram bot that retrieves cryptocurrency data and news on demand."
+requires-python = ">=3.10"
+dependencies = [
+    "python-telegram-bot>=21.0",
+    "beautifulsoup4>=4.12",
+    "requests>=2.31",
+    "datefinder>=0.7",
+    "dateparser>=1.2",
+    "python-dateutil>=2.9",
+]
