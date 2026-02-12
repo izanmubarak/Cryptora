@@ -29,7 +29,7 @@ def get_news_list():
             InlineQueryResultArticle(
                 id=uuid4(),
                 description=article.subtitle,
-                thumb_url=article.thumbnail_url,
+                thumbnail_url=article.thumbnail_url,
                 title=article.title,
                 input_message_content=InputTextMessageContent(article.url),
             )

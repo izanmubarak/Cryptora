@@ -41,14 +41,14 @@ def get_stats_list():
         InlineQueryResultArticle(
             id=uuid4(),
             title="Global Cryptocurrency Statistics",
-            thumb_url="https://imgur.com/g6YajTp.png",
+            thumbnail_url="https://imgur.com/g6YajTp.png",
             description="Tap to send list.",
             input_message_content=InputTextMessageContent(global_stats_message, "Markdown"),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
             title="Total Market Capitalization",
-            thumb_url="https://i.imgur.com/UMczLVP.png",
+            thumbnail_url="https://i.imgur.com/UMczLVP.png",
             description=f"${market_cap}",
             input_message_content=InputTextMessageContent(
                 f"***Total Market Capitalization:*** ${market_cap}", "Markdown"
@@ -57,7 +57,7 @@ def get_stats_list():
         InlineQueryResultArticle(
             id=uuid4(),
             title="Total 24 Hour Volume",
-            thumb_url="https://imgur.com/Qw4y4Ed.png",
+            thumbnail_url="https://imgur.com/Qw4y4Ed.png",
             description=f"${volume}",
             input_message_content=InputTextMessageContent(
                 f"***Total 24 Hour Volume:*** ${volume}", "Markdown"
@@ -67,7 +67,7 @@ def get_stats_list():
             id=uuid4(),
             title="Bitcoin Dominance",
             description=f"{dominance_btc}%",
-            thumb_url="https://imgur.com/tXiapTn.png",
+            thumbnail_url="https://imgur.com/tXiapTn.png",
             input_message_content=InputTextMessageContent(
                 f"***Bitcoin Dominance:*** {dominance_btc}%", "Markdown"
             ),
@@ -76,7 +76,7 @@ def get_stats_list():
             id=uuid4(),
             title="Ethereum Dominance",
             description=f"{dominance_eth}%",
-            thumb_url="https://i.imgur.com/EMEUTYl.jpg",
+            thumbnail_url="https://i.imgur.com/EMEUTYl.jpg",
             input_message_content=InputTextMessageContent(
                 f"***Ethereum Dominance:*** {dominance_eth}%", "Markdown"
             ),
@@ -84,7 +84,7 @@ def get_stats_list():
         InlineQueryResultArticle(
             id=uuid4(),
             title="Active Cryptocurrencies",
-            thumb_url="https://imgur.com/g6YajTp.png",
+            thumbnail_url="https://imgur.com/g6YajTp.png",
             description=f"{active_currencies} active cryptocurrencies",
             input_message_content=InputTextMessageContent(
                 f"{active_currencies} active cryptocurrencies on CoinMarketCap.",
@@ -93,7 +93,7 @@ def get_stats_list():
         ),
         InlineQueryResultArticle(
             id=uuid4(),
-            thumb_url="https://imgur.com/qO0rcCI.png",
+            thumbnail_url="https://imgur.com/qO0rcCI.png",
             title="Active Exchanges",
             description=f"{active_exchanges} active exchanges",
             input_message_content=InputTextMessageContent(

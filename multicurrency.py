@@ -76,21 +76,21 @@ def generate_multi_currency_list(query):
                 id=uuid4(),
                 title="Prices",
                 description="Tap to send.",
-                thumb_url="https://imgur.com/7RCGCoc.png",
+                thumbnail_url="https://imgur.com/7RCGCoc.png",
                 input_message_content=InputTextMessageContent(prices, "Markdown"),
             ),
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Market Capitalizations",
                 description="Tap to send.",
-                thumb_url="https://i.imgur.com/UMczLVP.png",
+                thumbnail_url="https://i.imgur.com/UMczLVP.png",
                 input_message_content=InputTextMessageContent(capitalizations, "Markdown"),
             ),
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Percent Change Values",
                 description="Tap to send.",
-                thumb_url="https://imgur.com/iAoXFQc.png",
+                thumbnail_url="https://imgur.com/iAoXFQc.png",
                 input_message_content=InputTextMessageContent(changes, "Markdown"),
             ),
         ]
@@ -104,7 +104,7 @@ def generate_multi_currency_list(query):
             InlineQueryResultArticle(
                 id=uuid4(),
                 description=f"${coins[x].price_usd}",
-                thumb_url=coins[x].image_url,
+                thumbnail_url=coins[x].image_url,
                 title=coins[x].name,
                 input_message_content=InputTextMessageContent(coins[x].summary, "Markdown"),
             )

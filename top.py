@@ -25,7 +25,7 @@ def get_top_cryptocurrencies(list_size):
         results.append(
             InlineQueryResultArticle(
                 id=uuid4(),
-                thumb_url=coin.image_url,
+                thumbnail_url=coin.image_url,
                 description=f"${coin.price_usd}",
                 title=f"{coin.rank}. {coin.name} ({coin.symbol})",
                 input_message_content=InputTextMessageContent(coin.summary, "Markdown"),
@@ -36,7 +36,7 @@ def get_top_cryptocurrencies(list_size):
         0,
         InlineQueryResultArticle(
             id=uuid4(),
-            thumb_url="https://imgur.com/g6YajTp.png",
+            thumbnail_url="https://imgur.com/g6YajTp.png",
             description="Tap to send list.",
             title=f"Top {list_size} cryptocurrencies by market capitalization",
             input_message_content=InputTextMessageContent(top_str, "Markdown"),

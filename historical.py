@@ -133,14 +133,14 @@ def generate_historical_pricing_list(query):
             id=uuid4(),
             title=f"Price Data for {coin.name} ({coin.symbol})",
             description=converted_date,
-            thumb_url=coin.image_url,
+            thumbnail_url=coin.image_url,
             input_message_content=InputTextMessageContent(summary, "Markdown"),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
             title="Open",
             description=f"${values.open}",
-            thumb_url="https://imgur.com/EYOqB1W.png",
+            thumbnail_url="https://imgur.com/EYOqB1W.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Opening Price***\n{converted_date}\n\n${values.open}",
                 "Markdown",
@@ -150,7 +150,7 @@ def generate_historical_pricing_list(query):
             id=uuid4(),
             title="High",
             description=f"${values.high}",
-            thumb_url="https://imgur.com/ntXndWR.png",
+            thumbnail_url="https://imgur.com/ntXndWR.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} High Price***\n{converted_date}\n\n${values.high}",
                 "Markdown",
@@ -160,7 +160,7 @@ def generate_historical_pricing_list(query):
             id=uuid4(),
             title="Low",
             description=f"${values.low}",
-            thumb_url="https://imgur.com/zOfZSYj.png",
+            thumbnail_url="https://imgur.com/zOfZSYj.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Low Price***\n{converted_date}\n\n${values.low}",
                 "Markdown",
@@ -170,7 +170,7 @@ def generate_historical_pricing_list(query):
             id=uuid4(),
             title="Close",
             description=f"${values.close}",
-            thumb_url="https://imgur.com/iQXqgYU.png",
+            thumbnail_url="https://imgur.com/iQXqgYU.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Closing Price***\n{converted_date}\n\n${values.close}",
                 "Markdown",
@@ -180,7 +180,7 @@ def generate_historical_pricing_list(query):
             id=uuid4(),
             title="Volume",
             description=f"${values.volume}",
-            thumb_url="https://imgur.com/qO0rcCI.png",
+            thumbnail_url="https://imgur.com/qO0rcCI.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Volume***\n{converted_date}\n\n${values.volume}",
                 "Markdown",
@@ -190,7 +190,7 @@ def generate_historical_pricing_list(query):
             id=uuid4(),
             title="Market Capitalization",
             description=f"${values.market_cap}",
-            thumb_url="https://i.imgur.com/UMczLVP.png",
+            thumbnail_url="https://i.imgur.com/UMczLVP.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Market Capitalization***\n{converted_date}\n\n${values.market_cap}",
                 "Markdown",

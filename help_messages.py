@@ -11,7 +11,7 @@ def get_help_messages():
             id=uuid4(),
             title="Retrieve cryptocurrency prices",
             description='"BTC", "bitcoin"',
-            thumb_url="https://imgur.com/joQ2gGR.png",
+            thumbnail_url="https://imgur.com/joQ2gGR.png",
             input_message_content=InputTextMessageContent(
                 "To get information about a cryptocurrency, just type "
                 "the name or the shorthand abbreviation. For example, "
@@ -32,7 +32,7 @@ def get_help_messages():
             id=uuid4(),
             title="Convert between cryptocurrencies and U.S. dollars",
             description='"$2000 BTC", "50 BTC"',
-            thumb_url="https://imgur.com/8XwhAWO.png",
+            thumbnail_url="https://imgur.com/8XwhAWO.png",
             input_message_content=InputTextMessageContent(
                 "Cryptora can convert cryptocurrency values to U.S. dollars. Just "
                 "type in a cryptocurrency value \u2013 for instance, `50 ETH` "
@@ -48,7 +48,7 @@ def get_help_messages():
             id=uuid4(),
             title="Read the latest cryptocurrency headlines",
             description='"news"',
-            thumb_url="https://imgur.com/FUX10Vi.png",
+            thumbnail_url="https://imgur.com/FUX10Vi.png",
             input_message_content=InputTextMessageContent(
                 "You can type `news` to get the ten latest headlines from CoinDesk.com "
                 "in-line. Tap a link to send to your chat.",
@@ -58,7 +58,7 @@ def get_help_messages():
         InlineQueryResultArticle(
             id=uuid4(),
             title="See the top cryptocurrencies",
-            thumb_url="https://imgur.com/g6YajTp.png",
+            thumbnail_url="https://imgur.com/g6YajTp.png",
             description='"top"',
             input_message_content=InputTextMessageContent(
                 "Type `top` to see the top 50 cryptocurrencies, ranked by "
@@ -72,7 +72,7 @@ def get_help_messages():
         InlineQueryResultArticle(
             id=uuid4(),
             title="See global stats",
-            thumb_url="https://imgur.com/MyjXCmb.png",
+            thumbnail_url="https://imgur.com/MyjXCmb.png",
             description='"global", "stats"',
             input_message_content=InputTextMessageContent(
                 "Type `global` or `stats` to see a variety of up-to-the-minute global "
@@ -85,7 +85,7 @@ def get_help_messages():
         InlineQueryResultArticle(
             id=uuid4(),
             title="Compare multiple cryptocurrencies",
-            thumb_url="https://imgur.com/Gbnrtod.png",
+            thumbnail_url="https://imgur.com/Gbnrtod.png",
             description='"btc, ltc, eth, dash, iota, xrp"',
             input_message_content=InputTextMessageContent(
                 "You can search for multiple cryptocurrencies in a single "

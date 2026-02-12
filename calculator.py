@@ -41,7 +41,7 @@ def crypto_calculator(query, reverse):
     results = [
         InlineQueryResultArticle(
             id=uuid4(),
-            thumb_url=f"https://s2.coinmarketcap.com/static/img/coins/200x200/{coin.ID}.png",
+            thumbnail_url=f"https://s2.coinmarketcap.com/static/img/coins/200x200/{coin.ID}.png",
             title=title,
             description=description,
             input_message_content=InputTextMessageContent(message_content),

@@ -143,21 +143,21 @@ def get_coin_info(query):
             id=uuid4(),
             title=f"{coin.name} ({coin.symbol})",
             description=f"#{coin.rank} out of {len(coin_map)}",
-            thumb_url=coin.image_url,
+            thumbnail_url=coin.image_url,
             input_message_content=InputTextMessageContent(coin.summary, "Markdown"),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
             title="Price",
             description=f"${coin.price_usd}",
-            thumb_url="https://imgur.com/7RCGCoc.png",
+            thumbnail_url="https://imgur.com/7RCGCoc.png",
             input_message_content=InputTextMessageContent(f"1 {coin.symbol} = ${coin.price_usd}"),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
             title="Market Capitalization",
             description=f"${coin.market_cap}",
-            thumb_url="https://i.imgur.com/UMczLVP.png",
+            thumbnail_url="https://i.imgur.com/UMczLVP.png",
             input_message_content=InputTextMessageContent(
                 f"Market Capitalization of {coin.name} ({coin.symbol}): ${coin.market_cap}"
             ),
@@ -166,7 +166,7 @@ def get_coin_info(query):
             id=uuid4(),
             title="Circulating Supply",
             description=f"{coin.supply} {coin.symbol}",
-            thumb_url="https://i.imgur.com/vXAN23U.png",
+            thumbnail_url="https://i.imgur.com/vXAN23U.png",
             input_message_content=InputTextMessageContent(
                 f"Circulating Supply of {coin.name} ({coin.symbol}): {coin.supply} {coin.symbol}"
             ),
@@ -175,7 +175,7 @@ def get_coin_info(query):
             id=uuid4(),
             title="Percent Change (24 hours)",
             description=f"{coin.percent_change}%",
-            thumb_url="https://imgur.com/iAoXFQc.png",
+            thumbnail_url="https://imgur.com/iAoXFQc.png",
             input_message_content=InputTextMessageContent(
                 f"24 Hour Change in {coin.name} ({coin.symbol}) Price: {coin.percent_change}%"
             ),
@@ -208,7 +208,7 @@ def generate_list_for_same_symbol_currencies(currencies_with_symbol):
                 id=uuid4(),
                 title=f"{coin.name} ({coin.symbol})",
                 description=f"${coin.price_usd}",
-                thumb_url=coin.image_url,
+                thumbnail_url=coin.image_url,
                 input_message_content=InputTextMessageContent(coin.summary, "Markdown"),
             )
         )
@@ -221,7 +221,7 @@ def generate_list_for_same_symbol_currencies(currencies_with_symbol):
             id=uuid4(),
             title="Multiple Currencies Found",
             description="Tap to send prices.",
-            thumb_url="https://imgur.com/g6YajTp.png",
+            thumbnail_url="https://imgur.com/g6YajTp.png",
             input_message_content=InputTextMessageContent(all_prices_list, "Markdown"),
         ),
     )
