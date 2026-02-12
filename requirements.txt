@@ -1,10 +1,7 @@
-python-telegram-bot==8.1.1
-beautifulsoup4==4.6.0
-requests==2.13.0
-datefinder==0.6.1
-dateparser==0.6.0
-six==1.10.0
-urllib3>=1.22
-python-dateutil==2.6.1
-gdax==1.0.6
-
+python-telegram-bot>=21.0
+beautifulsoup4>=4.12
+requests>=2.31
+datefinder>=0.7
+dateparser>=1.2
+python-dateutil>=2.9
+cbpro>=1.1.4

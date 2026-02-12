@@ -8,11 +8,15 @@ Cryptora is an easy-to-use Telegram bot that can retrieve cryptocurrency data an
 
 ## Status
 
-As of February 2020, Cryptora is no longer live at @CryptoraBot and is EOL. This is due to rising server costs, as well as Cryptora's codebase being written in Python 2.7, which reached EOL status at the end of 2019.
+Cryptora's codebase has been updated to Python 3.10+ and modern dependencies.
 
-Cryptora's source code will continue to live here indefinitely, and those interested can easily deploy Cryptora on their own servers by following the README in this repository's "Deployment" folder. 
+Pull requests are welcome for providing general improvements.
 
-Pull requests are welcome for rewriting the source code in Python 3.x or just providing general improvements.
+## Requirements
+
+- Python 3.10 or higher
+- A CoinMarketCap API key
+- A Telegram Bot API token
 
 ## Features
 
@@ -28,11 +32,11 @@ Pull requests are welcome for rewriting the source code in Python 3.x or just pr
 
 ## Usage
 
-Once you have deployed Cryptora – or have created a local instance – type the username of the instance in a Telegram chat, followed by any of these commands to use Cryptora:
+Once you have deployed Cryptora – or have created a local instance – type the username of the instance in a Telegram chat, followed by any of these commands to use Cryptora:
 
-- `[cryptocurrency]` – Type the name of any cryptocurrency, and Cryptora will retrieve essential information (price, market cap, circulating supply, and 24 hour percent change) and display it in a list. You can also type the cryptocurrency's symbol. For example, you can type `bitcoin` or `BTC` to get essential information about Bitcoin. The bot is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. You can also type multiple cryptocurrencies, separated by commas, and send a list of cryptocurrency prices, percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries. So, typing `xrp, iota, xmr, nano, bitcoin` will get you a list of their prices, market capitalizations, and percent changes that you can share with a chat.
+- `[cryptocurrency]` – Type the name of any cryptocurrency, and Cryptora will retrieve essential information (price, market cap, circulating supply, and 24 hour percent change) and display it in a list. You can also type the cryptocurrency's symbol. For example, you can type `bitcoin` or `BTC` to get essential information about Bitcoin. The bot is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. You can also type multiple cryptocurrencies, separated by commas, and send a list of cryptocurrency prices, percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries. So, typing `xrp, iota, xmr, nano, bitcoin` will get you a list of their prices, market capitalizations, and percent changes that you can share with a chat.
 
-- `news` - Retrieve the latest headlines from a variety of cryptocurrency news sites - aggregated by CryptoCompare – and display them in a list. You can choose to share the article with your chat, or you can browse the latest cryptocurrency headlines. 
+- `news` - Retrieve the latest headlines from a variety of cryptocurrency news sites - aggregated by CryptoCompare – and display them in a list. You can choose to share the article with your chat, or you can browse the latest cryptocurrency headlines.
 
 - `global` - Retrieve global statistics from CoinMarketCap, including the total market capitalization, the total 24 hour volume, bitcoin's dominance, and the number of active cryptocurrencies and markets.
 
@@ -50,8 +54,8 @@ Cryptora will alert you if it detects an invalid command. A valid command will d
 
 ## How it was built
 
-Cryptora is a Python 2.7 program. It was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework. Data is retrieved from [CoinMarketCap](https://coinmarketcap.com), using a combination of API access and webscraping. News articles are retrieved from [CryptoCompare](https://cryptocompare.com). The bot is hosted on an Amazon AWS EC2 server, using a Ubuntu-based Docker container.
+Cryptora is a Python 3 program. It was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework (v21+). Data is retrieved from [CoinMarketCap](https://coinmarketcap.com), using a combination of API access and webscraping. News articles are retrieved from [CryptoCompare](https://cryptocompare.com). The bot can be hosted using a Docker container.
 
 ## Acknowledgements
 
-Cryptora's feature set would not have been possible without the following Python packages: Dateparser, BeautifulSoup4, Datefinder, and coinbase-pro. Thank you to the developers who have created and maintained these super useful modules.
+Cryptora's feature set would not have been possible without the following Python packages: Dateparser, BeautifulSoup4, Datefinder, and cbpro. Thank you to the developers who have created and maintained these super useful modules.
