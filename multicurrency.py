@@ -4,7 +4,7 @@ can type in a list of currencies (such as "btc, ltc, eth, dash") and receive an 
 the price of each coin, with the option to send all of the coins' prices, market capitalizations, and
 percent changes."""
 
-from coin import Coin, format_monetary_value, get_coin_map
+from coin import Coin, format_monetary_value, get_coin_map, CANONICAL_IDS
 from retrieve_tokens import get_token
 from decimal import Decimal
 from telegram import InlineQueryResultArticle, InputTextMessageContent
@@ -29,11 +29,26 @@ def initialize_multicurrency_query(query):
 
     coins = []
 
-    # Replace the list of coin names with their IDs.
+    # Replace the list of coin names with their IDs, respecting canonical IDs for major coins.
     for i in range(len(currency_list)):
-        for item in coin_map:
-            if currency_list[i].lower() == item["name"].lower() or currency_list[i].upper() == item["symbol"]:
-                currency_list[i] = str(item["id"])
+        # Check if this currency matches a canonical coin by symbol or name.
+        canonical_id = CANONICAL_IDS.get(currency_list[i].upper())
+        if canonical_id is None:
+            for symbol, cid in CANONICAL_IDS.items():
+                for item in coin_map:
+                    if item["id"] == cid and currency_list[i].lower() == item["name"].lower():
+                        canonical_id = cid
+                        break
+                if canonical_id is not None:
+                    break
+
+        if canonical_id is not None:
+            currency_list[i] = str(canonical_id)
+        else:
+            for item in coin_map:
+                if currency_list[i].lower() == item["name"].lower() or currency_list[i].upper() == item["symbol"]:
+                    currency_list[i] = str(item["id"])
+                    break
 
     # Generate the JSON file with all the requested currencies.
     for i in range(len(currency_list)):
