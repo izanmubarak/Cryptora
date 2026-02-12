@@ -71,19 +71,6 @@ def get_help_messages():
         ),
         InlineQueryResultArticle(
             id=uuid4(),
-            title="See real-time trading prices on Coinbase Pro",
-            thumb_url="https://i.imgur.com/nJff01I.png",
-            description='"gdax", "coinbase pro"',
-            input_message_content=InputTextMessageContent(
-                "Need more up-to-the-minute prices than the standard cryptocurrency lookup? "
-                "Cryptora can retrieve the prices of Bitcoin, Bitcoin Cash, Litecoin, Ethereum, "
-                "and Ethereum Classic on GDAX. Just type `coinbase pro` or `gdax` to get the "
-                "prices in-line.",
-                ParseMode.MARKDOWN,
-            ),
-        ),
-        InlineQueryResultArticle(
-            id=uuid4(),
             title="See global stats",
             thumb_url="https://imgur.com/MyjXCmb.png",
             description='"global", "stats"',

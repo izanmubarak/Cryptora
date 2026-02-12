@@ -8,7 +8,6 @@ from retrieve_tokens import get_token
 from coin import get_coin_info
 from top import get_top_cryptocurrencies
 from calculator import crypto_calculator
-from coinbase_pro import get_GDAX_prices
 from multicurrency import generate_multi_currency_list
 from stats import get_stats_list
 from historical import determine_if_date_in_string, generate_historical_pricing_list
@@ -54,10 +53,6 @@ async def inlinequery(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     switch_pm_parameter="do_something",
                 )
                 return
-
-        # Coinbase Pro pricing
-        elif query.upper() == "GDAX" or query.lower() == "coinbase pro":
-            results = get_GDAX_prices()
 
         # Get global information
         elif query.lower() in ("global", "stats"):
