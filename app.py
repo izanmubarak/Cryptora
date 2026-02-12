@@ -2,7 +2,7 @@
 import re
 import logging
 import sys
-from telegram import InlineQueryResultArticle, InputTextMessageContent, Update
+from telegram import InlineQueryResultArticle, InlineQueryResultsButton, InputTextMessageContent, Update
 from telegram.ext import Application, InlineQueryHandler, ContextTypes
 from retrieve_tokens import get_token
 from coin import get_coin_info
@@ -38,8 +38,10 @@ async def inlinequery(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not results:
                 await update.inline_query.answer(
                     results=[],
-                    switch_pm_text="Failed to convert cryptocurrency. Please try again.",
-                    switch_pm_parameter="do_something",
+                    button=InlineQueryResultsButton(
+                        text="Failed to convert cryptocurrency. Please try again.",
+                        start_parameter="do_something",
+                    ),
                 )
                 return
 
@@ -49,8 +51,10 @@ async def inlinequery(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not results:
                 await update.inline_query.answer(
                     results=[],
-                    switch_pm_text="Failed to convert cryptocurrency. Please try again.",
-                    switch_pm_parameter="do_something",
+                    button=InlineQueryResultsButton(
+                        text="Failed to convert cryptocurrency. Please try again.",
+                        start_parameter="do_something",
+                    ),
                 )
                 return
 
@@ -71,8 +75,10 @@ async def inlinequery(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if list_size > 49:
                     await update.inline_query.answer(
                         results=[],
-                        switch_pm_text="Requested list too large. Please try again.",
-                        switch_pm_parameter="do_something",
+                        button=InlineQueryResultsButton(
+                            text="Requested list too large. Please try again.",
+                            start_parameter="do_something",
+                        ),
                     )
                     return
 
@@ -91,8 +97,10 @@ async def inlinequery(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if not results:
                     await update.inline_query.answer(
                         results=[],
-                        switch_pm_text="Requested currency not found. Please try again.",
-                        switch_pm_parameter="do_something",
+                        button=InlineQueryResultsButton(
+                            text="Requested currency not found. Please try again.",
+                            start_parameter="do_something",
+                        ),
                     )
                     return
 
