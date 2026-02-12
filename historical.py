@@ -3,7 +3,7 @@ import dateparser
 from bs4 import BeautifulSoup
 import requests
 from decimal import Decimal
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 from coin import Coin, format_monetary_value
 
@@ -134,7 +134,7 @@ def generate_historical_pricing_list(query):
             title=f"Price Data for {coin.name} ({coin.symbol})",
             description=converted_date,
             thumb_url=coin.image_url,
-            input_message_content=InputTextMessageContent(summary, ParseMode.MARKDOWN),
+            input_message_content=InputTextMessageContent(summary, "Markdown"),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
@@ -143,7 +143,7 @@ def generate_historical_pricing_list(query):
             thumb_url="https://imgur.com/EYOqB1W.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Opening Price***\n{converted_date}\n\n${values.open}",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -153,7 +153,7 @@ def generate_historical_pricing_list(query):
             thumb_url="https://imgur.com/ntXndWR.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} High Price***\n{converted_date}\n\n${values.high}",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -163,7 +163,7 @@ def generate_historical_pricing_list(query):
             thumb_url="https://imgur.com/zOfZSYj.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Low Price***\n{converted_date}\n\n${values.low}",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -173,7 +173,7 @@ def generate_historical_pricing_list(query):
             thumb_url="https://imgur.com/iQXqgYU.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Closing Price***\n{converted_date}\n\n${values.close}",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -183,7 +183,7 @@ def generate_historical_pricing_list(query):
             thumb_url="https://imgur.com/qO0rcCI.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Volume***\n{converted_date}\n\n${values.volume}",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -193,7 +193,7 @@ def generate_historical_pricing_list(query):
             thumb_url="https://i.imgur.com/UMczLVP.png",
             input_message_content=InputTextMessageContent(
                 f"***{coin.name} Market Capitalization***\n{converted_date}\n\n${values.market_cap}",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
     ]

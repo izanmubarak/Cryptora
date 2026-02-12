@@ -1,7 +1,7 @@
 # Cryptora - Public Repository
 # Displays help messages to the user.
 
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 
 
@@ -25,7 +25,7 @@ def get_help_messages():
                 "you can type relative dates too \u2013 so typing "
                 "`bitcoin 2 weeks ago` will get you the price of "
                 "Bitcoin two weeks ago.",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -41,7 +41,7 @@ def get_help_messages():
                 "that with a cryptocurrency to convert from dollars to a "
                 "cryptocurrency. For example, `$50 ETH` will retrieve the "
                 "quantity of Ethereum that $50 will get you.",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -52,7 +52,7 @@ def get_help_messages():
             input_message_content=InputTextMessageContent(
                 "You can type `news` to get the ten latest headlines from CoinDesk.com "
                 "in-line. Tap a link to send to your chat.",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -66,7 +66,7 @@ def get_help_messages():
                 "a specific number of cryptocurrencies, you can type "
                 "`top x` (where x \u2264 50) \u2013 so typing `top 20` will display "
                 "the top 20 cryptocurrencies.",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -79,7 +79,7 @@ def get_help_messages():
                 "statistics, including the dominance of Bitcoin and Ethereum, the global "
                 "cryptocurrency market capitalization, the number of cryptocurrencies on "
                 "CoinMarketCap, and more.",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -96,7 +96,7 @@ def get_help_messages():
                 "prices, market capitalizations, or percent change "
                 "values of Bitcoin, Ethereum, OmiseGO, RaiBlocks, "
                 "Monero, and Ripple in one message.",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
     ]

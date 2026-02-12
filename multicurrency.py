@@ -7,7 +7,7 @@ percent changes."""
 from coin import Coin, format_monetary_value, get_coin_map
 from retrieve_tokens import get_token
 from decimal import Decimal
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 import requests
 
@@ -77,21 +77,21 @@ def generate_multi_currency_list(query):
                 title="Prices",
                 description="Tap to send.",
                 thumb_url="https://imgur.com/7RCGCoc.png",
-                input_message_content=InputTextMessageContent(prices, ParseMode.MARKDOWN),
+                input_message_content=InputTextMessageContent(prices, "Markdown"),
             ),
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Market Capitalizations",
                 description="Tap to send.",
                 thumb_url="https://i.imgur.com/UMczLVP.png",
-                input_message_content=InputTextMessageContent(capitalizations, ParseMode.MARKDOWN),
+                input_message_content=InputTextMessageContent(capitalizations, "Markdown"),
             ),
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Percent Change Values",
                 description="Tap to send.",
                 thumb_url="https://imgur.com/iAoXFQc.png",
-                input_message_content=InputTextMessageContent(changes, ParseMode.MARKDOWN),
+                input_message_content=InputTextMessageContent(changes, "Markdown"),
             ),
         ]
 
@@ -106,7 +106,7 @@ def generate_multi_currency_list(query):
                 description=f"${coins[x].price_usd}",
                 thumb_url=coins[x].image_url,
                 title=coins[x].name,
-                input_message_content=InputTextMessageContent(coins[x].summary, ParseMode.MARKDOWN),
+                input_message_content=InputTextMessageContent(coins[x].summary, "Markdown"),
             )
         )
 

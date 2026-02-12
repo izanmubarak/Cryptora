@@ -2,7 +2,7 @@
 import re
 import logging
 import sys
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent, Update
+from telegram import InlineQueryResultArticle, InputTextMessageContent, Update
 from telegram.ext import Application, InlineQueryHandler, ContextTypes
 from retrieve_tokens import get_token
 from coin import get_coin_info

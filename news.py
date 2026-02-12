@@ -1,7 +1,7 @@
 # Cryptora - Public Repository
 # This file downloads news articles from the CryptoCompare API and displays them to the user.
 
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 import requests
 

@@ -1,7 +1,7 @@
 # Cryptora - Public Repository
 # All global statistics.
 
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 from retrieve_tokens import get_token
 from coin import format_monetary_value
 from uuid import uuid4
@@ -43,7 +43,7 @@ def get_stats_list():
             title="Global Cryptocurrency Statistics",
             thumb_url="https://imgur.com/g6YajTp.png",
             description="Tap to send list.",
-            input_message_content=InputTextMessageContent(global_stats_message, ParseMode.MARKDOWN),
+            input_message_content=InputTextMessageContent(global_stats_message, "Markdown"),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
@@ -51,7 +51,7 @@ def get_stats_list():
             thumb_url="https://i.imgur.com/UMczLVP.png",
             description=f"${market_cap}",
             input_message_content=InputTextMessageContent(
-                f"***Total Market Capitalization:*** ${market_cap}", ParseMode.MARKDOWN
+                f"***Total Market Capitalization:*** ${market_cap}", "Markdown"
             ),
         ),
         InlineQueryResultArticle(
@@ -60,7 +60,7 @@ def get_stats_list():
             thumb_url="https://imgur.com/Qw4y4Ed.png",
             description=f"${volume}",
             input_message_content=InputTextMessageContent(
-                f"***Total 24 Hour Volume:*** ${volume}", ParseMode.MARKDOWN
+                f"***Total 24 Hour Volume:*** ${volume}", "Markdown"
             ),
         ),
         InlineQueryResultArticle(
@@ -69,7 +69,7 @@ def get_stats_list():
             description=f"{dominance_btc}%",
             thumb_url="https://imgur.com/tXiapTn.png",
             input_message_content=InputTextMessageContent(
-                f"***Bitcoin Dominance:*** {dominance_btc}%", ParseMode.MARKDOWN
+                f"***Bitcoin Dominance:*** {dominance_btc}%", "Markdown"
             ),
         ),
         InlineQueryResultArticle(
@@ -78,7 +78,7 @@ def get_stats_list():
             description=f"{dominance_eth}%",
             thumb_url="https://i.imgur.com/EMEUTYl.jpg",
             input_message_content=InputTextMessageContent(
-                f"***Ethereum Dominance:*** {dominance_eth}%", ParseMode.MARKDOWN
+                f"***Ethereum Dominance:*** {dominance_eth}%", "Markdown"
             ),
         ),
         InlineQueryResultArticle(
@@ -88,7 +88,7 @@ def get_stats_list():
             description=f"{active_currencies} active cryptocurrencies",
             input_message_content=InputTextMessageContent(
                 f"{active_currencies} active cryptocurrencies on CoinMarketCap.",
-                ParseMode.MARKDOWN,
+                "Markdown",
             ),
         ),
         InlineQueryResultArticle(
@@ -97,7 +97,7 @@ def get_stats_list():
             title="Active Exchanges",
             description=f"{active_exchanges} active exchanges",
             input_message_content=InputTextMessageContent(
-                f"{active_exchanges} active exchanges on CoinMarketCap.", ParseMode.MARKDOWN
+                f"{active_exchanges} active exchanges on CoinMarketCap.", "Markdown"
             ),
         ),
     ]

@@ -7,7 +7,7 @@ is printed when the user clicks on the crypto's name in the popup list that appe
 import requests
 from decimal import Decimal
 from retrieve_tokens import get_token
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 
 # Download the full list of coins from CoinMarketCap. This list is parsed to find the user's coin,
@@ -144,7 +144,7 @@ def get_coin_info(query):
             title=f"{coin.name} ({coin.symbol})",
             description=f"#{coin.rank} out of {len(coin_map)}",
             thumb_url=coin.image_url,
-            input_message_content=InputTextMessageContent(coin.summary, ParseMode.MARKDOWN),
+            input_message_content=InputTextMessageContent(coin.summary, "Markdown"),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
@@ -209,7 +209,7 @@ def generate_list_for_same_symbol_currencies(currencies_with_symbol):
                 title=f"{coin.name} ({coin.symbol})",
                 description=f"${coin.price_usd}",
                 thumb_url=coin.image_url,
-                input_message_content=InputTextMessageContent(coin.summary, ParseMode.MARKDOWN),
+                input_message_content=InputTextMessageContent(coin.summary, "Markdown"),
             )
         )
 
@@ -222,7 +222,7 @@ def generate_list_for_same_symbol_currencies(currencies_with_symbol):
             title="Multiple Currencies Found",
             description="Tap to send prices.",
             thumb_url="https://imgur.com/g6YajTp.png",
-            input_message_content=InputTextMessageContent(all_prices_list, ParseMode.MARKDOWN),
+            input_message_content=InputTextMessageContent(all_prices_list, "Markdown"),
         ),
     )
 

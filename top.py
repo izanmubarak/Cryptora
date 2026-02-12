@@ -2,7 +2,7 @@ import requests
 from retrieve_tokens import get_token
 from coin import Coin, format_monetary_value
 from decimal import Decimal
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 
 
@@ -28,7 +28,7 @@ def get_top_cryptocurrencies(list_size):
                 thumb_url=coin.image_url,
                 description=f"${coin.price_usd}",
                 title=f"{coin.rank}. {coin.name} ({coin.symbol})",
-                input_message_content=InputTextMessageContent(coin.summary, ParseMode.MARKDOWN),
+                input_message_content=InputTextMessageContent(coin.summary, "Markdown"),
             )
         )
 
@@ -39,7 +39,7 @@ def get_top_cryptocurrencies(list_size):
             thumb_url="https://imgur.com/g6YajTp.png",
             description="Tap to send list.",
             title=f"Top {list_size} cryptocurrencies by market capitalization",
-            input_message_content=InputTextMessageContent(top_str, ParseMode.MARKDOWN),
+            input_message_content=InputTextMessageContent(top_str, "Markdown"),
         ),
     )
 

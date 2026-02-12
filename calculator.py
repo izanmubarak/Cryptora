@@ -4,7 +4,7 @@
 import requests
 from decimal import Decimal
 from coin import Coin, format_monetary_value
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 
 
