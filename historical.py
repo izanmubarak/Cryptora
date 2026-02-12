@@ -1,19 +1,11 @@
+import calendar
 import datefinder
 import dateparser
-from bs4 import BeautifulSoup
 import requests
-from decimal import Decimal
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 from coin import Coin, format_monetary_value
-
-# Constant variables for clarity.
-OPEN = 3
-HIGH = 5
-LOW = 7
-CLOSE = 9
-VOLUME = 11
-MARKETCAP = 13
+from retrieve_tokens import get_token
 
 
 class Date:
@@ -27,17 +19,20 @@ class Date:
         # This tells whether the date in the query was 3 words (i.e. August 17, 2018) or 1 word (i.e. 8/17/2018)
         self.num_words = num_words
 
+    def to_unix_timestamp(self):
+        """Convert this date to a Unix timestamp (midnight UTC)."""
+        return calendar.timegm((int(self.year), int(self.month), int(self.day), 0, 0, 0))
+
 
 class PriceOnDay:
     """Represents a cryptocurrency's data on a certain day."""
 
-    def __init__(self, values):
-        self.open = format_monetary_value(float(values[OPEN][:-4]), True)
-        self.high = format_monetary_value(float(values[HIGH][:-4]), True)
-        self.low = format_monetary_value(float(values[LOW][:-4]), True)
-        self.close = format_monetary_value(float(values[CLOSE][:-4]), True)
-        self.volume = values[VOLUME][:-4]
-        self.market_cap = values[MARKETCAP][:-4]
+    def __init__(self, data):
+        self.open = format_monetary_value(data["OPEN"], True)
+        self.high = format_monetary_value(data["HIGH"], True)
+        self.low = format_monetary_value(data["LOW"], True)
+        self.close = format_monetary_value(data["CLOSE"], True)
+        self.volume = format_monetary_value(data.get("VOLUME"), False)
 
 
 def determine_if_date_in_string(query):
@@ -84,6 +79,23 @@ def convert_month_number_to_name(month):
     return months[int(month) - 1]
 
 
+def download_historical_data(symbol, to_ts):
+    """Download historical daily data from the CoinDesk Data API."""
+    token = get_token("coindesk")
+    response = requests.get(
+        "https://data-api.coindesk.com/index/cc/v1/historical/days",
+        params={
+            "market": "cadli",
+            "instrument": f"{symbol}-USD",
+            "limit": 1,
+            "to_ts": to_ts,
+            "groups": "OHLC,VOLUME",
+            "api_key": token,
+        },
+    ).json()
+    return response["Data"][0]
+
+
 def generate_historical_pricing_list(query):
     """Constructs the historical pricing list."""
     date = get_date_from_query(query)
@@ -99,24 +111,12 @@ def generate_historical_pricing_list(query):
 
     currency = currency[:-1]
 
-    # Generate a Coin object to quickly grab the image URL and the slug
+    # Generate a Coin object to quickly grab the image URL and symbol
     coin = Coin(currency, None)
 
-    # Construct the URL from where the data will be scraped
-    currency_url = (
-        f"https://coinmarketcap.com/currencies/"
-        f"{coin.slug}/historical-data/?start="
-        f"{date.year}{date.month}{date.day}"
-        f"&end={date.year}{date.month}{date.day}"
-    )
-
-    # Download and scrape the page using BeautifulSoup4 and requests.
-    page = requests.get(currency_url)
-    soup = BeautifulSoup(page.content, "html.parser")
-
-    values = str(soup.find_all("td"))
-    values = values.split(">")
-    values = PriceOnDay(values)
+    # Download historical data from the CoinDesk Data API
+    data = download_historical_data(coin.symbol, date.to_unix_timestamp())
+    values = PriceOnDay(data)
 
     summary = (
         f"***Price Data for {coin.name}***\n{converted_date}\n\n"
@@ -124,8 +124,7 @@ def generate_historical_pricing_list(query):
         f"***High:*** ${values.high}\n"
         f"***Low:*** ${values.low}\n"
         f"***Close:*** ${values.close}\n"
-        f"***Volume:*** ${values.volume}\n"
-        f"***Market Capitalization:*** ${values.market_cap}"
+        f"***Volume:*** {values.volume} {coin.symbol}"
     )
 
     results = [
@@ -179,20 +178,10 @@ def generate_historical_pricing_list(query):
         InlineQueryResultArticle(
             id=uuid4(),
             title="Volume",
-            description=f"${values.volume}",
+            description=f"{values.volume} {coin.symbol}",
             thumbnail_url="https://imgur.com/qO0rcCI.png",
             input_message_content=InputTextMessageContent(
-                f"***{coin.name} Volume***\n{converted_date}\n\n${values.volume}",
-                "Markdown",
-            ),
-        ),
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title="Market Capitalization",
-            description=f"${values.market_cap}",
-            thumbnail_url="https://i.imgur.com/UMczLVP.png",
-            input_message_content=InputTextMessageContent(
-                f"***{coin.name} Market Capitalization***\n{converted_date}\n\n${values.market_cap}",
+                f"***{coin.name} Volume***\n{converted_date}\n\n{values.volume} {coin.symbol}",
                 "Markdown",
             ),
         ),

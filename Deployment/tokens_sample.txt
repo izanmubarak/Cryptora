@@ -1,2 +1,3 @@
 CMC_TOKEN==Your_CMC_API_token_here
 BOT_TOKEN==Your_BotFather_token_here
+COINDESK_TOKEN==Your_CoinDesk_Data_API_token_here
