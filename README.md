@@ -16,6 +16,7 @@ Pull requests are welcome for providing general improvements.
 
 - Python 3.10 or higher
 - A CoinMarketCap API key
+- A CoinDesk API key
 - A Telegram Bot API token
 
 ## Features
