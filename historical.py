@@ -1,4 +1,5 @@
 import calendar
+import time
 import datefinder
 import dateparser
 import requests
@@ -20,8 +21,17 @@ class Date:
         self.num_words = num_words
 
     def to_unix_timestamp(self):
-        """Convert this date to a Unix timestamp (midnight UTC)."""
-        return calendar.timegm((int(self.year), int(self.month), int(self.day), 0, 0, 0))
+        """Convert this date to a Unix timestamp for the CoinDesk API.
+
+        If the date is today, returns the current time so the API returns the
+        latest available data. If the date is in the past, returns 23:59:59 UTC
+        to capture the full day's OHLCV stats.
+        """
+        end_of_day = calendar.timegm((int(self.year), int(self.month), int(self.day), 23, 59, 59))
+        now = int(time.time())
+        if end_of_day >= now:
+            return now
+        return end_of_day
 
 
 class PriceOnDay:
