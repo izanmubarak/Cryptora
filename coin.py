@@ -14,6 +14,21 @@ from uuid import uuid4
 # get the official name, symbol, and the coin's logo.
 _coin_map = None
 
+# Canonical CoinMarketCap IDs for major cryptocurrencies. When a query matches one of these,
+# only the canonical coin is returned instead of showing a disambiguation list.
+CANONICAL_IDS = {
+    "BTC": 1,
+    "ETH": 1027,
+    "LTC": 2,
+    "XRP": 52,
+    "BCH": 1831,
+    "ADA": 2010,
+    "DOT": 6636,
+    "DOGE": 74,
+    "SOL": 5426,
+    "BNB": 1839,
+}
+
 
 def get_coin_map():
     global _coin_map
@@ -40,9 +55,26 @@ class Coin:
         self.occurrences = 0
 
         if data is None:
+            # Check if the query matches a canonical cryptocurrency. If so, skip the full
+            # scan and only use the canonical ID to avoid returning duplicate/shitcoins.
+            canonical_id = CANONICAL_IDS.get(query.upper())
+            if canonical_id is None:
+                # Also check by name (e.g. "bitcoin" -> "BTC" -> 1)
+                for symbol, cid in CANONICAL_IDS.items():
+                    for item in coin_map:
+                        if item["id"] == cid and query.lower() == item["name"].lower():
+                            canonical_id = cid
+                            break
+                    if canonical_id is not None:
+                        break
+
             for item in coin_map:
                 # Cryptora supports both the name of the currency and its symbol for search.
                 if query.upper() == item["symbol"] or query.lower() == item["name"].lower():
+                    # If a canonical ID exists for this query, skip non-canonical matches.
+                    if canonical_id is not None and item["id"] != canonical_id:
+                        continue
+
                     self.exists = True
 
                     # Get the coin's full name, ID, date of first historical data, and symbol from CMC
@@ -73,6 +105,10 @@ class Coin:
                         Decimal(self.data["quote"]["USD"]["percent_change_24h"])
                         .quantize(Decimal("1.00"), rounding="ROUND_HALF_DOWN")
                     )
+
+                    # If using a canonical ID, we found our match - stop searching.
+                    if canonical_id is not None:
+                        break
 
         else:
             # This block generates a Coin object with a passed in JSON array containing all of the
