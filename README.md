@@ -12,6 +12,8 @@ Cryptora's codebase has been updated to Python 3.10+ and modern dependencies.
 
 The official instance of Cryptora is live (`@CryptoraBot`), and available for use on Telegram by anyone as an inline bot.
 
+Historical pricing and news are currently not functional due to API limits. We are investigating alternatives.
+
 Pull requests are welcome for providing general improvements.
 
 ## Requirements
