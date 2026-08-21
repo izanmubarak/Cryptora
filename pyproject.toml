@@ -10,4 +10,5 @@ dependencies = [
     "datefinder>=0.7",
     "dateparser>=1.2",
     "python-dateutil>=2.9",
+    "mistralai>=2.0",
 ]

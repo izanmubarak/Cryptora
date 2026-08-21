@@ -33,6 +33,7 @@ Pull requests are welcome for providing general improvements.
 - **Calculations made easy.** Instantly convert between cryptocurrency and U.S. dollars.
 - **Browse the latest cryptocurrency news.** Read and share news from a variety of cryptocurrency news sites.
 - **View the rankings.** See the top cryptocurrencies and their prices at any given moment, sorted by market capitalization.
+- **Ask in any language.** If a query doesn't match any of the commands below, Cryptora uses an LLM to work out which of the above features you meant, so you don't have to remember the exact syntax. Works with most languages.
 
 ## Usage
 
@@ -51,6 +52,8 @@ Once you have deployed Cryptora – or have created a local instance – type th
 - `[x] [cryptocurrency]` - Type this command (replace `[x]` with any number, and `[cryptocurrency]` with your desired cryptocurrency) to instantly convert an amount of cryptocurrency to U.S. dollars.
 
 - `$[x] [cryptocurrency]` - Type this command (replace `[x]` with any number, and `[cryptocurrency]` with your desired cryptocurrency) to instantly convert an amount of U.S. dollars to the desired cryptocurrency.
+
+- **Anything else** - If your query doesn't match any of the commands above, Cryptora passes it to Mistral (Ministral 3B) to figure out which feature you're asking for. So `how much is half a bitcoin worth`, `what was ethereum trading at yesterday`, `show me the 20 biggest coins`, and `how is the market doing` all work. The first result tells you how your question was interpreted. This requires a `MISTRAL_TOKEN` in `tokens.txt`; without one, Cryptora simply behaves as it did before and reports that the currency was not found. Your Mistral plan's requests-per-minute limit is shared across all of your bot's users — when it is hit, natural language queries fall back to the "not found" message until it clears.
 
 Cryptora will alert you if it detects an invalid command. A valid command will display a list of shareable entries on your screen.
 

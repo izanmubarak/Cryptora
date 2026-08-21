@@ -1,9 +1,3 @@
-# Cryptora - Public Repository
-"""The Coin class represents a cryptocurrency and its metadata.
-Cryptora currently displays the requested cryptocurrency's symbol, name, supply, market cap, price,
-and percent change. The Coin class holds this information, as well as the summary of the coin that
-is printed when the user clicks on the crypto's name in the popup list that appears."""
-
 import requests
 from decimal import Decimal
 from retrieve_tokens import get_token
@@ -13,6 +7,9 @@ from uuid import uuid4
 # Download the full list of coins from CoinMarketCap. This list is parsed to find the user's coin,
 # get the official name, symbol, and the coin's logo.
 _coin_map = None
+
+# A set of every known symbol and name, derived from the coin map on first use.
+_coin_lookup = None
 
 # Canonical CoinMarketCap IDs for major cryptocurrencies. When a query matches one of these,
 # only the canonical coin is returned instead of showing a disambiguation list.
@@ -38,6 +35,35 @@ def get_coin_map():
             f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY={token}"
         ).json()["data"]
     return _coin_map
+
+
+def get_coin_lookup():
+    """Build a set of every symbol (uppercased) and name (lowercased) in the coin map.
+
+    Used for cheap membership tests. Constructing a Coin object hits the CoinMarketCap
+    quotes endpoint for every match, so this set lets callers check whether a query names
+    a real cryptocurrency without making any network requests.
+    """
+    global _coin_lookup
+    if _coin_lookup is None:
+        _coin_lookup = set()
+        for item in get_coin_map():
+            _coin_lookup.add(item["symbol"].upper())
+            _coin_lookup.add(item["name"].lower())
+    return _coin_lookup
+
+
+def is_known_coin(query):
+    """Return True if the query exactly matches a cryptocurrency's name or symbol."""
+    if not query:
+        return False
+
+    query = query.strip()
+    if not query:
+        return False
+
+    lookup = get_coin_lookup()
+    return query.upper() in lookup or query.lower() in lookup
 
 
 class Coin:

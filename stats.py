@@ -1,6 +1,3 @@
-# Cryptora - Public Repository
-# All global statistics.
-
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from retrieve_tokens import get_token
 from coin import format_monetary_value

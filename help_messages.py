@@ -1,12 +1,24 @@
-# Cryptora - Public Repository
-# Displays help messages to the user.
-
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 
 
 def get_help_messages():
     results = [
+        InlineQueryResultArticle(
+            id=uuid4(),
+            title="New: Ask naturally in any language",
+            thumbnail_url="https://imgur.com/joQ2gGR.png",
+            description='"how much is half a bitcoin worth"',
+            input_message_content=InputTextMessageContent(
+                "If you don't remember the exact command, just describe what you want. "
+                "Cryptora will work out which of its features you're asking for. Try "
+                "`how much is half a bitcoin worth`, `what was ethereum trading at "
+                "yesterday`, `show me the 20 biggest coins`, or `how is the market doing`."
+                "\n\nCryptora will show you how it understood your question at the top of "
+                "the results, so you can tell whether it got you right. Works with most languages.",
+                "Markdown",
+            ),
+        ),
         InlineQueryResultArticle(
             id=uuid4(),
             title="Retrieve cryptocurrency prices",
@@ -98,7 +110,7 @@ def get_help_messages():
                 "Monero, and Ripple in one message.",
                 "Markdown",
             ),
-        ),
+        )
     ]
 
     return results

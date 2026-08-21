@@ -10,7 +10,10 @@ Hosting Cryptora – locally or on a server platform such as AWS – requires y
 CMC_TOKEN==Your_CMC_API_token_here
 BOT_TOKEN==Your_BotFather_token_here
 COINDESK_TOKEN==Your_CoinDesk_Data_API_token_here
+MISTRAL_TOKEN=Your_Mistral_API_token_here
 ```
+
+`MISTRAL_TOKEN` is optional and powers plain-English queries (see "Anything else" in the main README). Leave it out and Cryptora works exactly as it did before, reporting that the currency was not found for any query it cannot parse.
 
 You need only copy and paste the respective tokens after `CMC_TOKEN==`, `BOT_TOKEN==`, and `COINDESK_TOKEN==`. Do not put quotation marks or anything around the tokens. Also, ensure that there is **no newline** at the end of the file - this will throw errors when you attempt to run the program.
 

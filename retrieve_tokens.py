@@ -1,14 +1,9 @@
-# Cryptora - Public Repository
-
-# This file reads in a provided tokens.txt file to retrieve the API tokens for the Telegram Bot API,
-# the CoinMarketCap API, and the CoinDesk Data API.
-
-
 def get_token(service):
     """Return the API token for the requested service.
 
     Args:
-        service: "cmc" for CoinMarketCap, "bot" for Telegram Bot, "coindesk" for CoinDesk Data API.
+        service: "cmc" for CoinMarketCap, "bot" for Telegram Bot, "coindesk" for CoinDesk Data API,
+                 "mistral" for the Mistral API.
                  Also accepts True for CoinMarketCap and False for Telegram Bot for backwards compatibility.
     """
     with open("tokens.txt") as f:
@@ -27,5 +22,8 @@ def get_token(service):
 
     if service == "coindesk":
         return tokens.get("COINDESK_TOKEN", "")
+
+    if service == "mistral":
+        return tokens.get("MISTRAL_TOKEN", "")
 
     return ""

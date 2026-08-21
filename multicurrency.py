@@ -1,9 +1,3 @@
-# Cryptora - Public Repository
-"""These functions provide the functionality for Cryptora's multi-currency search functionality. Users
-can type in a list of currencies (such as "btc, ltc, eth, dash") and receive an inline list that shows
-the price of each coin, with the option to send all of the coins' prices, market capitalizations, and
-percent changes."""
-
 from coin import Coin, format_monetary_value, get_coin_map, CANONICAL_IDS
 from retrieve_tokens import get_token
 from decimal import Decimal
@@ -13,7 +7,6 @@ import requests
 
 
 def initialize_multicurrency_query(query):
-    """Create a list that holds Coin objects, with each Coin object corresponding to the entered cryptocurrency."""
     token = get_token(True)
     coin_map = get_coin_map()
     data_url = f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id="
