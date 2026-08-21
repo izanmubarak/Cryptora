@@ -7,7 +7,23 @@ dependencies = [
     "python-telegram-bot>=21.0",
     "beautifulsoup4>=4.12",
     "requests>=2.31",
-    "datefinder>=0.7",
-    "dateparser>=1.2",
-    "python-dateutil>=2.9",
+    "feedparser>=6.0",
+    "mistralai>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.16"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+ignore = [
+    # Cryptora parses dates that are deliberately naive: a calendar day, not an instant.
+    "DTZ007",
+    # The Mistral client can raise anything; routing must degrade rather than crash.
+    "BLE001",
+    # A word list reads better as "one two three".split() than as twenty quoted lines.
+    "SIM905",
 ]

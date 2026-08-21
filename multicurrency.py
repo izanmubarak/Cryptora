@@ -1,68 +1,51 @@
-# Cryptora - Public Repository
-"""These functions provide the functionality for Cryptora's multi-currency search functionality. Users
-can type in a list of currencies (such as "btc, ltc, eth, dash") and receive an inline list that shows
-the price of each coin, with the option to send all of the coins' prices, market capitalizations, and
-percent changes."""
-
-from coin import Coin, format_monetary_value, get_coin_map, CANONICAL_IDS
-from retrieve_tokens import get_token
-from decimal import Decimal
-from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
+
 import requests
+from telegram import InlineQueryResultArticle, InputTextMessageContent
+
+from coin import CANONICAL_IDS, Coin, format_monetary_value, get_coin_map, is_known_coin
+from retrieve_tokens import get_token
 
 
-def initialize_multicurrency_query(query):
-    """Create a list that holds Coin objects, with each Coin object corresponding to the entered cryptocurrency."""
-    token = get_token(True)
+def looks_like_coin_list(query):
+    # Return True if the query is a comma separated list of cryptocurrencies and nothing else
+    parts = [part.strip() for part in query.split(",")]
+    parts = [part for part in parts if part]
+    return len(parts) >= 2 and all(is_known_coin(part) for part in parts)
+
+
+def initialize_multicurrency_query(coin_names):
+    token = get_token("cmc")
     coin_map = get_coin_map()
     data_url = f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id="
-
-    # Parse the query, creating a list of strings that holds each individual entered cryptocurrency.
-    if query.endswith(","):
-        query = query[:-1]
-    if query.startswith(","):
-        query = query[1:]
-
-    currency_list = query.replace(", ", ",")
-    currency_list = currency_list.split(",")
-
+    search_string = ""
+    ids = []
     coins = []
 
-    # Replace the list of coin names with their IDs, respecting canonical IDs for major coins.
-    for i in range(len(currency_list)):
-        # Check if this currency matches a canonical coin by symbol or name.
-        canonical_id = CANONICAL_IDS.get(currency_list[i].upper())
+    for coin_name in coin_names:
+        canonical_id = CANONICAL_IDS.get(coin_name.upper())
         if canonical_id is None:
-            for symbol, cid in CANONICAL_IDS.items():
+            for cid in CANONICAL_IDS.values():
                 for item in coin_map:
-                    if item["id"] == cid and currency_list[i].lower() == item["name"].lower():
+                    if item["id"] == cid and coin_name.lower() == item["name"].lower():
                         canonical_id = cid
                         break
                 if canonical_id is not None:
                     break
 
         if canonical_id is not None:
-            currency_list[i] = str(canonical_id)
+            ids.append(str(canonical_id))
         else:
             for item in coin_map:
-                if currency_list[i].lower() == item["name"].lower() or currency_list[i].upper() == item["symbol"]:
-                    currency_list[i] = str(item["id"])
+                if coin_name.lower() == item["name"].lower() or coin_name.upper() == item["symbol"]:
+                    ids.append(str(item["id"]))
                     break
 
-    # Generate the JSON file with all the requested currencies.
-    for i in range(len(currency_list)):
-        data_url += currency_list[i] + ","
-
-    # Remove the last comma from the URL and download the data
-    data_url = data_url[:-1]
+    search_string += ",".join(ids)
+    data_url += search_string
     data = requests.get(data_url).json()["data"]
-
-    # Generate a Coin object for each entered cryptocurrency and add it to a list of Coin objects.
-    for i in range(len(currency_list)):
-        coin = Coin(None, data[currency_list[i]])
-
-        # Filter out invalid entries using the "exists" variable.
+    for result in data.values():
+        coin = Coin(None, result)
         if coin.exists:
             coins.append(coin)
 
@@ -70,21 +53,19 @@ def initialize_multicurrency_query(query):
 
 
 def generate_multi_currency_list(query):
-    """Create the list of options that is displayed to the user when they type a multicurrency query."""
-    coins = initialize_multicurrency_query(query)
+    coins = [part.strip() for part in query.split(",")]
+    coins = initialize_multicurrency_query([part for part in coins if part])
 
     prices = "***Selected Cryptocurrency Prices***\n\n"
     capitalizations = "***Selected Cryptocurrency Market Capitalizations***\n\n"
     changes = "***Selected Cryptocurrency 24 Hour Percent Change Values***\n\n"
 
     for coin in coins:
-        prices += f"***{coin.name}:*** ${coin.price_usd}\n"
-        capitalizations += f"***{coin.name}:*** ${coin.market_cap}\n"
+        prices += f"***{coin.name}:*** ${format_monetary_value(coin.price_usd)}\n"
+        capitalizations += f"***{coin.name}:*** ${format_monetary_value(coin.market_cap)}\n"
         changes += f"***{coin.name}:*** {coin.percent_change}%\n"
 
     results = []
-
-    # Add the "Prices", "Market Capitalizations", and "Percent Change Values" options
     if coins:
         results = [
             InlineQueryResultArticle(
@@ -110,18 +91,15 @@ def generate_multi_currency_list(query):
             ),
         ]
 
-    # Cryptora allows users to put up to 10 coins in a multi-currency query.
     length = min(len(coins), 10)
-
-    # Add each individual coin to the list.
-    for x in range(length):
+    for i in range(length):
         results.append(
             InlineQueryResultArticle(
                 id=uuid4(),
-                description=f"${coins[x].price_usd}",
-                thumbnail_url=coins[x].image_url,
-                title=coins[x].name,
-                input_message_content=InputTextMessageContent(coins[x].summary, "Markdown"),
+                description=f"${format_monetary_value(coins[i].price_usd)}",
+                thumbnail_url=coins[i].image_url,
+                title=f"{coins[i].name} ({coins[i].symbol})",
+                input_message_content=InputTextMessageContent(coins[i].summary, "Markdown"),
             )
         )
 
