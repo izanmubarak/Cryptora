@@ -7,7 +7,7 @@ from uuid import uuid4
 
 
 def get_top_cryptocurrencies(list_size):
-    token = get_token(True)
+    token = get_token("cmc")
     data = requests.get(
         f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
         f"?CMC_PRO_API_KEY={token}&start=1&limit=50&convert=USD&sort=market_cap"

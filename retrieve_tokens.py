@@ -7,16 +7,14 @@ def get_token(service):
                 key, value = line.split("=", 1)
                 tokens[key] = value
 
-    if service is True or service == "cmc":
-        return tokens.get("CMC_TOKEN", "")
-
-    if service is False or service == "bot":
-        return tokens.get("BOT_TOKEN", "")
-
-    if service == "coindesk":
-        return tokens.get("COINDESK_TOKEN", "")
-
-    if service == "mistral":
-        return tokens.get("MISTRAL_TOKEN", "")
-
-    return ""
+    match service:
+        case "cmc":
+            return tokens.get("CMC_TOKEN", "")
+        case "bot":
+            return tokens.get("BOT_TOKEN", "")
+        case "mistral":
+            return tokens.get("MISTRAL_TOKEN", "")
+        case "fmp":
+            return tokens.get("FMP_TOKEN", "")
+        case _:
+            return ""

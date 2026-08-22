@@ -1,4 +1,3 @@
-# Cryptora - Public Repository
 import re
 import asyncio
 from telegram import InlineQueryResultsButton, Update
@@ -12,6 +11,9 @@ import llm_router
 
 DEBOUNCE_DELAY = 1.0
 NOT_FOUND_MESSAGE = "Requested currency not found. Please try again."
+EMPTY_RESULT_MESSAGES = {
+    "historical": "No historical data found for that date.",
+}
 _latest_query = {}
 
 async def wait_for_typing_to_settle(user_id, query):
@@ -120,7 +122,9 @@ async def inlinequery(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     results = llm_router.dispatch(parsed)
     if not results:
-        await answer_with_message(update, NOT_FOUND_MESSAGE)
+        await answer_with_message(
+            update, EMPTY_RESULT_MESSAGES.get(parsed["route"], NOT_FOUND_MESSAGE)
+        )
         return
 
     if from_model:
@@ -129,7 +133,7 @@ async def inlinequery(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.inline_query.answer(results=results, cache_time=1)
 
 def main():
-    application = Application.builder().token(get_token(False)).concurrent_updates(True).build()
+    application = Application.builder().token(get_token("bot")).concurrent_updates(True).build()
     application.add_handler(InlineQueryHandler(inlinequery))
     application.run_polling()
 

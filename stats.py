@@ -8,7 +8,7 @@ from decimal import Decimal
 
 def get_global_data():
     """Fetch global cryptocurrency statistics from CoinMarketCap."""
-    token = get_token(True)
+    token = get_token("cmc")
     return requests.get(
         f"https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest?CMC_PRO_API_KEY={token}"
     ).json()["data"]

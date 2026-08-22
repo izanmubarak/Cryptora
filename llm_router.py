@@ -3,7 +3,7 @@ import json
 import logging
 import re
 import time
-from collections import OrderedDict, deque
+from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
@@ -42,7 +42,6 @@ ROUTES = (
 
 UNKNOWN = {"route": "unknown"}
 DISABLED_ROUTES = {
-    "historical": "Historical pricing is currently unavailable.",
     "news": "News is currently unavailable.",
 }
 
@@ -83,6 +82,8 @@ Always include "coins" ([] if none). Never invent a coin. Dates must be past, YY
 "bitcoin price yesterday" {{"route":"historical","coins":["bitcoin"],"date":"{yesterday}"}}
 "20 biggest coins" {{"route":"top","coins":[],"limit":20}}
 "how is the market doing" {{"route":"stats","coins":[]}}
+"what's litecoin's 24 hour percent change" {{"route":"coin","coins":["litecoin"]}}
+"what's ethereum's market cap" {{"route":"coin","coins":["ethereum"]}}
 "anything happening in crypto" {{"route":"news","coins":[]}}
 "compare bitcoin and solana" {{"route":"multicurrency","coins":["bitcoin","solana"]}}
 "tell me about dogecoin" {{"route":"coin","coins":["dogecoin"]}}
@@ -193,8 +194,6 @@ async def request_route(query, today):
         {"role": "system", "content": build_system_prompt(today)},
         {"role": "user", "content": query},
     ]
-
-    started = time.monotonic()
 
     try:
         response = await asyncio.wait_for(

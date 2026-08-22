@@ -1,6 +1,3 @@
-# Cryptora - Public Repository
-# Provides conversion functionality between a cryptocurrency and U.S. dollars.
-
 import math
 import re
 from coin import Coin, format_monetary_value

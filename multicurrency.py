@@ -13,7 +13,7 @@ def looks_like_coin_list(query):
 
 
 def initialize_multicurrency_query(query):
-    token = get_token(True)
+    token = get_token("cmc")
     coin_map = get_coin_map()
     data_url = f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id="
 

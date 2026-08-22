@@ -6,16 +6,16 @@ def get_help_messages():
     results = [
         InlineQueryResultArticle(
             id=uuid4(),
-            title="New: Just ask naturally",
+            title="New: Ask naturally",
             thumbnail_url="https://i.ibb.co/7JSfhJHX/Screenshot-2026-08-21-at-8-58-28-PM.png",
-            description='"how much is half a bitcoin worth"',
+            description='"how much is half a bitcoin worth", "ethereum price today"',
             input_message_content=InputTextMessageContent(
                 "If you don't remember the exact command, just describe what you want. "
                 "Cryptora will work out which of its features you're asking for. Try "
-                "`how much is half a bitcoin worth`, `what was ethereum trading at "
-                "yesterday`, `show me the 20 biggest coins`, or `how is the market doing`."
-                "\n\nCryptora will show you how it understood your question at the top of "
-                "the results, so you can tell whether it got you right. Works with most languages.",
+                "`how much is half a bitcoin worth`,`show me the 20 biggest coins`, "
+                "or `how is the market doing`. Cryptora will show you how it understood "
+                "your question at the top of the results, so you can tell whether it got "
+                "you right. Works with most languages.",
                 "Markdown",
             ),
         ),

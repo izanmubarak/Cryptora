@@ -4,15 +4,10 @@ from retrieve_tokens import get_token
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 
-# Download the full list of coins from CoinMarketCap. This list is parsed to find the user's coin,
-# get the official name, symbol, and the coin's logo.
 _coin_map = None
-
-# A set of every known symbol and name, derived from the coin map on first use.
 _coin_lookup = None
 
-# Canonical CoinMarketCap IDs for major cryptocurrencies. When a query matches one of these,
-# only the canonical coin is returned instead of showing a disambiguation list.
+# IDs for major cryptocurrencies (to prevent obscure memecoins with the same symbol from showing up)
 CANONICAL_IDS = {
     "BTC": 1,
     "ETH": 1027,
@@ -30,20 +25,15 @@ CANONICAL_IDS = {
 def get_coin_map():
     global _coin_map
     if _coin_map is None:
-        token = get_token(True)
+        token = get_token("cmc")
         _coin_map = requests.get(
             f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY={token}"
         ).json()["data"]
     return _coin_map
 
 
+# Build a set of every symbol (uppercased) and name (lowercased) in the coin map to avoid unnecessary API calls
 def get_coin_lookup():
-    """Build a set of every symbol (uppercased) and name (lowercased) in the coin map.
-
-    Used for cheap membership tests. Constructing a Coin object hits the CoinMarketCap
-    quotes endpoint for every match, so this set lets callers check whether a query names
-    a real cryptocurrency without making any network requests.
-    """
     global _coin_lookup
     if _coin_lookup is None:
         _coin_lookup = set()
@@ -54,7 +44,6 @@ def get_coin_lookup():
 
 
 def is_known_coin(query):
-    """Return True if the query exactly matches a cryptocurrency's name or symbol."""
     if not query:
         return False
 
@@ -67,25 +56,18 @@ def is_known_coin(query):
 
 
 class Coin:
-
     def __init__(self, query, data):
         coin_map = get_coin_map()
 
         # Record whether the coin exists. Used for multicurrency to filter out invalid entries.
         self.exists = False
 
-        # Stores the currencies with the same name or symbol as a comma separated list.
-        self.currencies_with_symbol = ""
-
-        # Record the number of currencies found with the same symbol or name.
-        self.occurrences = 0
+        # Stores the currencies with the same name or symbol
+        self.currencies_with_symbol = []
 
         if data is None:
-            # Check if the query matches a canonical cryptocurrency. If so, skip the full
-            # scan and only use the canonical ID to avoid returning duplicate/shitcoins.
             canonical_id = CANONICAL_IDS.get(query.upper())
             if canonical_id is None:
-                # Also check by name (e.g. "bitcoin" -> "BTC" -> 1)
                 for symbol, cid in CANONICAL_IDS.items():
                     for item in coin_map:
                         if item["id"] == cid and query.lower() == item["name"].lower():
@@ -95,42 +77,28 @@ class Coin:
                         break
 
             for item in coin_map:
-                # Cryptora supports both the name of the currency and its symbol for search.
                 if query.upper() == item["symbol"] or query.lower() == item["name"].lower():
-                    # If a canonical ID exists for this query, skip non-canonical matches.
                     if canonical_id is not None and item["id"] != canonical_id:
                         continue
 
-                    self.exists = True
+                    self.ID = item["id"]
+                    data = download_coin_data(self.ID)
 
-                    # Get the coin's full name, ID, date of first historical data, and symbol from CMC
+                    self.exists = True
                     self.symbol = item["symbol"]
                     self.name = item["name"]
                     self.slug = item["slug"]
-                    self.ID = item["id"]
                     self.first_data = item["first_historical_data"]
-
-                    # Store the IDs of each currency with the same symbol in a list.
-                    self.currencies_with_symbol += f"{self.ID},"
-                    self.occurrences += 1
-
-                    # Get the coin's logo from CMC
+                    self.currencies_with_symbol.append(f"{self.ID}")
                     self.image_url = f"https://s2.coinmarketcap.com/static/img/coins/200x200/{self.ID}.png"
+                    self.rank = str(data["cmc_rank"])
+                    self.supply = format_monetary_value(data["circulating_supply"], False)
+                    self.market_cap = data["quote"]["USD"]["market_cap"]
+                    self.price_usd = data["quote"]["USD"]["price"]
 
-                    # Get the metadata about the specific coin entered in JSON form
-                    self.data = download_coin_data(self.ID)
-
-                    # Parse and store the necessary data
-                    self.rank = str(self.data["cmc_rank"])
-                    self.supply = format_monetary_value(self.data["circulating_supply"], False)
-                    self.market_cap = self.data["quote"]["USD"]["market_cap"]
-                    self.price_usd = self.data["quote"]["USD"]["price"]
-
-                    # Will always round percent changes to the hundredths place.
-                    self.percent_change = str(
-                        Decimal(self.data["quote"]["USD"]["percent_change_24h"])
-                        .quantize(Decimal("1.00"), rounding="ROUND_HALF_DOWN")
-                    )
+                    percent_change = Decimal(data["quote"]["USD"]["percent_change_24h"]).quantize(Decimal("1.00"), rounding="ROUND_HALF_DOWN")
+                    sign = "+" if percent_change >= 0 else "-"
+                    self.percent_change = sign + str(percent_change)
 
                     # If using a canonical ID, we found our match - stop searching.
                     if canonical_id is not None:
@@ -167,8 +135,7 @@ class Coin:
 
 
 def download_coin_data(coin_id):
-    """Download the JSON file that contains the data about the user's coin."""
-    token = get_token(True)
+    token = get_token("cmc")
     data = requests.get(
         f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id={coin_id}"
     ).json()
@@ -189,12 +156,11 @@ def format_monetary_value(value, decimals=True):
 
 
 def get_coin_info(query):
-    """Generate the list displayed in the Telegram chat."""
     coin_map = get_coin_map()
     results = []
     coin = Coin(query, None)
 
-    if coin.occurrences > 1:
+    if len(coin.currencies_with_symbol) > 1:
         return generate_list_for_same_symbol_currencies(coin.currencies_with_symbol)
 
     if not coin.exists:
@@ -249,22 +215,23 @@ def get_coin_info(query):
 
 def generate_list_for_same_symbol_currencies(currencies_with_symbol):
     """Generate the list for a currency symbol that corresponds to multiple currencies."""
-    token = get_token(True)
+    token = get_token("cmc")
 
-    # Remove the last comma from the URL
-    currencies_with_symbol = currencies_with_symbol[:-1]
-    currency_list = currencies_with_symbol.split(",")
+    search_string = ""
+    for index, currency in enumerate(currencies_with_symbol):
+        search_string += currency
+        if index != len(currencies_with_symbol) - 1:
+            search_string += ","
 
     results = []
     all_prices_list = "***Selected Cryptocurrency Prices***\n\n"
 
     data = requests.get(
-        f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id={currencies_with_symbol}"
+        f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id={search_string}"
     ).json()["data"]
 
     for x in range(len(data)):
-        coin = Coin(None, data[currency_list[x]])
-
+        coin = Coin(None, data[currencies_with_symbol[x]])
         results.append(
             InlineQueryResultArticle(
                 id=uuid4(),
