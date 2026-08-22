@@ -103,8 +103,7 @@ class Coin:
                     percent_change = Decimal(data["quote"]["USD"]["percent_change_24h"]).quantize(
                         Decimal("1.00"), rounding="ROUND_HALF_DOWN"
                     )
-                    sign = "+" if percent_change >= 0 else "-"
-                    self.percent_change = sign + str(percent_change)
+                    self.percent_change = f"{percent_change:+}"
 
                     # If using a canonical ID, we found our match - stop searching.
                     if canonical_id is not None:
@@ -123,19 +122,19 @@ class Coin:
             self.supply = format_monetary_value(data["circulating_supply"], False)
             self.market_cap = data["quote"]["USD"]["market_cap"]
             self.price_usd = data["quote"]["USD"]["price"]
-            self.percent_change = str(
-                Decimal(data["quote"]["USD"]["percent_change_24h"]).quantize(
-                    Decimal("1.00"), rounding="ROUND_HALF_DOWN"
-                )
+
+            percent_change = Decimal(data["quote"]["USD"]["percent_change_24h"]).quantize(
+                Decimal("1.00"), rounding="ROUND_HALF_DOWN"
             )
+            self.percent_change = f"{percent_change:+}"
 
         if self.exists:
             # Generate a summary that is displayed when the user clicks on the name of the coin
             self.summary = (
                 f"***{self.name}*** ({self.symbol})\n\n"
                 f"***Rank:*** #{self.rank} out of {len(coin_map)}\n"
-                f"***Price***: ${self.price_usd}\n"
-                f"***Market Capitalization***: ${self.market_cap}\n"
+                f"***Price***: ${format_monetary_value(self.price_usd)}\n"
+                f"***Market Capitalization***: ${format_monetary_value(self.market_cap)}\n"
                 f"***Circulating Supply***: {self.supply} {self.symbol}\n"
                 f"***24 Hour Percent Change***: {self.percent_change}% \n"
             )
@@ -186,7 +185,9 @@ def get_coin_info(query):
             title="Price",
             description=f"${format_monetary_value(coin.price_usd, True)}",
             thumbnail_url="https://imgur.com/7RCGCoc.png",
-            input_message_content=InputTextMessageContent(f"1 {coin.symbol} = ${coin.price_usd}"),
+            input_message_content=InputTextMessageContent(
+                f"1 {coin.symbol} = ${format_monetary_value(coin.price_usd)}"
+            ),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
@@ -194,7 +195,7 @@ def get_coin_info(query):
             description=f"${format_monetary_value(coin.market_cap, True)}",
             thumbnail_url="https://i.imgur.com/UMczLVP.png",
             input_message_content=InputTextMessageContent(
-                f"Market Capitalization of {coin.name} ({coin.symbol}): ${coin.market_cap}"
+                f"Market Capitalization of {coin.name} ({coin.symbol}): ${format_monetary_value(coin.market_cap)}"
             ),
         ),
         InlineQueryResultArticle(

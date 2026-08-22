@@ -20,7 +20,7 @@ def get_top_cryptocurrencies(list_size):
 
     for result in data:
         coin = Coin(None, result)
-        top_str += f"#{coin.rank}. ***{coin.name}***: ${coin.market_cap}\n"
+        top_str += f"#{coin.rank}. ***{coin.name}***: ${format_monetary_value(coin.market_cap)}\n"
         results.append(
             InlineQueryResultArticle(
                 id=uuid4(),
