@@ -6,8 +6,8 @@ def get_help_messages():
     results = [
         InlineQueryResultArticle(
             id=uuid4(),
-            title="New: Ask naturally in any language",
-            thumbnail_url="https://imgur.com/joQ2gGR.png",
+            title="New: Just ask naturally",
+            thumbnail_url="https://i.ibb.co/7JSfhJHX/Screenshot-2026-08-21-at-8-58-28-PM.png",
             description='"how much is half a bitcoin worth"',
             input_message_content=InputTextMessageContent(
                 "If you don't remember the exact command, just describe what you want. "

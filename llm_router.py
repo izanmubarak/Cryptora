@@ -1,15 +1,3 @@
-# Cryptora - Public Repository
-"""Natural language routing for queries that Cryptora's deterministic parser does not recognize.
-
-Most queries are handled without an LLM: a leading digit means the calculator, a leading dollar
-sign means the reverse calculator, and a bare cryptocurrency name or symbol means a coin lookup.
-When a query matches none of those, this module asks a small Mistral model to classify it into one
-of the bot's existing features and extract the arguments that feature needs.
-
-The model never talks to the user and never produces prices. It only picks a route and pulls out
-arguments, all of which are re-validated here before anything is dispatched.
-"""
-
 import asyncio
 import json
 import logging
@@ -31,63 +19,15 @@ from stats import get_stats_list
 from top import get_top_cryptocurrencies
 
 logger = logging.getLogger(__name__)
-
-# Ministral 3B. Consider pinning this to a dated release once you have confirmed which ones your
-# account can reach, so that a new Ministral release cannot silently change how queries are routed.
 MODEL = "ministral-3b-latest"
-
-# Mistral accepts a JSON schema either as a hard constraint (strict) or as guidance. This is left
-# off deliberately: strict mode requires every property to appear in "required" and forbids
-# additional properties, which would mean asking the model to emit placeholder values for the
-# arguments a route does not use. Turn it on only alongside a schema reshaped to match.
-STRICT_SCHEMA = False
-
-# The model is only picking one of nine labels out of a short query, so it typically answers in
-# well under a second. This is a ceiling for the occasional slow call, not an expected wait; the
-# user is already waiting out the typing debounce plus the CoinMarketCap request that follows.
 REQUEST_TIMEOUT = 4.0
-
-# Cryptora caps "top X" lists at 49 entries, matching the limit enforced in app.py.
 MAX_TOP_LIST_SIZE = 49
 DEFAULT_TOP_LIST_SIZE = 40
-
-# Multi-currency queries display at most ten coins, matching the limit in multicurrency.py.
 MAX_MULTICURRENCY_COINS = 10
-
-# Telegram sends an inline query on every keystroke, so the same text is classified repeatedly as
-# users retype and correct themselves. Cache decisions, keyed by date so that queries containing
-# relative dates ("yesterday") do not survive past midnight.
+STRICT_SCHEMA = True
 CACHE_SIZE = 512
 _cache = OrderedDict()
 
-# Requests per minute your Mistral plan allows across the whole bot. This figure is only quoted in
-# the call log, so that the observed rate is readable against the ceiling without having to
-# remember it -- nothing enforces it. Set it to whatever your account actually permits.
-RATE_LIMIT_RPM = 60
-
-# Every request that actually reaches Mistral is counted here, so the log shows how often the
-# router falls through to the model rather than answering from the cache or deterministic parser.
-_calls_total = 0
-_call_times = deque()
-
-
-def record_call():
-    """Count a call to Mistral, returning (calls in the last minute, calls since startup)."""
-    global _calls_total
-
-    now = time.monotonic()
-    _calls_total += 1
-    _call_times.append(now)
-
-    while _call_times and now - _call_times[0] >= 60.0:
-        _call_times.popleft()
-
-    return len(_call_times), _calls_total
-
-# Route names are deliberately self-describing. They were once "calculator" and
-# "reverse_calculator", which forced the model to memorise which direction "reverse" meant while
-# "amount" silently changed unit between them, and small models guessed wrong about half the time.
-# Naming the direction in the label removes the convention it has to remember.
 ROUTES = (
     "coin",
     "multicurrency",
@@ -101,6 +41,10 @@ ROUTES = (
 )
 
 UNKNOWN = {"route": "unknown"}
+DISABLED_ROUTES = {
+    "historical": "Historical pricing is currently unavailable.",
+    "news": "News is currently unavailable.",
+}
 
 RESPONSE_SCHEMA = {
     "type": "object",
@@ -111,8 +55,6 @@ RESPONSE_SCHEMA = {
         "date": {"type": "string"},
         "limit": {"type": "integer"},
     },
-    # "coins" is required because when it is optional the model intermittently omits it on
-    # otherwise correct answers -- and a route naming no cryptocurrency is unusable here.
     "required": ["route", "coins"],
 }
 
@@ -133,6 +75,7 @@ usd_to_crypto: what a DOLLAR amount buys (amount = dollars).
 unknown: anything else, or when unsure.
 
 If the number is money ($, dollars, bucks) use usd_to_crypto; if it counts coins use crypto_to_usd.
+A conversion needs a quantity the user actually wrote. No quantity means coin, never a conversion.
 Always include "coins" ([] if none). Never invent a coin. Dates must be past, YYYY-MM-DD.
 
 "half a bitcoin in dollars" {{"route":"crypto_to_usd","coins":["bitcoin"],"amount":0.5}}
@@ -143,11 +86,11 @@ Always include "coins" ([] if none). Never invent a coin. Dates must be past, YY
 "anything happening in crypto" {{"route":"news","coins":[]}}
 "compare bitcoin and solana" {{"route":"multicurrency","coins":["bitcoin","solana"]}}
 "tell me about dogecoin" {{"route":"coin","coins":["dogecoin"]}}
+"bitcoin today" {{"route":"coin","coins":["bitcoin"]}}
 "hey there" {{"route":"unknown","coins":[]}}"""
 
 
 def get_client():
-    """Return a cached Mistral client, or None if no API token is configured."""
     global _client, _client_unavailable
 
     if _client_unavailable:
@@ -163,7 +106,6 @@ def get_client():
             return None
 
         try:
-            # The 2.x SDK moved the client out of the top level package, which is now a namespace.
             from mistralai.client import Mistral
         except ImportError:
             logger.warning(
@@ -189,29 +131,20 @@ def is_cached(query):
     return build_cache_key(query, today) in _cache
 
 
+# Classify a natural language query, returning a validated route dictionary
 async def route_query(query):
-    """Classify a natural language query, returning a validated route dictionary.
-
-    Always returns a dictionary with a "route" key. Every failure mode -- no token, a timeout, a
-    malformed response, a hallucinated cryptocurrency -- collapses to the "unknown" route, which
-    leaves the caller showing the same "not found" message the bot showed before this feature.
-    """
     today = datetime.now(timezone.utc).date()
     cache_key = build_cache_key(query, today)
 
     if cache_key in _cache:
         _cache.move_to_end(cache_key)
-        # Deliberately not logged at INFO: a cache hit costs no request, so counting it alongside
-        # real calls would misrepresent how often the bot actually reaches Mistral.
         logger.debug("Routing %r from cache; no Mistral call made.", query)
         return _cache[cache_key]
 
     parsed = await request_route(query, today)
-    result = validate_route(parsed, today)
+    result = validate_route(parsed, today, query)
 
-    # Only cache decisions the model actually made. A timeout or a transport error also produces
-    # "unknown", and caching that would pin the query to a failure for the rest of the day instead
-    # of letting the user's next keystroke retry it.
+    # Only cache decisions the model actually made
     if parsed is not None:
         _cache[cache_key] = result
         _cache.move_to_end(cache_key)
@@ -220,13 +153,8 @@ async def route_query(query):
 
     return result
 
-
+# Parse the model's reply, either JSON or markdown
 def extract_json(text):
-    """Parse the model's reply, tolerating JSON wrapped in prose or a markdown code fence.
-
-    Small models do this even when asked for JSON, and the schema is guidance rather than a hard
-    constraint unless STRICT_SCHEMA is on, so the reply is not guaranteed to be bare JSON.
-    """
     if not isinstance(text, str):
         raise TypeError(f"expected a string reply, got {type(text).__name__}")
 
@@ -244,14 +172,12 @@ def extract_json(text):
 
 
 def build_response_format():
-    """Describe the expected JSON shape to Mistral."""
     from mistralai.client.models import JSONSchema, ResponseFormat
 
     return ResponseFormat(
         type="json_schema",
         json_schema=JSONSchema(
             name="cryptora_route",
-            # Serialises to "schema"; the SDK renames it to avoid clashing with pydantic.
             schema_definition=RESPONSE_SCHEMA,
             strict=STRICT_SCHEMA,
         ),
@@ -259,7 +185,6 @@ def build_response_format():
 
 
 async def request_route(query, today):
-    """Ask Mistral to classify the query. Returns the raw parsed JSON, or None on any failure."""
     client = get_client()
     if client is None:
         return None
@@ -269,14 +194,6 @@ async def request_route(query, today):
         {"role": "user", "content": query},
     ]
 
-    recent, total = record_call()
-    logger.info(
-        "Mistral call #%d for %r (%d in the last 60s, plan allows %d)",
-        total,
-        query,
-        recent,
-        RATE_LIMIT_RPM,
-    )
     started = time.monotonic()
 
     try:
@@ -291,40 +208,40 @@ async def request_route(query, today):
             timeout=REQUEST_TIMEOUT,
         )
         parsed = extract_json(response.choices[0].message.content)
-        logger.info(
-            "Mistral call #%d answered in %.2fs: route=%s",
-            total,
-            time.monotonic() - started,
-            parsed.get("route") if isinstance(parsed, dict) else "malformed",
-        )
         return parsed
     except asyncio.TimeoutError:
-        logger.warning("Mistral routing timed out after %ss for query: %s", REQUEST_TIMEOUT, query)
+        logger.warning("Mistral routing timed out after %ss for query", REQUEST_TIMEOUT)
         return None
     except (json.JSONDecodeError, TypeError, ValueError, AttributeError, IndexError) as exc:
-        logger.warning("Mistral returned an unreadable routing response for %r: %s", query, exc)
+        logger.warning("Mistral returned an unreadable routing response: %s", exc)
         return None
     except Exception as exc:
         # Rate limiting is called out separately because it is the failure most likely to show up
         # in production and the least obvious from a generic error.
         if getattr(exc, "status_code", None) == 429 or "429" in str(exc):
-            logger.warning(
-                "Mistral rate limit reached; natural language routing is degraded until it clears. "
-                "Query was %r.",
-                query,
-            )
+            logger.warning("Mistral rate limit reached")
         else:
-            logger.warning("Mistral routing failed for %r: %s", query, exc)
+            logger.warning("Mistral routing failed")
         return None
 
 
-def validate_route(parsed, today):
-    """Re-check everything the model produced before any of it reaches the rest of the bot.
+# Words that state a quantity without using a digit, so that "half a bitcoin in dollars" is still
+# recognised as a conversion. "a" and "an" are included because "what is a bitcoin worth" means one.
+NUMBER_WORDS = frozenset(
+    "a an one two three four five six seven eight nine ten half quarter third dozen couple".split()
+)
 
-    Language models will confidently name cryptocurrencies that do not exist, so every coin is
-    verified against the CoinMarketCap map, and every route that cannot be satisfied with the
-    arguments actually present is downgraded to "unknown".
-    """
+
+def states_a_quantity(query):
+    """Return True if the query actually names an amount to convert."""
+    if any(character.isdigit() for character in query):
+        return True
+
+    return bool(set(re.findall(r"[a-z]+", query.lower())) & NUMBER_WORDS)
+
+
+# Re-check everything the model produced before any of it reaches the rest of the bot
+def validate_route(parsed, today, query=""):
     if not isinstance(parsed, dict):
         return UNKNOWN
 
@@ -341,7 +258,6 @@ def validate_route(parsed, today):
             limit = DEFAULT_TOP_LIST_SIZE
         return {"route": "top", "limit": min(limit, MAX_TOP_LIST_SIZE)}
 
-    # Every remaining route needs at least one real cryptocurrency.
     raw_coins = parsed.get("coins")
     if not isinstance(raw_coins, list):
         return UNKNOWN
@@ -373,6 +289,10 @@ def validate_route(parsed, today):
         amount = parsed.get("amount")
         if not isinstance(amount, (int, float)) or isinstance(amount, bool) or amount <= 0:
             return UNKNOWN
+
+        if query and not states_a_quantity(query):
+            return {"route": "coin", "coins": coins[:1]}
+
         return {"route": route, "coins": coins[:1], "amount": float(amount)}
 
     if route == "historical":
@@ -398,9 +318,11 @@ def format_amount(amount):
 
 
 def dispatch(parsed):
-    """Run the route the model chose, reusing the same functions the deterministic parser calls."""
     route = parsed["route"]
     coins = parsed.get("coins", [])
+
+    if route in DISABLED_ROUTES:
+        return []
 
     if route == "stats":
         return get_stats_list()
@@ -424,8 +346,6 @@ def dispatch(parsed):
         return crypto_calculator(f"${format_amount(parsed['amount'])} {coins[0]}", True)
 
     if route == "historical":
-        # generate_historical_pricing_list re-parses the date out of the query string, and only
-        # takes the "last word is the date" path when that word contains a slash or a period.
         day = parsed["date"]
         return generate_historical_pricing_list(
             f"{coins[0]} {day.month:02d}/{day.day:02d}/{day.year}"
@@ -434,8 +354,8 @@ def dispatch(parsed):
     return []
 
 
+# Describe the model's interpretation in the user's own terms, for display above the results
 def describe_route(parsed):
-    """Describe the model's interpretation in the user's own terms, for display above the results."""
     route = parsed["route"]
     coins = parsed.get("coins", [])
 
@@ -467,12 +387,6 @@ def describe_route(parsed):
 
 
 def add_interpretation(results, parsed):
-    """Prepend a result that spells out how the query was understood.
-
-    Natural language routing is invisible otherwise, and a user who gets the wrong feature has no
-    way to tell why. Tapping this entry sends the same message the first real result would, so it
-    never costs the user a step.
-    """
     description = describe_route(parsed)
     if not results or not description:
         return results
@@ -481,7 +395,7 @@ def add_interpretation(results, parsed):
         id=str(uuid4()),
         title=f"Interpreted as: {description}",
         description="Tap to send.",
-        thumbnail_url=results[0].thumbnail_url,
+        thumbnail_url="https://i.ibb.co/7JSfhJHX/Screenshot-2026-08-21-at-8-58-28-PM.png",
         input_message_content=results[0].input_message_content,
     )
 

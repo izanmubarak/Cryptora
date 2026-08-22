@@ -123,8 +123,8 @@ class Coin:
                     # Parse and store the necessary data
                     self.rank = str(self.data["cmc_rank"])
                     self.supply = format_monetary_value(self.data["circulating_supply"], False)
-                    self.market_cap = format_monetary_value(self.data["quote"]["USD"]["market_cap"], True)
-                    self.price_usd = format_monetary_value(self.data["quote"]["USD"]["price"], True)
+                    self.market_cap = self.data["quote"]["USD"]["market_cap"]
+                    self.price_usd = self.data["quote"]["USD"]["price"]
 
                     # Will always round percent changes to the hundredths place.
                     self.percent_change = str(
@@ -147,8 +147,8 @@ class Coin:
             self.image_url = f"https://s2.coinmarketcap.com/static/img/coins/200x200/{self.ID}.png"
             self.rank = str(data["cmc_rank"])
             self.supply = format_monetary_value(data["circulating_supply"], False)
-            self.market_cap = format_monetary_value(data["quote"]["USD"]["market_cap"], True)
-            self.price_usd = format_monetary_value(data["quote"]["USD"]["price"], True)
+            self.market_cap = data["quote"]["USD"]["market_cap"]
+            self.price_usd = data["quote"]["USD"]["price"]
             self.percent_change = str(
                 Decimal(data["quote"]["USD"]["percent_change_24h"])
                 .quantize(Decimal("1.00"), rounding="ROUND_HALF_DOWN")
@@ -175,7 +175,7 @@ def download_coin_data(coin_id):
     return data["data"][str(coin_id)]
 
 
-def format_monetary_value(value, decimals):
+def format_monetary_value(value, decimals=True):
     """Format monetary values and percents correctly (with commas and decimal rounding)."""
     if value is None or value == 0:
         return "N/A"
@@ -211,14 +211,14 @@ def get_coin_info(query):
         InlineQueryResultArticle(
             id=uuid4(),
             title="Price",
-            description=f"${coin.price_usd}",
+            description=f"${format_monetary_value(coin.price_usd, True)}",
             thumbnail_url="https://imgur.com/7RCGCoc.png",
             input_message_content=InputTextMessageContent(f"1 {coin.symbol} = ${coin.price_usd}"),
         ),
         InlineQueryResultArticle(
             id=uuid4(),
             title="Market Capitalization",
-            description=f"${coin.market_cap}",
+            description=f"${format_monetary_value(coin.market_cap, True)}",
             thumbnail_url="https://i.imgur.com/UMczLVP.png",
             input_message_content=InputTextMessageContent(
                 f"Market Capitalization of {coin.name} ({coin.symbol}): ${coin.market_cap}"

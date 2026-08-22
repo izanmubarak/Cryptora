@@ -1,9 +1,15 @@
-from coin import Coin, format_monetary_value, get_coin_map, CANONICAL_IDS
+from coin import Coin, get_coin_map, is_known_coin, CANONICAL_IDS
 from retrieve_tokens import get_token
-from decimal import Decimal
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 import requests
+
+
+def looks_like_coin_list(query):
+    # Return True if the query is a comma separated list of cryptocurrencies and nothing else
+    parts = [part.strip() for part in query.split(",")]
+    parts = [part for part in parts if part]
+    return len(parts) >= 2 and all(is_known_coin(part) for part in parts)
 
 
 def initialize_multicurrency_query(query):
@@ -11,7 +17,6 @@ def initialize_multicurrency_query(query):
     coin_map = get_coin_map()
     data_url = f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id="
 
-    # Parse the query, creating a list of strings that holds each individual entered cryptocurrency.
     if query.endswith(","):
         query = query[:-1]
     if query.startswith(","):
@@ -22,9 +27,7 @@ def initialize_multicurrency_query(query):
 
     coins = []
 
-    # Replace the list of coin names with their IDs, respecting canonical IDs for major coins.
     for i in range(len(currency_list)):
-        # Check if this currency matches a canonical coin by symbol or name.
         canonical_id = CANONICAL_IDS.get(currency_list[i].upper())
         if canonical_id is None:
             for symbol, cid in CANONICAL_IDS.items():
@@ -43,19 +46,14 @@ def initialize_multicurrency_query(query):
                     currency_list[i] = str(item["id"])
                     break
 
-    # Generate the JSON file with all the requested currencies.
     for i in range(len(currency_list)):
         data_url += currency_list[i] + ","
 
-    # Remove the last comma from the URL and download the data
     data_url = data_url[:-1]
     data = requests.get(data_url).json()["data"]
 
-    # Generate a Coin object for each entered cryptocurrency and add it to a list of Coin objects.
     for i in range(len(currency_list)):
         coin = Coin(None, data[currency_list[i]])
-
-        # Filter out invalid entries using the "exists" variable.
         if coin.exists:
             coins.append(coin)
 
@@ -63,7 +61,6 @@ def initialize_multicurrency_query(query):
 
 
 def generate_multi_currency_list(query):
-    """Create the list of options that is displayed to the user when they type a multicurrency query."""
     coins = initialize_multicurrency_query(query)
 
     prices = "***Selected Cryptocurrency Prices***\n\n"
@@ -76,8 +73,6 @@ def generate_multi_currency_list(query):
         changes += f"***{coin.name}:*** {coin.percent_change}%\n"
 
     results = []
-
-    # Add the "Prices", "Market Capitalizations", and "Percent Change Values" options
     if coins:
         results = [
             InlineQueryResultArticle(
@@ -103,18 +98,15 @@ def generate_multi_currency_list(query):
             ),
         ]
 
-    # Cryptora allows users to put up to 10 coins in a multi-currency query.
     length = min(len(coins), 10)
-
-    # Add each individual coin to the list.
-    for x in range(length):
+    for i in range(length):
         results.append(
             InlineQueryResultArticle(
                 id=uuid4(),
-                description=f"${coins[x].price_usd}",
-                thumbnail_url=coins[x].image_url,
-                title=coins[x].name,
-                input_message_content=InputTextMessageContent(coins[x].summary, "Markdown"),
+                description=f"${coins[i].price_usd}",
+                thumbnail_url=coins[i].image_url,
+                title=coins[i].name,
+                input_message_content=InputTextMessageContent(coins[i].summary, "Markdown"),
             )
         )
 
