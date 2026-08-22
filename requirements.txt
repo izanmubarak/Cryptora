@@ -1,6 +1,4 @@
 python-telegram-bot>=21.0
-beautifulsoup4>=4.12
 requests>=2.31
-datefinder>=0.7
-dateparser>=1.2
-python-dateutil>=2.9
+feedparser>=6.0
+mistralai>=2.0

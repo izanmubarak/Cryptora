@@ -1,133 +1,102 @@
-import calendar
-import time
-import datefinder
-import dateparser
+import logging
+from datetime import datetime, timezone
+from uuid import uuid4
+
 import requests
 from telegram import InlineQueryResultArticle, InputTextMessageContent
-from uuid import uuid4
-from coin import Coin, format_monetary_value
+
+from coin import Coin, format_monetary_value, is_known_coin
 from retrieve_tokens import get_token
 
+logger = logging.getLogger(__name__)
 
-class Date:
-    """Represents a date."""
+# Absolute dates the classic "[cryptocurrency] [date]" command accepts. Relative dates
+# ("2 weeks ago") are left to the language model.
+DATE_FORMATS = (
+    "%m/%d/%Y",
+    "%m/%d/%y",
+    "%B %d, %Y",
+    "%b %d, %Y",
+    "%B %d %Y",
+    "%b %d %Y",
+    "%Y-%m-%d",
+)
 
-    def __init__(self, day, month, year, num_words):
-        self.day = str(day).zfill(2)
-        self.month = str(month).zfill(2)
-        self.year = str(year)
 
-        # This tells whether the date in the query was 3 words (i.e. August 17, 2018) or 1 word (i.e. 8/17/2018)
-        self.num_words = num_words
+def parse_trailing_date(query):
+    """Split "bitcoin 08/21/2026" into a (currency, date) pair, or return None."""
+    words = query.split()
 
-    def to_unix_timestamp(self):
-        """Convert this date to a Unix timestamp for the CoinDesk API.
+    # A slash date is one trailing word; "August 21, 2026" is three.
+    for tail_length in (1, 3):
+        if len(words) <= tail_length:
+            continue
 
-        If the date is today, returns the current time so the API returns the
-        latest available data. If the date is in the past, returns 23:59:59 UTC
-        to capture the full day's OHLCV stats.
-        """
-        end_of_day = calendar.timegm((int(self.year), int(self.month), int(self.day), 23, 59, 59))
-        now = int(time.time())
-        if end_of_day >= now:
-            return now
-        return end_of_day
+        currency = " ".join(words[:-tail_length])
+        if not is_known_coin(currency):
+            continue
+
+        tail = " ".join(words[-tail_length:])
+        for date_format in DATE_FORMATS:
+            try:
+                date = datetime.strptime(tail, date_format).date()
+            except ValueError:
+                continue
+
+            # Only completed days have historical open/high/low/close data.
+            if date < datetime.now(timezone.utc).date():
+                return currency, date
+
+    return None
 
 
 class PriceOnDay:
-    """Represents a cryptocurrency's data on a certain day."""
-
     def __init__(self, data):
-        self.open = format_monetary_value(data["OPEN"], True)
-        self.high = format_monetary_value(data["HIGH"], True)
-        self.low = format_monetary_value(data["LOW"], True)
-        self.close = format_monetary_value(data["CLOSE"], True)
-        self.volume = format_monetary_value(data.get("VOLUME"), False)
+        self.open = format_monetary_value(data.get("open"), True)
+        self.high = format_monetary_value(data.get("high"), True)
+        self.low = format_monetary_value(data.get("low"), True)
+        self.close = format_monetary_value(data.get("close"), True)
+        self.volume = format_monetary_value(data.get("volume"), False)
 
 
-def determine_if_date_in_string(query):
-    """Uses Datefinder to parse the query for any dates present."""
-    date_list = list(datefinder.find_dates(query))
+def download_historical_data(symbol, date):
+    date_string = date.isoformat()
+    try:
+        response = requests.get(
+            "https://financialmodelingprep.com/stable/historical-price-eod/full",
+            params={
+                "symbol": f"{symbol}USD",
+                "from": date_string,
+                "to": date_string,
+                "apikey": get_token("fmp"),
+            },
+        ).json()
+    except ValueError:
+        logger.info("No historical data for %s on %s (unrecognized symbol).", symbol, date_string)
+        return None
+    except requests.RequestException as exc:
+        logger.warning("Historical data request failed for %s on %s: %s", symbol, date_string, exc)
+        return None
 
-    if "yesterday" in query or "ago" in query or len(date_list) > 0:
-        return True
+    if not isinstance(response, list) or not response:
+        logger.info("No historical data for %s on %s.", symbol, date_string)
+        return None
 
-    return False
-
-
-def get_date_from_query(query):
-    """Finds the date in the query and returns a Date object."""
-    date = ""
-
-    if "yesterday" in query:
-        date = dateparser.parse("yesterday")
-        return Date(date.day, date.month, date.year, 1)
-
-    elif "/" in query or "." in query:
-        date = query.split(" ")
-        separated_date = date[len(date) - 1]
-        date = dateparser.parse(separated_date)
-        return Date(date.day, date.month, date.year, 1)
-
-    else:
-        date = query.split(" ")
-        separated_date = ""
-
-        for x in range(len(date) - 3, len(date)):
-            separated_date += date[x] + " "
-
-        date = dateparser.parse(separated_date)
-        return Date(date.day, date.month, date.year, 3)
+    return response[0]
 
 
-def convert_month_number_to_name(month):
-    """Converts a numbered month to its actual name."""
-    months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December",
-    ]
-    return months[int(month) - 1]
+def generate_historical_pricing_list(currency, date):
+    converted_date = date.strftime("%B %d, %Y")
 
-
-def download_historical_data(symbol, to_ts):
-    """Download historical daily data from the CoinDesk Data API."""
-    token = get_token("coindesk")
-    response = requests.get(
-        "https://data-api.coindesk.com/index/cc/v1/historical/days",
-        params={
-            "market": "cadli",
-            "instrument": f"{symbol}-USD",
-            "limit": 1,
-            "to_ts": to_ts,
-            "groups": "OHLC,VOLUME",
-            "api_key": token,
-        },
-    ).json()
-    return response["Data"][0]
-
-
-def generate_historical_pricing_list(query):
-    """Constructs the historical pricing list."""
-    date = get_date_from_query(query)
-    month_word = convert_month_number_to_name(date.month)
-    converted_date = f"{month_word} {date.day}, {date.year}"
-
-    split_query = query.split(" ")
-    currency = ""
-
-    # Get the name of the currency from the query.
-    for x in range(len(split_query) - date.num_words):
-        currency += split_query[x] + " "
-
-    currency = currency[:-1]
-
-    # Generate a Coin object to quickly grab the image URL and symbol
     coin = Coin(currency, None)
+    if not coin.exists:
+        return []
 
-    # Download historical data from the CoinDesk Data API
-    data = download_historical_data(coin.symbol, date.to_unix_timestamp())
+    data = download_historical_data(coin.symbol, date)
+    if data is None:
+        return []
+
     values = PriceOnDay(data)
-
     summary = (
         f"***Price Data for {coin.name}***\n{converted_date}\n\n"
         f"***Open:*** ${values.open}\n"
@@ -137,7 +106,7 @@ def generate_historical_pricing_list(query):
         f"***Volume:*** {values.volume} {coin.symbol}"
     )
 
-    results = [
+    return [
         InlineQueryResultArticle(
             id=uuid4(),
             title=f"Price Data for {coin.name} ({coin.symbol})",
@@ -196,5 +165,3 @@ def generate_historical_pricing_list(query):
             ),
         ),
     ]
-
-    return results

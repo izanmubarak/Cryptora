@@ -1,17 +1,15 @@
-# Cryptora - Public Repository
-# All global statistics.
-
-from telegram import InlineQueryResultArticle, InputTextMessageContent
-from retrieve_tokens import get_token
-from coin import format_monetary_value
 from uuid import uuid4
+
 import requests
-from decimal import Decimal
+from telegram import InlineQueryResultArticle, InputTextMessageContent
+
+from coin import format_monetary_value
+from retrieve_tokens import get_token
 
 
 def get_global_data():
     """Fetch global cryptocurrency statistics from CoinMarketCap."""
-    token = get_token(True)
+    token = get_token("cmc")
     return requests.get(
         f"https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest?CMC_PRO_API_KEY={token}"
     ).json()["data"]

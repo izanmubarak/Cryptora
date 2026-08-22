@@ -23,3 +23,4 @@ WORKDIR Cryptora
 
 # Install Cryptora dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
