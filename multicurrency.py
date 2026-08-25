@@ -3,7 +3,12 @@ from uuid import uuid4
 import requests
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 
-from coin import CANONICAL_IDS, Coin, format_monetary_value, get_coin_map, is_known_coin
+from coin import (
+    Coin,
+    format_monetary_value,
+    is_known_coin,
+    resolve_coin_ids,
+)
 from retrieve_tokens import get_token
 
 
@@ -16,36 +21,19 @@ def looks_like_coin_list(query):
 
 def initialize_multicurrency_query(coin_names):
     token = get_token("cmc")
-    coin_map = get_coin_map()
     data_url = f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id="
-    search_string = ""
-    ids = []
     coins = []
 
-    for coin_name in coin_names:
-        canonical_id = CANONICAL_IDS.get(coin_name.upper())
-        if canonical_id is None:
-            for cid in CANONICAL_IDS.values():
-                for item in coin_map:
-                    if item["id"] == cid and coin_name.lower() == item["name"].lower():
-                        canonical_id = cid
-                        break
-                if canonical_id is not None:
-                    break
+    resolved = resolve_coin_ids(coin_names)
+    if not resolved:
+        return coins
 
-        if canonical_id is not None:
-            ids.append(str(canonical_id))
-        else:
-            for item in coin_map:
-                if coin_name.lower() == item["name"].lower() or coin_name.upper() == item["symbol"]:
-                    ids.append(str(item["id"]))
-                    break
-
-    search_string += ",".join(ids)
+    ids = [str(cid) for _, cid in resolved]
+    search_string = ",".join(ids)
     data_url += search_string
     data = requests.get(data_url).json()["data"]
     for result in data.values():
-        coin = Coin(None, result)
+        coin = Coin(result)
         if coin.exists:
             coins.append(coin)
 

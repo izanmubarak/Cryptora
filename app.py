@@ -2,7 +2,7 @@ import asyncio
 import re
 
 from telegram import InlineQueryResultsButton, Update
-from telegram.ext import Application, ContextTypes, InlineQueryHandler
+from telegram.ext import Application, CommandHandler, ContextTypes, InlineQueryHandler
 
 import llm_router
 from calculator import parse_amount
@@ -11,6 +11,7 @@ from help_messages import get_help_messages
 from historical import parse_trailing_date
 from multicurrency import looks_like_coin_list
 from retrieve_tokens import get_token
+from ticker import parse_ticker_query, start_ticker, stop_ticker
 
 DEBOUNCE_DELAY = 1.0
 NOT_FOUND_MESSAGE = "Requested currency not found. Please try again."
@@ -68,6 +69,10 @@ def parse_deterministically(query):
 
     if query.lower() == "news":
         return {"route": "news"}
+
+    ticker_coins = parse_ticker_query(query)
+    if ticker_coins is not None:
+        return {"route": "ticker", "coins": ticker_coins}
 
     # Top X functionality
     if re.fullmatch(r"top(\s+[1-9]\d*)?", query, re.IGNORECASE):
@@ -149,8 +154,10 @@ async def inlinequery(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     application = Application.builder().token(get_token("bot")).concurrent_updates(True).build()
+    application.add_handler(CommandHandler("ticker", start_ticker))
+    application.add_handler(CommandHandler("stopticker", stop_ticker))
     application.add_handler(InlineQueryHandler(inlinequery))
-    application.run_polling()
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 if __name__ == "__main__":

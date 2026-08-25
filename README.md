@@ -20,7 +20,8 @@ The official instance of Cryptora is live (`@CryptoraBot`), and available for us
 
 *Refer to "Supported Commands" to see how to use these features.*
 
-- **(New) Ask naturally, in any language:** If a query doesn't match any of the commands below, Cryptora uses a fast and lightweight LLM to work out which of the above features you meant, so you don't have to remember the exact syntax. Works across languages other than English too.
+- **(New) Ask naturally, in any language:** If a query doesn't match any of the commands below, Cryptora uses a fast and lightweight LLM to work out which feature you meant, so you don't have to remember the exact syntax. Works across languages.
+- **(New) Live ticker:** Add Cryptora to a group chat and it can create and periodically update a "price ticker" of a list of cryptocurrencies. Pin the message so that you always have an eye on the latest prices.
 - **Look up cryptocurrencies:** Find the price (and other useful data) of thousands of cryptocurrencies, just by typing the name or the shorthand abbreviation.
 - **Get historical data:** Find the OHLCV data for select cryptocurrencies for a given date.
 - **See global market statistics.** See statistics for the whole crypto market.
@@ -35,6 +36,9 @@ Type `@CryptoraBot` (or the username of your local instance) into Telegram follo
 - `[cryptocurrency]` – Type the name of any cryptocurrency or its symbol, and Cryptora will retrieve essential information (price, market cap, circulating supply, and 24 hour percent change) and display it in a list. 
   - This is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. 
   - You can also a comma-separated list of cryptocurrencies and send a list of their prices, 24-hour percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries.
+
+- `ticker [cryptocurrencies]` - Cryptora can create and update a message every minute with the latest price of a list of cryptocurrencies. Pin the message for easy access. 
+  - If using in a group chat, this requires you to add Cryptora as a member. Only admins may start or stop the ticker.
 
 - `news` - Retrieve the latest headlines from CoinDesk and CoinTelegraph and display them in a list. Tapping on any of the articles sends the article's URL in the chat.
 

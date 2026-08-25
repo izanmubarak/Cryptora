@@ -4,9 +4,10 @@ from uuid import uuid4
 
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 
-from coin import Coin, format_monetary_value
+from coin import format_monetary_value, get_coin
 
 SUFFIX_MULTIPLIERS = {"k": 1_000, "m": 1_000_000, "b": 1_000_000_000, "t": 1_000_000_000_000}
+
 
 _AMOUNT_PATTERN = re.compile(
     r"""^\$?\s*                          # an optional dollar sign
@@ -50,9 +51,9 @@ def parse_amount(text):
 def crypto_calculator(query, reverse):
     query_arr = query.split(" ")
     currency = " ".join(query_arr[1:])
-    coin = Coin(currency, None)
+    coin = get_coin(currency)
 
-    if not coin.exists:
+    if coin is None or not coin.exists:
         return []
 
     amount = parse_amount(query_arr[0])

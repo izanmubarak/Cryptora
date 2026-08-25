@@ -22,6 +22,22 @@ def get_help_messages():
         ),
         InlineQueryResultArticle(
             id=uuid4(),
+            title="New: Start a live-updating price ticker",
+            description='"/ticker ltc xrp", "ticker for btc, eth, sol"',
+            thumbnail_url="https://imgur.com/iAoXFQc.png",
+            input_message_content=InputTextMessageContent(
+                "Pin a live price ticker in your chat that updates every minute.\n\n"
+                "Use `/ticker` to start a ticker with major cryptocurrencies, or specify coins "
+                "like `/ticker btc eth sol` (or full names like `/ticker bitcoin ethereum`)."
+                "To stop a running ticker, use `/stopticker`.\n\n"
+                "You can also ask naturally in any chat, such as `@CryptoraBot ticker for btc and eth`.\n"
+                "For group chats, you must add `@CryptoraBot` as a member, and only administrators can start/stop "
+                "the ticker.",
+                "Markdown",
+            ),
+        ),
+        InlineQueryResultArticle(
+            id=uuid4(),
             title="Retrieve cryptocurrency prices",
             description='"BTC", "bitcoin"',
             thumbnail_url="https://imgur.com/joQ2gGR.png",

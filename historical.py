@@ -5,7 +5,7 @@ from uuid import uuid4
 import requests
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 
-from coin import Coin, format_monetary_value, is_known_coin
+from coin import format_monetary_value, get_coin, is_known_coin
 from retrieve_tokens import get_token
 
 logger = logging.getLogger(__name__)
@@ -88,8 +88,8 @@ def download_historical_data(symbol, date):
 def generate_historical_pricing_list(currency, date):
     converted_date = date.strftime("%B %d, %Y")
 
-    coin = Coin(currency, None)
-    if not coin.exists:
+    coin = get_coin(currency)
+    if coin is None or not coin.exists:
         return []
 
     data = download_historical_data(coin.symbol, date)

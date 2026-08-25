@@ -9,12 +9,13 @@ from uuid import uuid4
 from telegram import InlineQueryResultArticle
 
 from calculator import crypto_calculator
-from coin import get_coin_info, is_known_coin
+from coin import get_coin_info, is_known_coin, resolve_coin_ids
 from historical import generate_historical_pricing_list
 from multicurrency import generate_multi_currency_list
 from news import get_news_list
 from retrieve_tokens import get_token
 from stats import get_stats_list
+from ticker import generate_ticker_list
 from top import get_top_cryptocurrencies
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ ROUTES = (
     "top",
     "stats",
     "news",
+    "ticker",
     "unknown",
 )
 
@@ -68,12 +70,16 @@ coin: one coin. multicurrency: several coins. top: ranked list (limit).
 stats: whole market. news: headlines. historical: one coin on a past date (date).
 crypto_to_usd: what an amount OF COIN is worth in dollars (amount = coin quantity).
 usd_to_crypto: what a DOLLAR amount buys (amount = dollars).
+ticker: a live updating pinned message, constantly updating message, or price ticker for one or more coins.
 unknown: anything else, or when unsure.
 
+If the user asks for a "ticker" or pinned message at all, ALWAYS use the ticker route.
 If the number is money ($, dollars, bucks) use usd_to_crypto; if it counts coins use crypto_to_usd.
 A conversion needs a quantity the user actually wrote. No quantity means coin, never a conversion.
 Always include "coins" ([] if none). Never invent a coin. Dates must be past, YYYY-MM-DD.
 
+"generate a constantly updating message for btc" {{"route":"ticker","coins":["btc"]}}
+"start a ticker for btc and eth" {{"route":"ticker","coins":["btc","eth"]}}
 "half a bitcoin in dollars" {{"route":"crypto_to_usd","coins":["bitcoin"],"amount":0.5}}
 "what do I get for 500 bucks of eth" {{"route":"usd_to_crypto","coins":["ETH"],"amount":500}}
 "bitcoin price yesterday" {{"route":"historical","coins":["bitcoin"],"date":"{yesterday}"}}
@@ -204,7 +210,8 @@ async def request_route(query, today):
             ),
             timeout=REQUEST_TIMEOUT,
         )
-        parsed = extract_json(response.choices[0].message.content)
+        content = response.choices[0].message.content
+        parsed = extract_json(content)
         return parsed
     except asyncio.TimeoutError:
         logger.warning("Mistral routing timed out after %ss for query", REQUEST_TIMEOUT)
@@ -278,6 +285,9 @@ def validate_route(parsed, today, query=""):
             return {"route": "coin", "coins": coins}
         return {"route": "multicurrency", "coins": coins[:MAX_MULTICURRENCY_COINS]}
 
+    if route == "ticker":
+        return {"route": "ticker", "coins": coins}
+
     if route == "coin":
         return {"route": "coin", "coins": coins[:1]}
 
@@ -329,6 +339,9 @@ def dispatch(parsed):
     if route == "top":
         return get_top_cryptocurrencies(parsed["limit"])
 
+    if route == "ticker":
+        return generate_ticker_list(coins)
+
     if route == "coin":
         return get_coin_info(coins[0])
 
@@ -360,6 +373,11 @@ def describe_route(parsed):
 
     if route == "top":
         return f"the top {parsed['limit']} cryptocurrencies"
+
+    if route == "ticker":
+        resolved = resolve_coin_ids(coins)
+        clean_symbols = [sym for sym, _ in resolved] if resolved else coins
+        return f"a live ticker for {', '.join(clean_symbols)}"
 
     if route == "coin":
         return f"information about {coins[0]}"
