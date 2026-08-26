@@ -18,16 +18,14 @@ The official instance of Cryptora is live (`@CryptoraBot`), and available for us
 
 ## Features
 
-*Refer to "Supported Commands" to see how to use these features.*
-
-- **(New) Ask naturally, in any language:** If a query doesn't match any of the commands below, Cryptora uses a fast and lightweight LLM to work out which feature you meant, so you don't have to remember the exact syntax. Works across languages.
+- **(New) Ask naturally:** If a query doesn't match any of the commands below, Cryptora uses a fast and lightweight LLM to work out which feature you meant, so you don't have to remember the exact syntax. Works across languages.
 - **(New) Live ticker:** Add Cryptora to a group chat and it can create and periodically update a "price ticker" of a list of cryptocurrencies. Pin the message so that you always have an eye on the latest prices.
 - **Look up cryptocurrencies:** Find the price (and other useful data) of thousands of cryptocurrencies, just by typing the name or the shorthand abbreviation.
-- **Get historical data:** Find the OHLCV data for select cryptocurrencies for a given date.
-- **See global market statistics.** See statistics for the whole crypto market.
-- **Quick USD-crypto calculations:** Convert between U.S. dollars and any cryptocurrency.
-- **Browse the latest cryptocurrency news:** Read and share news from CoinDesk and CoinTelegraph.
-- **View the rankings:** See the top cryptocurrencies sorted by market capitalization.
+- **Historical data:** Find the OHLCV data for select cryptocurrencies for a given date.
+- **Global market statistics:** See statistics for the whole crypto market.
+- **USD-crypto calculations:** Convert between U.S. dollars and any cryptocurrency.
+- **News:** Read and share news from CoinDesk and CoinTelegraph.
+- **Rankings:** See the top cryptocurrencies sorted by market capitalization.
 
 ## Usage
 
