@@ -1,4 +1,6 @@
+import time
 from decimal import Decimal
+from functools import lru_cache
 from uuid import uuid4
 
 import requests
@@ -8,6 +10,8 @@ from retrieve_tokens import get_token
 
 _coin_map = None
 _coin_lookup = None
+_last_fetch_time = 0
+MIN_REFRESH_INTERVAL = 300  # 5-minute cooldown before re-fetching on a miss to prevent API spam
 
 # IDs for major cryptocurrencies (to prevent obscure memecoins with the same symbol from showing up)
 CANONICAL_IDS = {
@@ -24,130 +28,6 @@ CANONICAL_IDS = {
 }
 
 
-def get_coin_map():
-    global _coin_map
-    if _coin_map is None:
-        token = get_token("cmc")
-        _coin_map = requests.get(
-            f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY={token}"
-        ).json()["data"]
-    return _coin_map
-
-
-# Build a set of every symbol (uppercased) and name (lowercased) in the coin map to avoid unnecessary API calls
-def get_coin_lookup():
-    global _coin_lookup
-    if _coin_lookup is None:
-        _coin_lookup = set()
-        for item in get_coin_map():
-            _coin_lookup.add(item["symbol"].upper())
-            _coin_lookup.add(item["name"].lower())
-    return _coin_lookup
-
-
-def is_known_coin(query):
-    if not query:
-        return False
-
-    query = query.strip()
-    if not query:
-        return False
-
-    lookup = get_coin_lookup()
-    return query.upper() in lookup or query.lower() in lookup
-
-
-class Coin:
-    def __init__(self, query, data):
-        coin_map = get_coin_map()
-
-        # Record whether the coin exists. Used for multicurrency to filter out invalid entries.
-        self.exists = False
-
-        # Stores the currencies with the same name or symbol
-        self.currencies_with_symbol = []
-
-        if data is None:
-            canonical_id = CANONICAL_IDS.get(query.upper())
-            if canonical_id is None:
-                for cid in CANONICAL_IDS.values():
-                    for item in coin_map:
-                        if item["id"] == cid and query.lower() == item["name"].lower():
-                            canonical_id = cid
-                            break
-                    if canonical_id is not None:
-                        break
-
-            for item in coin_map:
-                if query.upper() == item["symbol"] or query.lower() == item["name"].lower():
-                    if canonical_id is not None and item["id"] != canonical_id:
-                        continue
-
-                    self.ID = item["id"]
-                    data = download_coin_data(self.ID)
-
-                    self.exists = True
-                    self.symbol = item["symbol"]
-                    self.name = item["name"]
-                    self.slug = item["slug"]
-                    self.first_data = item["first_historical_data"]
-                    self.currencies_with_symbol.append(f"{self.ID}")
-                    self.image_url = (
-                        f"https://s2.coinmarketcap.com/static/img/coins/200x200/{self.ID}.png"
-                    )
-                    self.rank = str(data["cmc_rank"])
-                    self.supply = format_monetary_value(data["circulating_supply"], False)
-                    self.market_cap = data["quote"]["USD"]["market_cap"]
-                    self.price_usd = data["quote"]["USD"]["price"]
-
-                    percent_change = Decimal(data["quote"]["USD"]["percent_change_24h"]).quantize(
-                        Decimal("1.00"), rounding="ROUND_HALF_DOWN"
-                    )
-                    self.percent_change = f"{percent_change:+}"
-
-                    # If using a canonical ID, we found our match - stop searching.
-                    if canonical_id is not None:
-                        break
-
-        else:
-            # This block generates a Coin object with a passed in JSON array containing all of the
-            # coin's metadata. Used in "Top X" and multicurrency functionality.
-            self.exists = True
-            self.name = data["name"]
-            self.symbol = data["symbol"]
-            self.ID = data["id"]
-            self.first_data = data["date_added"]
-            self.image_url = f"https://s2.coinmarketcap.com/static/img/coins/200x200/{self.ID}.png"
-            self.rank = str(data["cmc_rank"])
-            self.supply = format_monetary_value(data["circulating_supply"], False)
-            self.market_cap = data["quote"]["USD"]["market_cap"]
-            self.price_usd = data["quote"]["USD"]["price"]
-
-            percent_change = Decimal(data["quote"]["USD"]["percent_change_24h"]).quantize(
-                Decimal("1.00"), rounding="ROUND_HALF_DOWN"
-            )
-            self.percent_change = f"{percent_change:+}"
-
-        if self.exists:
-            # Generate a summary that is displayed when the user clicks on the name of the coin
-            self.summary = (
-                f"***{self.name}*** ({self.symbol})\n\n"
-                f"***Rank:*** #{self.rank} out of {len(coin_map)}\n"
-                f"***Price***: ${format_monetary_value(self.price_usd)}\n"
-                f"***Market Capitalization***: ${format_monetary_value(self.market_cap)}\n"
-                f"***Circulating Supply***: {self.supply} {self.symbol}\n"
-                f"***24 Hour Percent Change***: {self.percent_change}% \n"
-            )
-
-
-def download_coin_data(coin_id):
-    token = get_token("cmc")
-    data = requests.get(
-        f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id={coin_id}"
-    ).json()
-    return data["data"][str(coin_id)]
-
-
 def format_monetary_value(value, decimals=True):
     """Format monetary values and percents correctly (with commas and decimal rounding)."""
     if value is None or value == 0:
@@ -161,13 +41,218 @@ def format_monetary_value(value, decimals=True):
         return str(Decimal(value).quantize(Decimal("1.00000000"), rounding="ROUND_HALF_DOWN"))
 
 
+class Coin:
+    def __init__(self, data=None):
+        coin_map = get_coin_map()
+        self.exists = bool(data)
+        if not self.exists:
+            return
+
+        self.name = data.get("name", "")
+        self.symbol = data.get("symbol", "")
+        self.ID = data.get("id")
+        self.first_data = data.get("date_added")
+        self.image_url = f"https://s2.coinmarketcap.com/static/img/coins/200x200/{self.ID}.png"
+        self.rank = str(data.get("cmc_rank", ""))
+        self.supply = format_monetary_value(data.get("circulating_supply"), False)
+
+        quote_data = data.get("quote", {})
+        if isinstance(quote_data, list):
+            usd_quote = next((q for q in quote_data if q.get("symbol") == "USD"), {})
+        elif isinstance(quote_data, dict):
+            usd_quote = quote_data.get("USD", {})
+        else:
+            usd_quote = {}
+
+        self.market_cap = usd_quote.get("market_cap")
+        self.price_usd = usd_quote.get("price")
+
+        pct = usd_quote.get("percent_change_24h")
+        if pct is not None:
+            percent_change = Decimal(str(pct)).quantize(Decimal("1.00"), rounding="ROUND_HALF_DOWN")
+            self.percent_change = f"{percent_change:+}"
+        else:
+            self.percent_change = "+0.00"
+
+        self.summary = (
+            f"***{self.name}*** ({self.symbol})\n\n"
+            f"***Rank:*** #{self.rank} out of {len(coin_map)}\n"
+            f"***Price***: ${format_monetary_value(self.price_usd)}\n"
+            f"***Market Capitalization***: ${format_monetary_value(self.market_cap)}\n"
+            f"***Circulating Supply***: {self.supply} {self.symbol}\n"
+            f"***24 Hour Percent Change***: {self.percent_change}% \n"
+        )
+
+
+def fetch_fresh_coin_map():
+    """Fetch the full coin list from CoinMarketCap and build lookup structures."""
+    global _coin_map, _coin_lookup, _last_fetch_time
+    token = get_token("cmc")
+    try:
+        data = (
+            requests.get(
+                f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY={token}",
+                timeout=10,
+            )
+            .json()
+            .get("data", [])
+        )
+        _coin_map = data
+        _coin_lookup = set()
+        for item in _coin_map:
+            _coin_lookup.add(item["symbol"].upper())
+            _coin_lookup.add(item["name"].lower())
+        _last_fetch_time = time.time()
+        _resolve_single_coin.cache_clear()
+    except Exception:
+        if _coin_map is None:
+            _coin_map = []
+            _coin_lookup = set()
+
+
+def get_coin_map():
+    if _coin_map is None:
+        fetch_fresh_coin_map()
+    return _coin_map
+
+
+def get_coin_lookup():
+    if _coin_lookup is None:
+        fetch_fresh_coin_map()
+    return _coin_lookup
+
+
+def maybe_refresh_on_miss():
+    """If the map hasn't been refreshed within MIN_REFRESH_INTERVAL, fetch a fresh one."""
+    elapsed = time.time() - _last_fetch_time
+    if elapsed > MIN_REFRESH_INTERVAL:
+        fetch_fresh_coin_map()
+        return True
+    return False
+
+
+def is_known_coin(query):
+    """Fast in-memory check if a query is a recognized cryptocurrency symbol or name."""
+    if not query:
+        return False
+
+    query = query.strip()
+    if not query:
+        return False
+
+    lookup = get_coin_lookup()
+    return query.upper() in lookup or query.lower() in lookup
+
+
+@lru_cache(maxsize=2048)
+def _resolve_single_coin(query):
+    """Resolve a single coin query (symbol or name) to (symbol, cmc_id)."""
+    if not query:
+        return None
+
+    query = query.strip()
+    coin_map = get_coin_map()
+
+    canonical_id = CANONICAL_IDS.get(query.upper())
+    if canonical_id is None:
+        for cid in CANONICAL_IDS.values():
+            for item in coin_map:
+                if item["id"] == cid and query.lower() == item["name"].lower():
+                    canonical_id = cid
+                    break
+            if canonical_id is not None:
+                break
+
+    if canonical_id is not None:
+        for item in coin_map:
+            if item["id"] == canonical_id:
+                return (item["symbol"].upper(), canonical_id)
+
+    for item in coin_map:
+        if query.lower() == item["name"].lower() or query.upper() == item["symbol"]:
+            return (item["symbol"].upper(), item["id"])
+
+    return None
+
+
+def resolve_coin_ids(queries):
+    """Resolve a list of coin queries (symbols or names) to CoinMarketCap IDs.
+
+    Uses memoized lookups and automatically refreshes on a miss for new coins.
+    """
+    resolved = []
+    for query in queries:
+        res = _resolve_single_coin(query)
+        if res is None and maybe_refresh_on_miss():
+            res = _resolve_single_coin(query)
+        if res is not None:
+            resolved.append(res)
+
+    return resolved
+
+
+def download_coin_data(coin_id):
+    token = get_token("cmc")
+    data = requests.get(
+        f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY={token}&id={coin_id}"
+    ).json()
+    return data["data"][str(coin_id)]
+
+
+def get_currencies_with_symbol(query):
+    """Find all CMC IDs matching a query, prioritizing canonical IDs."""
+    coin_map = get_coin_map()
+    canonical_id = CANONICAL_IDS.get(query.upper())
+    if canonical_id is None:
+        for cid in CANONICAL_IDS.values():
+            for item in coin_map:
+                if item["id"] == cid and query.lower() == item["name"].lower():
+                    canonical_id = cid
+                    break
+            if canonical_id is not None:
+                break
+
+    if canonical_id is not None:
+        return [str(canonical_id)]
+
+    matches = [
+        str(item["id"])
+        for item in coin_map
+        if query.upper() == item["symbol"] or query.lower() == item["name"].lower()
+    ]
+
+    if not matches and maybe_refresh_on_miss():
+        coin_map = get_coin_map()
+        matches = [
+            str(item["id"])
+            for item in coin_map
+            if query.upper() == item["symbol"] or query.lower() == item["name"].lower()
+        ]
+
+    return matches
+
+
+def get_coin(query):
+    """Resolve and fetch a single Coin object for a given query (symbol or name)."""
+    matches = get_currencies_with_symbol(query)
+    if not matches:
+        return None
+    data = download_coin_data(matches[0])
+    return Coin(data)
+
+
 def get_coin_info(query):
     coin_map = get_coin_map()
-    results = []
-    coin = Coin(query, None)
+    matches = get_currencies_with_symbol(query)
 
-    if len(coin.currencies_with_symbol) > 1:
-        return generate_list_for_same_symbol_currencies(coin.currencies_with_symbol)
+    if not matches:
+        return False
+
+    if len(matches) > 1:
+        return generate_list_for_same_symbol_currencies(matches)
+
+    data = download_coin_data(matches[0])
+    coin = Coin(data)
 
     if not coin.exists:
         return False
@@ -231,7 +316,7 @@ def generate_list_for_same_symbol_currencies(currencies_with_symbol):
     ).json()["data"]
 
     for result in data.values():
-        coin = Coin(None, result)
+        coin = Coin(result)
         results.append(
             InlineQueryResultArticle(
                 id=uuid4(),
