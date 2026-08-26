@@ -37,8 +37,9 @@ Type `@CryptoraBot` (or the username of your local instance) into Telegram follo
   - This is not case sensitive, so you can type in any valid cryptocurrency name or its symbol in lower case or upper case. 
   - You can also a comma-separated list of cryptocurrencies and send a list of their prices, 24-hour percent changes, or market capitalizations in a single message. Cryptora automatically filters out duplicate and invalid entries.
 
-- `ticker [cryptocurrencies]` - Cryptora can create and update a message every minute with the latest price of a list of cryptocurrencies. Pin the message for easy access. 
-  - If using in a group chat, this requires you to add Cryptora as a member. Only admins may start or stop the ticker.
+- `ticker [cryptocurrencies]` or `/ticker [cryptocurrencies]` - Cryptora can create and update a message every minute with the latest price of a list of cryptocurrencies. Pin the message for easy access. 
+  - If using in a group chat, this requires you to add Cryptora as a member. Only group administrators may start or stop the ticker.
+  - Send `/stopticker` to stop updates.
 
 - `news` - Retrieve the latest headlines from CoinDesk and CoinTelegraph and display them in a list. Tapping on any of the articles sends the article's URL in the chat.
 
@@ -59,7 +60,7 @@ Cryptora will alert you if it detects an invalid command. A valid command will d
 
 ## How it was built
 
-Cryptora is a Python 3 program. It was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework (v21+). 
+Cryptora is a Python 3 program. It was built using the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) framework (v21+ with `job-queue`). 
 
 Data is retrieved from a variety of sources:
 - Current pricing and market stats: [CoinMarketCap](https://coinmarketcap.com)

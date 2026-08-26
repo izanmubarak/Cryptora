@@ -24,7 +24,7 @@ def get_help_messages():
             id=uuid4(),
             title="New: Start a live-updating price ticker",
             description='"/ticker ltc xrp", "ticker for btc, eth, sol"',
-            thumbnail_url="https://imgur.com/iAoXFQc.png",
+            thumbnail_url="https://i.ibb.co/n8Kjr6PG/Ticker.png",
             input_message_content=InputTextMessageContent(
                 "Pin a live price ticker in your chat that updates every minute.\n\n"
                 "Use `/ticker` to start a ticker with major cryptocurrencies, or specify coins "

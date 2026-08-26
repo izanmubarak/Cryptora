@@ -1,4 +1,5 @@
-python-telegram-bot>=21.0
+python-telegram-bot[job-queue]>=21.0
 requests>=2.31
 feedparser>=6.0
 mistralai>=2.0
+
