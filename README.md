@@ -2,6 +2,10 @@
 
 Cryptora is an easy-to-use Telegram bot that can retrieve cryptocurrency data and news on demand.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/izanmubarak/Cryptora/refs/heads/master/Image%20Resources/Features.gif" alt="Cryptora features" width="532" height="478" />
+</p>
+
 ## Status
 
 Cryptora's codebase has been updated to Python 3.10+ and modern dependencies. Pull requests are welcome for providing general improvements.
